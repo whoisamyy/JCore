@@ -1,9 +1,13 @@
 package ru.whoisamyy.core.endpoints;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.whoisamyy.api.gd.misc.Likes;
@@ -26,6 +30,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @RestController
+@PropertySource("file:settings.yml")
 public class RequestManager {
     public static Hashtable<Integer, Level> levels = new Hashtable<>();
     public static Hashtable<Integer, Account> accounts = new Hashtable<>(); //<id, account>
@@ -34,13 +39,16 @@ public class RequestManager {
     public static Hashtable<Integer, Song> songs = new Hashtable<>();
     public static Hashtable<Integer, Message> messages = new Hashtable<>();
 
+    @Value("${server_url}")
+    public String serverURL;
     private static Logger logger = LogManager.getLogger(RequestManager.class);
     private final static boolean experimental = false;
 
     @RestController
-    public static class Levels {
-        @PostMapping("whoisamyygd/uploadGJLevel21.php")
-        public static int uploadGJLevel(@RequestParam int gameVersion,
+    public class Levels {
+        //через EndpointMethods
+        @PostMapping("/{serverURL}/uploadGJLevel21.php")
+        public int uploadGJLevel(@RequestParam int gameVersion,
                                  @RequestParam int accountID,
                                  @RequestParam @Nullable Integer levelID,
                                  @RequestParam String levelName,
@@ -59,6 +67,7 @@ public class RequestManager {
                                  @RequestParam boolean unlisted,
                                  @RequestParam boolean ldm,
                                  @RequestParam String levelString, @RequestParam String secret, @RequestParam String gjp) {
+            
             if (!Objects.equals(secret, Core.secrets.get("common"))) return -1;
             if (!Account.map(accountID, true).checkGJP(gjp)) return -1;
             Level lvl = null;
@@ -89,8 +98,9 @@ public class RequestManager {
             return lvlid;
         }
 
-        @PostMapping("whoisamyygd/updateGJDesc20.php")
-        public static int updateGJDesc(@RequestParam int accountID, @RequestParam int levelID, @RequestParam String levelDesc, @RequestParam String secret, @RequestParam String gjp) {
+        @PostMapping("/{serverURL}/updateGJDesc20.php")
+        public int updateGJDesc(@RequestParam int accountID, @RequestParam int levelID, @RequestParam String levelDesc, @RequestParam String secret, @RequestParam String gjp) {
+            //"/updateGJDesc20.php").equals(request.getRequestURI())) return -1;
             if (!Objects.equals(secret, Core.secrets.get("common"))) return -1;
             if (!Account.map(accountID, true).checkGJP(gjp)) return -1;
             Level lvl = levels.get(levelID);
@@ -108,8 +118,8 @@ public class RequestManager {
             return ret;
         }
 
-        @PostMapping("whoisamyygd/getGJLevels21.php")
-        public static String getGJLevels(@RequestParam String secret, @RequestParam @Nullable Integer gameVersion, @RequestParam @Nullable Integer binaryVersion,
+        @PostMapping("/{serverURL}/getGJLevels21.php")
+        public String getGJLevels(@RequestParam String secret, @RequestParam @Nullable Integer gameVersion, @RequestParam @Nullable Integer binaryVersion,
                                        @RequestParam Integer type, @RequestParam @Nullable String str, @RequestParam @Nullable Integer page,
                                        @RequestParam @Nullable Integer total, @RequestParam @Nullable String gjp, @RequestParam @Nullable Integer accountID,
                                        @RequestParam @Nullable Integer gdw, @RequestParam @Nullable Integer gauntlet, @RequestParam @Nullable String diff,
@@ -119,6 +129,7 @@ public class RequestManager {
                                        @RequestParam @Nullable Integer coins, @RequestParam @Nullable Integer epic, @RequestParam @Nullable Integer noStar,
                                        @RequestParam @Nullable Integer star, @RequestParam @Nullable Integer song, @RequestParam @Nullable Integer customSong,
                                        @RequestParam @Nullable String followed, @RequestParam @Nullable Integer local) {
+            //"/getGJLevels21.php").equals(request.getRequestURI())) return "-1";
             if (!Objects.equals(secret, Core.secrets.get("common"))) return "-1";
             if (accountID!=null && gjp!=null && !Account.map(accountID, true).checkGJP(gjp)) return "-1";
             customSong = customSong!=null?customSong:0;
@@ -137,8 +148,9 @@ public class RequestManager {
             return ret;
         }
 
-        @PostMapping("whoisamyygd/downloadGJLevel22.php")
-        public static String downloadGJLevel(@RequestParam int levelID, @RequestParam String secret, @RequestParam @Nullable Integer accountID, @RequestParam @Nullable String gjp) {
+        @PostMapping("/{serverURL}/downloadGJLevel22.php")
+        public String downloadGJLevel(@RequestParam int levelID, @RequestParam String secret, @RequestParam @Nullable Integer accountID, @RequestParam @Nullable String gjp) {
+            //"/downloadGJLevel22.php").equals(request.getRequestURI())) return "-1";
             //logger.info(secret+" "+Core.secrets.get("common"));
             if (!Objects.equals(secret, Core.secrets.get("common"))) return "-1";
             accountID = accountID==null?0:accountID;
@@ -163,8 +175,9 @@ public class RequestManager {
             }
         }
 
-        @PostMapping("whoisamyygd/deleteGJLevelUser20.php")
-        public static int deleteGJLevel(@RequestParam int accountID, @RequestParam String gjp, @RequestParam int levelID, @RequestParam String secret) {
+        @PostMapping("/{serverURL}/deleteGJLevelUser20.php")
+        public int deleteGJLevel(@RequestParam int accountID, @RequestParam String gjp, @RequestParam int levelID, @RequestParam String secret) {
+            //"/deleteGJLevelUser20.php").equals(request.getRequestURI())) return -1;
             if (!Objects.equals(secret, Core.secrets.get("level"))) return -1;
             if (!Account.map(accountID, true).checkGJP(gjp)) return -1;
 
@@ -188,9 +201,10 @@ public class RequestManager {
     }
 
     @RestController
-    public static class Accounts {
-        @PostMapping("whoisamyygd/accounts/registerGJAccount.php")
-        public static int registerGJAccount(@RequestParam String userName, @RequestParam String password, @RequestParam String email, @RequestParam String secret) {
+    public class Accounts {
+        @PostMapping("/{serverURL}/accounts/registerGJAccount.php")
+        public int registerGJAccount(@RequestParam String userName, @RequestParam String password, @RequestParam String email, @RequestParam String secret) {
+            //"/accounts/registerGJAccount.php").equals(request.getRequestURI())) return -1;
             if (!Objects.equals(secret, Core.secrets.get("account"))) return -1;
             accounts = Account.getAccountsHashtable();
             try {
@@ -213,8 +227,9 @@ public class RequestManager {
             }
         }
 
-        @PostMapping("whoisamyygd/accounts/loginGJAccount.php")
-        public static String loginGJAccount(@RequestParam String userName, @RequestParam String password, @RequestParam @Nullable String email, @RequestParam String secret) {
+        @PostMapping("/{serverURL}/accounts/loginGJAccount.php")
+        public String loginGJAccount(@RequestParam String userName, @RequestParam String password, @RequestParam @Nullable String email, @RequestParam String secret) {
+            //"/accounts/loginGJAccount.php").equals(request.getRequestURI())) return "-1";
             if (!Objects.equals(secret, Core.secrets.get("account"))) return "-1";
             accounts = Account.getAccountsHashtable();
             try {
@@ -235,8 +250,9 @@ public class RequestManager {
             }
         }
 
-        @PostMapping("whoisamyygd/database/accounts/backupGJAccountNew.php")
-        public static int backupGJAccount(@RequestParam String saveData, @RequestParam String password, @RequestParam String userName, @RequestParam String secret) {
+        @PostMapping("/{serverURL}/database/accounts/backupGJAccountNew.php")
+        public int backupGJAccount(@RequestParam String saveData, @RequestParam String password, @RequestParam String userName, @RequestParam String secret) {
+            //"/database/accounts/backupGJAccountNew.php").equals(request.getRequestURI())) return -1;
             if (!Objects.equals(secret, Core.secrets.get("account"))) return -1;
             Account acc = accounts.getOrDefault(Account.map(userName, true).getUserID(), new Account());
             try {
@@ -251,8 +267,9 @@ public class RequestManager {
             return ret;
         }
 
-        @PostMapping("whoisamyygd/database/accounts/syncGJAccountNew.php")
-        public static String syncGJAccount(@RequestParam String userName, @RequestParam String secret, @RequestParam String password) {
+        @PostMapping("/{serverURL}/database/accounts/syncGJAccountNew.php")
+        public String syncGJAccount(@RequestParam String userName, @RequestParam String secret, @RequestParam String password) {
+            //"/database/accounts/syncGJAccountNew.php").equals(request.getRequestURI())) return "-1";
             if (!Objects.equals(secret, Core.secrets.get("account"))) return "-1";
             Account acc = accounts.getOrDefault(Account.map(userName, true).getUserID(), new Account());
             try {
@@ -267,8 +284,9 @@ public class RequestManager {
             return ret;
         }
 
-        @PostMapping("whoisamyygd/getGJUserInfo20.php")
-        public static String getGJUserInfo(@RequestParam int targetAccountID, @RequestParam String secret, @RequestParam @Nullable Integer accountID, @RequestParam @Nullable String gjp) {
+        @PostMapping("/{serverURL}/getGJUserInfo20.php")
+        public String getGJUserInfo(@RequestParam int targetAccountID, @RequestParam String secret, @RequestParam @Nullable Integer accountID, @RequestParam @Nullable String gjp) {
+            //"/getGJUserInfo20.php").equals(request.getRequestURI())) return "-1";
             if (!Objects.equals(secret, Core.secrets.get("common"))) return "-1";
             if (accountID!=null && gjp!=null && !Account.map(accountID, true).checkGJP(gjp)) return "-1";
             try {
@@ -283,8 +301,10 @@ public class RequestManager {
             return ret;
         }
 
-        @PostMapping("whoisamyygd/getAccountURL.php")
-        public static String getAccUrl() {
+        @RequestMapping("/{serverURL}/getAccountURL.php")
+        public String getAccUrl() {
+            //"/getAccountURL.php").equals(request.getRequestURI())) return "-1";
+            //logger.info(serverURL);
             try {
                 for (Map.Entry<Integer, Object> entry : PluginManager.getInstance().getSortedPlugins().entrySet()) {
                     Method md = PluginManager.getInstance().getPluginsMethods().get(entry.getValue()).get(EndpointName.ACCOUNTS_GETURL); //хех))
@@ -294,11 +314,12 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
-            var ret = "http://localhost:8080/whoisamyygd";
+            var ret = serverURL;
             return ret;
         }
-        @PostMapping("whoisamyygd/updateGJAccSettings20.php")
-        public static int updateGJAccSettings(@RequestParam int accountID, @RequestParam @Nullable Integer mS, @RequestParam @Nullable Integer frS, @RequestParam @Nullable Integer cS, @RequestParam @Nullable String yt, @RequestParam @Nullable String twitter, @RequestParam @Nullable String twitch, @RequestParam String secret, @RequestParam String gjp) {
+        @PostMapping("/{serverURL}/updateGJAccSettings20.php")
+        public int updateGJAccSettings(@RequestParam int accountID, @RequestParam @Nullable Integer mS, @RequestParam @Nullable Integer frS, @RequestParam @Nullable Integer cS, @RequestParam @Nullable String yt, @RequestParam @Nullable String twitter, @RequestParam @Nullable String twitch, @RequestParam String secret, @RequestParam String gjp) {
+            //"/updateGJAccSettings20.php").equals(request.getRequestURI())) return -1;
             if (!Objects.equals(secret, Core.secrets.get("account"))) return -1;
             Account acc = Account.map(accountID, true);
             try {
@@ -315,9 +336,10 @@ public class RequestManager {
     }
 
     @RestController
-    public static class Comments {
-        @PostMapping("whoisamyygd/uploadGJComment21.php")
-        public static int uploadGJComment(@RequestParam int accountID, @RequestParam String userName, @RequestParam String comment, @RequestParam int levelID, @RequestParam @Nullable Integer percent, @RequestParam String secret, @RequestParam String gjp) {
+    public class Comments {
+        @PostMapping("/{serverURL}/uploadGJComment21.php")
+        public int uploadGJComment(@RequestParam int accountID, @RequestParam String userName, @RequestParam String comment, @RequestParam int levelID, @RequestParam @Nullable Integer percent, @RequestParam String secret, @RequestParam String gjp) {
+            //"/uploadGJComment21.php").equals(request.getRequestURI())) return -1;
             if (!Objects.equals(secret, Core.secrets.get("common"))) return -1;
             if (!Account.map(accountID, true).checkGJP(gjp)) return -1;
             if (percent==null) percent = 0;
@@ -334,14 +356,15 @@ public class RequestManager {
             return ret;
         }
 
-        @PostMapping("whoisamyygd/uploadGJAccComment20.php")
-        public static int uploadGJAccComment(@RequestParam int accountID, @RequestParam String userName, @RequestParam String comment, @RequestParam String secret, @RequestParam String gjp) {
+        @PostMapping("/{serverURL}/uploadGJAccComment20.php")
+        public int uploadGJAccComment(@RequestParam int accountID, @RequestParam String userName, @RequestParam String comment, @RequestParam String secret, @RequestParam String gjp) {
+            //"/uploadGJAccComment20.php").equals(request.getRequestURI())) return -1;
             if (!Objects.equals(secret, Core.secrets.get("common"))) return -1;
             if (!Account.map(accountID, true).checkGJP(gjp)) return -1;
             Comment com = new Comment(accountID, userName, comment);
             try {
                 Object[] vals = {accountID, userName, comment, secret, gjp};
-                Parameter[] pars = Comments.class.getMethod("uploadGJAccComment", int.class, String.class, String.class, String.class, String.class).getParameters();
+                Parameter[] pars = Comments.class.getMethod("uploadGJComment", int.class, String.class, String.class, int.class, Integer.class, String.class, String.class).getParameters();
 
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.ACCOUNTS_COMMENTS_UPLOAD);
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
@@ -351,8 +374,9 @@ public class RequestManager {
             return ret;
         }
 
-        @PostMapping("whoisamyygd/getGJComments21.php")
-        public static String getGJComments(@RequestParam int levelID, @RequestParam int page, @RequestParam @Nullable Integer mode, @RequestParam String secret) {
+        @PostMapping("/{serverURL}/getGJComments21.php")
+        public String getGJComments(@RequestParam int levelID, @RequestParam int page, @RequestParam @Nullable Integer mode, @RequestParam String secret) {
+            //"/getGJComments21.php").equals(request.getRequestURI())) return "-1";
             if (!Objects.equals(secret, Core.secrets.get("common"))) return "-1";
             if (mode==null) mode = 0;
             try {
@@ -367,8 +391,9 @@ public class RequestManager {
             return ret;
         }
 
-        @PostMapping("whoisamyygd/getGJAccountComments20.php")
-        public static String getGJAccountComments(@RequestParam int accountID, @RequestParam int page, @RequestParam String secret) {
+        @PostMapping("/{serverURL}/getGJAccountComments20.php")
+        public String getGJAccountComments(@RequestParam int accountID, @RequestParam int page, @RequestParam String secret) {
+            //"/getGJAccountComments20.php").equals(request.getRequestURI())) return "-1";
             if (!Objects.equals(secret, Core.secrets.get("common"))) return "-1";
             try {
                 Object[] vals = {accountID, page, secret};
@@ -385,9 +410,10 @@ public class RequestManager {
     }
 
     @RestController
-    public static class Relationships {
-        @PostMapping("whoisamyygd/blockGJUser20.php")
-        public static int blockGJUser(@RequestParam String secret, @RequestParam int accountID, @RequestParam int targetAccountID, @RequestParam String gjp) {
+    public class Relationships {
+        @PostMapping("/{serverURL}/blockGJUser20.php")
+        public int blockGJUser(@RequestParam String secret, @RequestParam int accountID, @RequestParam int targetAccountID, @RequestParam String gjp) {
+            //"/blockGJUser20.php").equals(request.getRequestURI())) return -1;
             if (!Objects.equals(secret, Core.secrets.get("common"))) return 1;
             if (!Account.map(accountID, true).checkGJP(gjp)) return 1;
             try {
@@ -402,8 +428,9 @@ public class RequestManager {
             return 1;
         }
 
-        @PostMapping("whoisamyygd/unblockGJUser20.php")
-        public static int unblockGJUser(@RequestParam String secret, @RequestParam int accountID, @RequestParam int targetAccountID, @RequestParam String gjp) {
+        @PostMapping("/{serverURL}/unblockGJUser20.php")
+        public int unblockGJUser(@RequestParam String secret, @RequestParam int accountID, @RequestParam int targetAccountID, @RequestParam String gjp) {
+            //"/unblockGJUser20.php").equals(request.getRequestURI())) return -1;
             if (!Objects.equals(secret, Core.secrets.get("common"))) return 1;
             if (!Account.map(accountID, true).checkGJP(gjp)) return 1;
             try {
@@ -418,8 +445,9 @@ public class RequestManager {
             return 1;
         }
 
-        @PostMapping("whoisamyygd/getGJUserList20.php")
-        public static String getGJUserList(@RequestParam String secret, @RequestParam int accountID, @RequestParam @Nullable Boolean type, @RequestParam String gjp) {
+        @PostMapping("/{serverURL}/getGJUserList20.php")
+        public String getGJUserList(@RequestParam String secret, @RequestParam int accountID, @RequestParam @Nullable Boolean type, @RequestParam String gjp) {
+            //"/getGJUserList20.php").equals(request.getRequestURI())) return "-1";
             if (!Objects.equals(secret, Core.secrets.get("common"))) return "-1";
             if (!Account.map(accountID, true).checkGJP(gjp)) return "-1";
             if (type==null) type = false;
@@ -435,8 +463,9 @@ public class RequestManager {
             return ret;
         }
 
-        @PostMapping("whoisamyygd/readGJFriendRequest20.php")
-        public static int readFriendRequest(@RequestParam int accountID, @RequestParam int requestID, @RequestParam String secret, @RequestParam String gjp) {
+        @PostMapping("/{serverURL}/readGJFriendRequest20.php")
+        public int readFriendRequest(@RequestParam int accountID, @RequestParam int requestID, @RequestParam String secret, @RequestParam String gjp) {
+            //"/readGJFriendRequest20.php").equals(request.getRequestURI())) return -1;
             if (!Objects.equals(secret, Core.secrets.get("common"))) return -1;
             if (!Account.map(accountID, true).checkGJP(gjp)) return -1;
             try {
@@ -451,13 +480,14 @@ public class RequestManager {
             return ret;
         }
 
-        @PostMapping("whoisamyygd/removeGJFriend20.php")
-        public static int removeGJFriend(@RequestParam int accountID, @RequestParam int targetAccountID, @RequestParam String secret, String gjp) {
+        @PostMapping("/{serverURL}/removeGJFriend20.php")
+        public int removeGJFriend(@RequestParam int accountID, @RequestParam int targetAccountID, @RequestParam String secret, String gjp) {
+            //"/removeGJFriend20.php").equals(request.getRequestURI())) return -1;
             if (!Objects.equals(secret, Core.secrets.get("common"))) return -1;
             if (!Account.map(accountID, true).checkGJP(gjp)) return -1;
             try {
                 Object[] vals = {secret, accountID, targetAccountID, gjp};
-                Parameter[] pars = Relationships.class.getMethod("removeGJFriend", int.class, int.class, String.class, String.class).getParameters();
+                Parameter[] pars = Relationships.class.getMethod("readFriendRequest", int.class, int.class, String.class, String.class).getParameters();
 
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.FRIEND_REMOVE);
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
@@ -467,8 +497,9 @@ public class RequestManager {
             return ret;
         }
 
-        @PostMapping("whoisamyygd/uploadFriendRequest20.php")
-        public static String uploadGJFriendRequest(@RequestParam int accountID, @RequestParam int toAccountID, @RequestParam @Nullable String comment, @RequestParam String secret, @RequestParam String gjp) {
+        @PostMapping("/{serverURL}/uploadFriendRequest20.php")
+        public String uploadGJFriendRequest(@RequestParam int accountID, @RequestParam int toAccountID, @RequestParam @Nullable String comment, @RequestParam String secret, @RequestParam String gjp) {
+            //"/uploadFriendRequest20.php").equals(request.getRequestURI())) return "-1";
             if (!Objects.equals(secret, Core.secrets.get("common"))) return "-1";
             if (!Account.map(accountID, true).checkGJP(gjp)) return "-1";
             if (comment == null) comment = Utils.base64UrlSafeEncode("hi user!");
@@ -485,8 +516,9 @@ public class RequestManager {
             else return String.valueOf(ret);
         }
 
-        @PostMapping("whoisamyygd/acceptGJFriendRequest20.php")
-        public static int acceptGJFriendRequest(@RequestParam int accountID, @RequestParam int targetAccountID, @RequestParam String secret, @RequestParam String gjp) {
+        @PostMapping("/{serverURL}/acceptGJFriendRequest20.php")
+        public int acceptGJFriendRequest(@RequestParam int accountID, @RequestParam int targetAccountID, @RequestParam String secret, @RequestParam String gjp) {
+            //"/acceptGJFriendRequest20.php").equals(request.getRequestURI())) return -1;
             if (!Objects.equals(secret, Core.secrets.get("common"))) return -1;
             if (!Account.map(accountID, true).checkGJP(gjp)) return -1;
             try {
@@ -501,8 +533,9 @@ public class RequestManager {
             return ret;
         }
 
-        @PostMapping("whoisamyygd/deleteGJFriendRequest20.php")
-        public static int deleteGJFriendRequest(@RequestParam int accountID, @RequestParam int targetAccountID, @RequestParam String secret, @RequestParam String gjp) {
+        @PostMapping("/{serverURL}/deleteGJFriendRequest20.php")
+        public int deleteGJFriendRequest(@RequestParam int accountID, @RequestParam int targetAccountID, @RequestParam String secret, @RequestParam String gjp) {
+            //"/deleteGJFriendRequest20.php").equals(request.getRequestURI())) return -1;
             if (!Objects.equals(secret, Core.secrets.get("common"))) return -1;
             if (!Account.map(accountID, true).checkGJP(gjp)) return -1;
             try {
@@ -517,8 +550,9 @@ public class RequestManager {
             return ret;
         }
 
-        @PostMapping("whoisamyygd/getGJFriendRequests20.php")
-        public static String getGJFriendRequests(@RequestParam int accountID, @RequestParam @Nullable Boolean getSent, @RequestParam @Nullable Integer page, @RequestParam String secret, @RequestParam String gjp) {
+        @PostMapping("/{serverURL}/getGJFriendRequests20.php")
+        public String getGJFriendRequests(@RequestParam int accountID, @RequestParam @Nullable Boolean getSent, @RequestParam @Nullable Integer page, @RequestParam String secret, @RequestParam String gjp) {
+            //"/getGJFriendRequests20.php").equals(request.getRequestURI())) return "-1";
             if (!Objects.equals(secret, Core.secrets.get("common"))) return "-1";
             if (!Account.map(accountID, true).checkGJP(gjp)) return "-1";
             if (getSent==null) getSent = false;
@@ -537,9 +571,10 @@ public class RequestManager {
     }
 
     @RestController
-    public static class Scores {
-        @PostMapping("whoisamyygd/getGJScores20.php")
-        public static String getGJScores(@RequestParam String secret, @RequestParam @Nullable Integer accountID, @RequestParam @Nullable String type, @RequestParam @Nullable Integer count, @RequestParam @Nullable String gjp) {
+    public class Scores {
+        @PostMapping("/{serverURL}/getGJScores20.php")
+        public String getGJScores(@RequestParam String secret, @RequestParam @Nullable Integer accountID, @RequestParam @Nullable String type, @RequestParam @Nullable Integer count, @RequestParam @Nullable String gjp) {
+            //"/getGJScores20.php").equals(request.getRequestURI())) return "-1";
             if (!Objects.equals(secret, Core.secrets.get("common"))) return "-1";
             if (accountID!=null && gjp!=null && !Account.map(accountID, true).checkGJP(gjp)) return "-1";
             accountID= accountID==null?1:accountID;
@@ -564,9 +599,10 @@ public class RequestManager {
             }
         }
 
-        @PostMapping("whoisamyygd/getGJLevelScores211.php")
-        public static String getGJLevelScores(@RequestParam int accountID, @RequestParam int levelID, @RequestParam String gjp, @RequestParam String secret,
+        @PostMapping("/{serverURL}/getGJLevelScores211.php")
+        public String getGJLevelScores(@RequestParam int accountID, @RequestParam int levelID, @RequestParam String gjp, @RequestParam String secret,
                                               @RequestParam @Nullable Integer percent, @RequestParam @Nullable Integer type, @RequestParam @Nullable Integer s8, @RequestParam @Nullable Integer s9, @RequestParam @Nullable Integer count, @RequestParam @Nullable String s6, @RequestParam @Nullable Integer s1, @RequestParam @Nullable Integer s2) {
+            //"/getGJLevelScores211.php").equals(request.getRequestURI())) return "-1";
             if (!Objects.equals(secret, Core.secrets.get("common"))) return "-1";
             if (!Account.map(accountID, true).checkGJP(gjp)) return "-1";
             type = type==null?0:type;
@@ -595,9 +631,10 @@ public class RequestManager {
     }
 
     @RestController
-    public static class Messages {
-        @PostMapping("whoisamyygd/downloadGJMessage20.php")
-        public static String downloadGJMessage(@RequestParam String secret, @RequestParam int accountID, @RequestParam int messageID) {
+    public class Messages {
+        @PostMapping("/{serverURL}/downloadGJMessage20.php")
+        public String downloadGJMessage(@RequestParam String secret, @RequestParam int accountID, @RequestParam int messageID) {
+            //"/downloadGJMessage20.php").equals(request.getRequestURI())) return "";
             if (!experimental) return "";
             if (!Objects.equals(secret, Core.secrets.get("common"))) return "-1";
             try {
@@ -612,8 +649,9 @@ public class RequestManager {
             return ret;
         }
 
-        @PostMapping("whoisamyygd/getGJMessages20.php")
-        public static String getGJMessages(@RequestParam String secret, @RequestParam int accountID, @RequestParam @Nullable Integer page, @RequestParam @Nullable Boolean getSent) {
+        @PostMapping("/{serverURL}/getGJMessages20.php")
+        public String getGJMessages(@RequestParam String secret, @RequestParam int accountID, @RequestParam @Nullable Integer page, @RequestParam @Nullable Boolean getSent) {
+            //"/getGJMessages20.php").equals(request.getRequestURI())) return "";
             if (!experimental) return "";
             if (!Objects.equals(secret, Core.secrets.get("common"))) return "-1";
             if (page==null) page = 0;
@@ -630,8 +668,9 @@ public class RequestManager {
             return ret;
         }
 
-        @PostMapping("whoisamyygd/uploadGJMessage20.php")
-        public static int uploadGJMessage(@RequestParam String secret, @RequestParam int accountID, @RequestParam int toAccountID, @RequestParam String subject, @RequestParam String body) {
+        @PostMapping("/{serverURL}/uploadGJMessage20.php")
+        public int uploadGJMessage(@RequestParam String secret, @RequestParam int accountID, @RequestParam int toAccountID, @RequestParam String subject, @RequestParam String body) {
+            //"/uploadGJMessage20.php").equals(request.getRequestURI())) return -1;
             if (!experimental) return 1;
             if (!Objects.equals(secret, Core.secrets.get("common"))) return 1;
             if (accountID == toAccountID) return -1;
@@ -650,8 +689,9 @@ public class RequestManager {
     }
 
 
-    @PostMapping("whoisamyygd/getGJSongInfo.php")
-    public static String getSongInfo(@RequestParam int songID) {
+    @PostMapping("/{serverURL}/getGJSongInfo.php")
+    public String getSongInfo(@RequestParam int songID) {
+        //"/getGJSongInfo.php").equals(request.getRequestURI())) return "-1";
         try {
             Object[] vals = {songID};
             Parameter[] pars = RequestManager.class.getMethod("getSongInfo", int.class).getParameters();
@@ -664,8 +704,9 @@ public class RequestManager {
         return ret;
     }
 
-    @PostMapping("whoisamyygd/songAdd")
-    public static int songAdd(@RequestParam String name, @RequestParam String artistName, @RequestParam double size, @RequestParam String link) {
+    @PostMapping("/{serverURL}/songAdd")
+    public int songAdd(@RequestParam String name, @RequestParam String artistName, @RequestParam double size, @RequestParam String link) {
+        //"/songAdd.php").equals(request.getRequestURI())) return -1;
         Song song = new Song(name, artistName, size, link);
         try {
             Object[] vals = {name, artistName, size, link};
@@ -679,8 +720,9 @@ public class RequestManager {
         return ret;
     }
 
-    @PostMapping("whoisamyygd/likeGJItem211.php")
-    public static int like(@RequestParam String secret, @RequestParam int itemID, @RequestParam int type, @RequestParam boolean like, @RequestParam @Nullable Integer accountID, @RequestParam @Nullable String gjp) {
+    @PostMapping("/{serverURL}/likeGJItem211.php")
+    public int like(@RequestParam String secret, @RequestParam int itemID, @RequestParam int type, @RequestParam boolean like, @RequestParam @Nullable Integer accountID, @RequestParam @Nullable String gjp) {
+        //"/likeGJItem211.php").equals(request.getRequestURI())) return -1;
         if (!Objects.equals(secret, Core.secrets.get("common"))) return -1;
         if (accountID!=null && gjp!= null && !Account.map(accountID, true).checkGJP(gjp)) return -1;
         ItemType itype = null;
@@ -700,8 +742,9 @@ public class RequestManager {
         return Likes.like(itemID, itype, like);
     }
 
-    @PostMapping("whoisamyygd/requestGJUserAccess.php")
-    public static int requestUserAccess(@RequestParam String secret, @RequestParam int accountID, @RequestParam String gjp) {
+    @PostMapping("/{serverURL}/requestGJUserAccess.php")
+    public int requestUserAccess(@RequestParam String secret, @RequestParam int accountID, @RequestParam String gjp) {
+        //"/requestGJUserAccess.php").equals(request.getRequestURI())) return -1;
         if (!Objects.equals(secret, Core.secrets.get("common"))) return -1;
         if (!Account.map(accountID, true).checkGJP(gjp)) return -1;
         try {
@@ -714,6 +757,11 @@ public class RequestManager {
         }
         var ret = Account.requestModAccess(accountID, gjp);
         return ret;
+    }
+
+    @RequestMapping("/serverURL")
+    public String testhi() {
+        return serverURL;
     }
 }
 
