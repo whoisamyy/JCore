@@ -65,12 +65,13 @@ public abstract class Plugin implements Runnable {
     }
 
     /**
-     * Basically plugin initializer
-     * @param connection database connection for sql queries
-     * @param packageName
+     * Plugin initializer
+     * @param connection    Database connection for sql queries.
+     * @param packageName   Name of package, where object is located.
+     * @param eventListener Instance of {@link ru.whoisamyy.api.plugins.events.listeners.EventListener}. Event listener is used in {@link Plugin#onEvent} method.
      * @return returns initialized plugin object
      */
-    public Plugin getInstance(Connection connection, String packageName, ru.whoisamyy.api.plugins.events.listeners.EventListener eventListener) {
+    public Plugin initializePlugin(Connection connection, String packageName, ru.whoisamyy.api.plugins.events.listeners.EventListener eventListener) {
         setPackageName(packageName);
         long startTime;
         startTime = init(connection);
@@ -86,16 +87,17 @@ public abstract class Plugin implements Runnable {
     public abstract void initialize();
 
     /**
-     * This method can be used for <code>while(true)</code> loops.
+     * This method can be used for <code>while(true)</code> loops or as alternative to<p></p>
+     * {@code public static void main(String[] args) {}}
      */
     public void run() {}
 
+    /**
+     * Main initialize method in plugin.
+     * @param connection
+     * @return start time of initializing, used in {@link Plugin#initializePlugin} method
+     */
     protected long init(Connection connection) {
-        //Class<?> clazz = Plugin.class;
-        //Package pkg = clazz.getPackage();
-        //if (pkg==null) throw new RuntimeException();
-        //this.packageName = pkg.getName();
-
         setLogger(LogManager.getLogger(packageName));
         getLogger().info("Successfully registered logger");
         getLogger().info("Package name: "+packageName);
@@ -147,7 +149,6 @@ public abstract class Plugin implements Runnable {
 
     //todo fix
     private Set<Class<?>> getClasses(String packageName) throws ClassNotFoundException, IOException {
-
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         String path = packageName.replace('.', '/');
         Enumeration<URL> resources = classLoader.getResources(path);
@@ -210,7 +211,7 @@ public abstract class Plugin implements Runnable {
 
             return this.version;
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Error occurred while trying to get version from config file");
             return new Version("0.0.1:SNAPSHOT");
         }
     }
@@ -229,16 +230,17 @@ public abstract class Plugin implements Runnable {
             this.priority = Priority.getByValue((int) data.get("priority"));
             return this.priority;
         } catch (IOException e) {
+            logger.warn("Error occurred while trying to get priority from config file");
             return Priority.HIGHEST;
         }
     }
 
-    protected <T extends Event, R> void onEvent(Class<? extends Event> event, EventHandler<T, R>[] eventHandlers) {
+    protected void onEvent(Class<? extends Event> event, EventHandler[] eventHandlers) {
         //this.eventHandlers.put(event, Set.of(eventHandlers));
         getEventListener().registerHandlers(event, eventHandlers);
     }
 
-    protected <T extends Event, R> void onEvent(Class<? extends Event> event, EventHandler<T, R> eventHandler) {
+    protected void onEvent(Class<? extends Event> event, EventHandler eventHandler) {
         //this.eventHandlers.put(event, Set.of(eventHandlers));
         getEventListener().registerHandler(event, eventHandler);
     }
