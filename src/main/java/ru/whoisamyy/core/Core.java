@@ -22,7 +22,6 @@ public class Core {
 	private static String url = "jdbc:mysql://localhost:3306/gdps_new";
 	private static String username = "root";
 	private static String password = "";
-
 	public static String SALT = "$2a$13$dBoO9eZ3R4VA3HRV5bPFMeuBMhblPt.4dPXZczJU/0G2Ut04H8UGO";
 	public static String serverURL = getServerURL();
 	public static Connection conn;
@@ -165,7 +164,7 @@ public class Core {
             file = new File("settings.yml");
             if (!file.exists()) {
                 file.createNewFile();
-                throw new RuntimeException("Created settings file! Please restart!");
+                getSettings();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
