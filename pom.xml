@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>ru.whoisamyy</groupId>
 	<artifactId>core</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-RELEASE</version>
 	<name>core</name>
 	<description>Geometry Dash core in java</description>
 	<properties>
@@ -104,5 +104,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>

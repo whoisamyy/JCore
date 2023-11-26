@@ -13,6 +13,7 @@ import ru.whoisamyy.api.utils.enums.Length;
 import ru.whoisamyy.api.utils.exceptions.InvalidValueException;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
@@ -22,53 +23,52 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class Level extends GDObject {
-    public static String secret;
-    public static int lastLevelID;
+    @Getter public static String secret;
+    @Getter public static int lastLevelID;
 
-    private static final Hashtable<Integer, Level> levels = new Hashtable<>();
-    private static Connection conn;
+    @Getter private static final Hashtable<Integer, Level> levels = new Hashtable<>();
+    @Getter private static Connection conn;
 
     @Getter
     public static Path levelResourcesPath = Paths.get(Utils.resources.toString()+"/data/levels");
-    public static Logger logger = LogManager.getLogger(Level.class);
+    @Getter public static Logger logger = LogManager.getLogger(Level.class);
 
-    private int levelID = -1;
-    private String levelName = "zero";
-    @Setter
-    private String description = "zero";
-    private String levelString = "zero";
-    private int version = 1;
-    private int authorID;
-    private int difficultyDenominator = 0;
-    private int difficultyNumerator = 0;
-    private int downloads = 1;
-    private int audioTrack = 0;
-    private int gameVersion = 21;
-    private int likes = 0;
-    private Length length = Length.TINY;
-    private int dislikes = 0;
-    private boolean demon;
-    private int stars = 0;
-    private int featureScore = 0;
-    private int auto = 0;
-    private int password = 0;
-    private String uploadDate = "0";
-    private String updateDate = "0";
-    private int copiedID = 0;
-    private boolean twoPlayer = false;
-    private int customSongID = 0;
-    private int coins = 0;
-    private boolean verifiedCoins = false;
-    private int starsRequested = 0;
-    private int dailyNumber = 0;
-    private boolean epic = false;
-    private int demonDifficulty = 0;
-    private int isGauntlet = 0;
-    private int objects = 0;
-    private int editorTime = 0;
-    private boolean unlisted = false;
-    private int original = 0;
-    private boolean ldm = false;
+    @Getter private int levelID = -1;
+    @Getter private String levelName = "zero";
+    @Setter @Getter private String description = "zero";
+    @Setter @Getter private String levelString = "H4sIAAAAAAAAC63WzQ3UMBAG0IYWlNjz4xUnaqCAFEALiNrJrh-cQEKCy47imTjS0xdvvn6Z63FecVzjOkde8xqZ13nuMnbZi3F9OK-6zuM4rr7O68zXz7qOa13nt_N6b3GMv9vi_Pctnr_d4jWzb_irTcb1uv8_bJT_a6P6w0aPr5_P-TheJXepXeJxHh8rvx_f77rGrs_1qufHM3edY9ewXtaX9T0_zA39oT_0p_2muWlu6od-6Ifnhbkwl_qpn_rpeWmuzJW5Mlf6rd_6rd_2aXPL3DK3zC39p_7T-tP9z90fx-4PzoPz4Dw4D86D3-A3-A1ug9tdl-vd5zZ43XW53n1ug9fgNcrzeQ1eg9fgNXgNXoPT4DQ4DU53Xa53_-k5vAaveez1yWfymPI2z1_r733m0Je3u4b1sr7neN01XO8-t8ltyt3kN-Vucpz8Jr8pd5Pj5Dg5To6T311_9vc-bY7n5Dnlb_KcyxzXyXXK3-Q6ed41XO--HE45DDm8a7h-z4UchvwF7_B-B_fgG3zD-xycg29wDa7BNXiGXAbXSHN8g2twDe9zcA35DK7BNXgGz-AZchpcg2dwDDkN-QyewTE4ppwmx-SX_JJfym3yS34prymv6f1Onskx5TV5prwm1-SaXFNek29yTZ4pr8k1uSbX5JpcU26Ta3JNnskz5TN5pnwm15TP5Jpck2v-dJXP4lryWc7J4lvOheJcclp8i2_xLb7Ft7gW1-JZPItn8SyeJa_FteS1-BbX4lnOgeJaXItrcS3nQPEtviWnxbW4FteS1-JbfItvOQeKc_Ft-W3OzbnluDk335bj5tzy3Lybd_Nu50PzbudDy3Vzb3lu_s2_-Tf_5t_cm3fLc3NveW7-zb15t3OiuTf35t7cW66bf_Nv7s29uTfv5t28W66b--K-uC_eS74X9yXfi__ivngv_3uL--K-uC_ui_vivrgv7ov74r14L973V-H-Nuz9haisV_kyn--r8f7dH5Tvxud4_-7ueexyPo5PPwAQoD8oIwwAAA==";
+    @Getter private int version = 1;
+    @Getter private int authorID;
+    @Getter private int difficultyDenominator = 0;
+    @Getter private int difficultyNumerator = 0;
+    @Getter private int downloads = 0;
+    @Getter private int audioTrack = 0;
+    @Getter private int gameVersion = 21;
+    @Getter private int likes = 0;
+    @Getter private Length length = Length.TINY;
+    @Getter private int dislikes = 0;
+    @Getter private boolean demon;
+    @Getter private int stars = 0;
+    @Getter private int featureScore = 0;
+    @Getter private int auto = 0;
+    @Getter private int password = 0;
+    @Getter private String uploadDate = "0";
+    @Getter private String updateDate = "0";
+    @Getter private int copiedID = 0;
+    @Getter private boolean twoPlayer = false;
+    @Getter private int customSongID = 0;
+    @Getter private int coins = 0;
+    @Getter private boolean verifiedCoins = false;
+    @Getter private int starsRequested = 0;
+    @Getter private int dailyNumber = 0;
+    @Getter private boolean epic = false;
+    @Getter private int demonDifficulty = 0;
+    @Getter private int isGauntlet = 0;
+    @Getter private int objects = 0;
+    @Getter private int editorTime = 0;
+    @Getter private boolean unlisted = false;
+    @Getter private int original = 0;
+    @Getter private boolean ldm = false;
 
     public void setDownloads(int value) {
         try(PreparedStatement ps = conn.prepareStatement("UPDATE levels SET downloads = ? WHERE levelID = ?")) {
@@ -94,67 +94,6 @@ public class Level extends GDObject {
         }
     }
 
-
-    public static int getLastLevelID() {
-        return lastLevelID;
-    }
-
-    public static Connection getConn() {
-        return conn;
-    }
-
-    public int getLevelID() {
-        return levelID;
-    }
-
-    public String getLevelName() {
-        return levelName;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getLevelString() {
-        return levelString;
-    }
-
-    public int getVersion() {
-        return version;
-    }
-
-    public int getAuthorID() {
-        return authorID;
-    }
-
-    public int getDifficultyDenominator() {
-        return difficultyDenominator;
-    }
-
-    public int getDifficultyNumerator() {
-        return difficultyNumerator;
-    }
-
-    public int getDownloads() {
-        return downloads;
-    }
-
-    public int getAudioTrack() {
-        return audioTrack;
-    }
-
-    public int getGameVersion() {
-        return gameVersion;
-    }
-
-    public int getLikes() {
-        return likes;
-    }
-
-    public Length getLength() {
-        return length;
-    }
-
     public int getLengthInt() throws InvalidValueException {
         int ret;
         switch (length) {
@@ -166,98 +105,6 @@ public class Level extends GDObject {
             default -> throw new InvalidValueException("не"); //на самом деле ниче не кидает, это обманка чтобы жава не ругалась
         }
         return ret;
-    }
-
-    public int getDislikes() {
-        return dislikes;
-    }
-
-    public boolean isDemon() {
-        return demon;
-    }
-
-    public int getStars() {
-        return stars;
-    }
-
-    public int getFeatureScore() {
-        return featureScore;
-    }
-
-    public int getAuto() {
-        return auto;
-    }
-
-    public int getPassword() {
-        return password;
-    }
-
-    public String getUploadDate() {
-        return uploadDate;
-    }
-
-    public String getUpdateDate() {
-        return updateDate;
-    }
-
-    public int getCopiedID() {
-        return copiedID;
-    }
-
-    public boolean isTwoPlayer() {
-        return twoPlayer;
-    }
-
-    public int getCustomSongID() {
-        return customSongID;
-    }
-
-    public int getCoins() {
-        return coins;
-    }
-
-    public boolean isVerifiedCoins() {
-        return verifiedCoins;
-    }
-
-    public int getStarsRequested() {
-        return starsRequested;
-    }
-
-    public int getDailyNumber() {
-        return dailyNumber;
-    }
-
-    public boolean isEpic() {
-        return epic;
-    }
-
-    public int getDemonDifficulty() {
-        return demonDifficulty;
-    }
-
-    public int getIsGauntlet() {
-        return isGauntlet;
-    }
-
-    public int getObjects() {
-        return objects;
-    }
-
-    public int getEditorTime() {
-        return editorTime;
-    }
-
-    public boolean isUnlisted() {
-        return unlisted;
-    }
-
-    public int getOriginal() {
-        return original;
-    }
-
-    public boolean isLdm() {
-        return ldm;
     }
 
     public Account getAuthor() throws Exception {
@@ -941,8 +788,9 @@ public class Level extends GDObject {
         return s+"#"+Utils.SHA1(hash, "xI25fpAapCQg");
     }
 
-    public void save() {
-        Utils.writeToFile(new File(levelResourcesPath.toUri()), toString());
+    public void save() throws IOException {
+        File file = new File(Utils.resources+"/data/levels/"+getLevelID()+".jlvl");
+        Utils.writeToFile(file, getLevelString());
     }
 
     public static byte delete(int accountID, String gjp, int levelID, String secret, boolean safeDelete) throws Exception {

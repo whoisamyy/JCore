@@ -327,7 +327,7 @@ public class Account extends GDObject {
 
     public Account() {}
 
-    public void save(String data) throws IOException, URISyntaxException {
+    public void save(String data) throws IOException {
         File file = new File(Utils.resources+"/data/accounts/"+getUsername()+".jac");
         Utils.writeToFile(file, data);
     }
@@ -429,7 +429,7 @@ public class Account extends GDObject {
 
             save(saveString); //free tyep bieat
             return 1;
-        } catch (SQLException | IOException | URISyntaxException e) {
+        } catch (SQLException | IOException e) {
             throw new RuntimeException(e);
         }
     }

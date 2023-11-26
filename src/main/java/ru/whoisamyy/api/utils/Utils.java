@@ -12,10 +12,12 @@ import ru.whoisamyy.api.gd.objects.Account;
 import ru.whoisamyy.api.gd.objects.Level;
 import ru.whoisamyy.core.Core;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -68,23 +70,15 @@ public class Utils {
      * @param data data to be written in file
      * @return true if writing is successful and false if writing was not successful
      */
-    public static boolean writeToFile(File file, String data) {
-        try {
-            // Проверяем, существует ли файл
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-
-            // Преобразуем строку data в байты
-            byte[] dataBytes = data.getBytes();
-
-            // Записываем data в файл
-            Files.write(file.toPath(), dataBytes, StandardOpenOption.WRITE);
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+    public static boolean writeToFile(File file, String data) throws IOException {
+        if (!file.exists()) {
+            file.createNewFile();
         }
+
+        byte[] dataBytes = data.getBytes();
+
+        Files.write(file.toPath(), dataBytes, StandardOpenOption.WRITE);
+        return true;
     }
 
     /**
@@ -93,7 +87,7 @@ public class Utils {
      * @param b64 if true uses base64 for encoding if false does not use any encoding
      * @return true if writing is successful and false if writing was not successful
      */
-    public static boolean writeToFile(File file, String data, boolean b64) {
+    public static boolean writeToFile(File file, String data, boolean b64) throws IOException {
         if (!b64) return writeToFile(file, data);
         return writeToFile(file, Base64.encodeBase64String(data.getBytes()));
     }
