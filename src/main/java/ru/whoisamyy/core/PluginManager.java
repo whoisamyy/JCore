@@ -21,6 +21,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.net.MalformedURLException;
+import java.net.URLClassLoader;
+import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.jar.JarEntry;
@@ -28,7 +30,6 @@ import java.util.jar.JarFile;
 
 public class PluginManager {
     private static PluginManager instance;
-    private final String pluginsFolderPath = "plugins";
     @Getter
     private final Hashtable<Priority, Object> plugins = new Hashtable();
     @Getter
@@ -54,6 +55,10 @@ public class PluginManager {
                 try {
                     JarFile jarFile = new JarFile(file);
                     Enumeration<JarEntry> entries = jarFile.entries();
+                    URLClassLoader classLoader = URLClassLoader.newInstance(
+                            new URL[] { file.toURI().toURL() },
+                            getClass().getClassLoader()
+                    );
                     while(entries.hasMoreElements()) {
                         try {
                             JarEntry entry = entries.nextElement();
@@ -62,18 +67,13 @@ public class PluginManager {
                             if (!className.endsWith(".class")) continue;
 
                             className = className.replaceAll("/", ".").replace(".class", "");
-                            //URLClassLoader classLoader = new URLClassLoader(new URL[]{new URL("file:" + file.getPath())});
-                            ClassLoader classLoader = java.net.URLClassLoader.newInstance(
-                                    new java.net.URL[] { file.toURI().toURL() },
-                                    getClass().getClassLoader()
-                            );
                             Class<?> loadedClass = classLoader.loadClass(className);
 
                             if (loadedClass.isAnnotationPresent(PluginClass.class)) {
                                 String name = loadedClass.getAnnotation(PluginClass.class).pluginName();
                                 Object instance = loadedClass.getDeclaredConstructor(String.class).newInstance(name);
                                 if (instance instanceof Plugin p) {
-                                    ru.whoisamyy.api.plugins.Plugin pl = p.getInstance(Core.conn, className, EventListener.getInstance());
+                                    ru.whoisamyy.api.plugins.Plugin pl = p.initializePlugin(Core.conn, className, EventListener.getInstance());
 
                                     this.plugins.put(pl.getPriority(), pl);
                                     Hashtable<EndpointName, Method> pluginMethods = pl.getMethods();
@@ -97,11 +97,12 @@ public class PluginManager {
                                 }
                             }
 
-                        } catch (MalformedURLException | ClassNotFoundException | InvocationTargetException |
+                        } catch (ClassNotFoundException | InvocationTargetException |
                                  InstantiationException | IllegalAccessException | NoSuchMethodException var20) {
                             throw new RuntimeException(var20);
                         }
                     }
+                    classLoader.close();
                 } catch (IOException var21) {
                     throw new RuntimeException(var21);
                 }
