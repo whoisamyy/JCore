@@ -7,13 +7,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.TreeSet;
+import java.util.*;
 
 public class Comment extends GDObject {
     public static int lastCommentID;
-    private static HashSet<Comment> comments = new HashSet<>();
+    private static final HashSet<Comment> comments = new HashSet<>();
     public static Connection conn;
 
     int ID;
@@ -275,7 +273,7 @@ public class Comment extends GDObject {
      * @param acc get account or level comment (true=account, false=level)
      * @return commentsString
      */
-    public static String getComments(int ID, int page, boolean acc, int mode) {
+    public static Map<String, List<Comment>> getComments(int ID, int page, boolean acc, int mode) {
         getComments();
         TreeSet<Comment> commentTreeSet = new TreeSet<>(mode==0? new CommentComparators.IDComparatorDescension():new CommentComparators.LikeComparator());
         commentTreeSet.addAll(comments);
@@ -301,7 +299,7 @@ public class Comment extends GDObject {
         } catch (StringIndexOutOfBoundsException ignored) {
         }
         sb.append("#").append(commentTreeSet.size()).append(":").append(page).append(":").append("10");
-        return sb.toString();
+        return new Hashtable<>(Map.of(sb.toString(), subList));
     }
 
 

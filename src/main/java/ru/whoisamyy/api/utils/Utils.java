@@ -44,7 +44,7 @@ public class Utils {
     public static void createDirs() {
         File file = new File(Level.getLevelResourcesPath().toUri());
         file.mkdirs();
-        file = new File(Account.getAccountsResourcesPath().toUri());
+        file = new File(Account.getAccountsResourcesPath());
         file.mkdirs();
     }
 
@@ -72,12 +72,6 @@ public class Utils {
         try {
             // Проверяем, существует ли файл
             if (!file.exists()) {
-                // Если файл не существует, создаем директории к файлу
-                File parentDir = file.getParentFile();
-                if (parentDir != null) {
-                    parentDir.mkdirs();
-                }
-                // Создаем сам файл
                 file.createNewFile();
             }
 

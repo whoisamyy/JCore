@@ -6,6 +6,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 public class RelationshipsManager {
     public static Connection conn;
@@ -218,16 +222,20 @@ public class RelationshipsManager {
         return isBlocked(Account.map(senderAccountID, true), Account.map(targetAccountID, true));
     }
 
-    public static String getUserList(int accountID, boolean isBlocklist) { //why use gjp???
+    public static Map<String, List<Account>> getUserList(int accountID, boolean isBlocklist) {
         StringBuilder sb = new StringBuilder();
+        List<Account> accounts = new ArrayList<>();
         if (!isBlocklist) {
             for (Account account : Account.map(accountID, true).getFriendsHashtable().values()) {
+                accounts.add(account);
                 sb.append(account.toString()).append("|");
             }
         } else {
             for (Account account : Account.getAccountsHashtable().values()) {
-                if (isBlocked(accountID, account.getUserID()))
-                    sb.append(account.toString()).append("|");
+                if (isBlocked(accountID, account.getUserID())) {
+                    accounts.add(account);
+                    sb.append(account).append("|");
+                }
             }
         }
         try {
@@ -235,7 +243,7 @@ public class RelationshipsManager {
         } catch (IndexOutOfBoundsException ignored) {
 
         }
-        return sb.toString();
+        return new Hashtable<>(Map.of(sb.toString(), accounts));
     }
 
     public static String getFriendRequests(int accountID, boolean getSent, int page) {

@@ -6,20 +6,19 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.lang.Nullable;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import ru.whoisamyy.core.Core;
+import ru.whoisamyy.api.gd.misc.GDObject;
 import ru.whoisamyy.api.utils.Utils;
 import ru.whoisamyy.api.utils.enums.ModType;
-import ru.whoisamyy.api.gd.misc.GDObject;
 import ru.whoisamyy.api.utils.exceptions.InvalidEmailException;
 import ru.whoisamyy.api.utils.exceptions.InvalidPasswordException;
 import ru.whoisamyy.api.utils.exceptions.InvalidUsernameException;
 import ru.whoisamyy.api.utils.exceptions.InvalidValueException;
+import ru.whoisamyy.core.Core;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -32,12 +31,12 @@ public class Account extends GDObject {
     public static String secret;
     public static int lastAccountID;
 
-    private static Hashtable<Integer, Account> accounts = new Hashtable<>(); //<id, account>
+    private static final Hashtable<Integer, Account> accounts = new Hashtable<>(); //<id, account>
     private static Connection conn;
     @Getter
-    private static Path accountsResourcesPath = Paths.get(Utils.resources+"/data/accounts");
+    private static final String accountsResourcesPath = Utils.resources+"/data/accounts";
 
-    private Hashtable<Integer, Account> friends = new Hashtable<>();
+    private final Hashtable<Integer, Account> friends = new Hashtable<>();
 
     public void removeFromFriendsByKey(int key) {
          friends.remove(key);
@@ -157,107 +156,103 @@ public class Account extends GDObject {
     }
 
     public String toCreatorString() {
-        StringBuilder sb = new StringBuilder();
-        return sb.append(getUserID()).append(":").append(getUsername()).append(":").append(getUserID()).toString();
+        return getUserID() + ":" + getUsername() + ":" + getUserID();
     }
 
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("1:").append(userID).append(":");
-        sb.append("2:").append(username).append(":");
-        sb.append("3:").append(stars).append(":");
-        sb.append("4:").append(demons).append(":");
-        sb.append("6:").append(ranking).append(":");
-        sb.append("8:").append(creatorPoints).append(":");
-        sb.append("9:").append(iconID).append(":");
-        sb.append("10:").append(playerColor).append(":");
-        sb.append("11:").append(playerColor2).append(":");
-        sb.append("13:").append(secretCoins).append(":");
-        sb.append("14:").append(iconType).append(":");
-        sb.append("15:").append(special).append(":");
-        sb.append("16:").append(userID).append(":");
-        sb.append("17:").append(userCoins).append(":");
-        sb.append("18:").append(messagesState).append(":");
-        sb.append("19:").append(friendsState).append(":");
-        sb.append("20:").append(youtube).append(":");
-        sb.append("21:").append(accIcon).append(":");
-        sb.append("22:").append(accShip).append(":");
-        sb.append("23:").append(accBall).append(":");
-        sb.append("24:").append(accBird).append(":");
-        sb.append("25:").append(accDart).append(":");
-        sb.append("26:").append(accRobot).append(":");
-        sb.append("28:").append(accGlow).append(":");
-        sb.append("29:").append(isRegistered).append(":");
-        sb.append("30:").append(globalRank).append(":");
-        sb.append("31:").append(friendsState).append(":");
-        sb.append("38:").append(messages).append(":");
-        sb.append("39:").append(friendRequests).append(":");
-        sb.append("40:").append(newFriends).append(":");
-        sb.append("41:").append(newFriendRequest).append(":");
-        sb.append("42:").append(age).append(":");
-        sb.append("43:").append(accSpider).append(":");
-        sb.append("44:").append(twitter).append(":");
-        sb.append("45:").append(twitch).append(":");
-        sb.append("46:").append(diamonds).append(":");
-        sb.append("48:").append(accExplosion).append(":");
-        sb.append("49:").append(modLevel);
-        return sb.toString();
+        String sb = "1:" + userID + ":" +
+                "2:" + username + ":" +
+                "3:" + stars + ":" +
+                "4:" + demons + ":" +
+                "6:" + ranking + ":" +
+                "8:" + creatorPoints + ":" +
+                "9:" + iconID + ":" +
+                "10:" + playerColor + ":" +
+                "11:" + playerColor2 + ":" +
+                "13:" + secretCoins + ":" +
+                "14:" + iconType + ":" +
+                "15:" + special + ":" +
+                "16:" + userID + ":" +
+                "17:" + userCoins + ":" +
+                "18:" + messagesState + ":" +
+                "19:" + friendsState + ":" +
+                "20:" + youtube + ":" +
+                "21:" + accIcon + ":" +
+                "22:" + accShip + ":" +
+                "23:" + accBall + ":" +
+                "24:" + accBird + ":" +
+                "25:" + accDart + ":" +
+                "26:" + accRobot + ":" +
+                "28:" + accGlow + ":" +
+                "29:" + isRegistered + ":" +
+                "30:" + globalRank + ":" +
+                "31:" + friendsState + ":" +
+                "38:" + messages + ":" +
+                "39:" + friendRequests + ":" +
+                "40:" + newFriends + ":" +
+                "41:" + newFriendRequest + ":" +
+                "42:" + age + ":" +
+                "43:" + accSpider + ":" +
+                "44:" + twitter + ":" +
+                "45:" + twitch + ":" +
+                "46:" + diamonds + ":" +
+                "48:" + accExplosion + ":" +
+                "49:" + modLevel;
+        return sb;
     }
 
     public String toString(String sep) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("1").append(sep).append(userID).append(sep);
-        sb.append("2").append(sep).append(username).append(sep);
-        sb.append("3").append(sep).append(stars).append(sep);
-        sb.append("4").append(sep).append(demons).append(sep);
-        sb.append("6").append(sep).append(ranking).append(sep);
-        sb.append("8").append(sep).append(creatorPoints).append(sep);
-        sb.append("9").append(sep).append(iconID).append(sep);
-        sb.append("10").append(sep).append(playerColor).append(sep);
-        sb.append("11").append(sep).append(playerColor2).append(sep);
-        sb.append("13").append(sep).append(secretCoins).append(sep);
-        sb.append("14").append(sep).append(iconType).append(sep);
-        sb.append("15").append(sep).append(special).append(sep);
-        sb.append("16").append(sep).append(userID).append(sep);
-        sb.append("17").append(sep).append(userCoins).append(sep);
-        sb.append("18").append(sep).append(messagesState).append(sep);
-        sb.append("19").append(sep).append(friendsState).append(sep);
-        sb.append("20").append(sep).append(youtube).append(sep);
-        sb.append("21").append(sep).append(accIcon).append(sep);
-        sb.append("22").append(sep).append(accShip).append(sep);
-        sb.append("23").append(sep).append(accBall).append(sep);
-        sb.append("24").append(sep).append(accBird).append(sep);
-        sb.append("25").append(sep).append(accDart).append(sep);
-        sb.append("26").append(sep).append(accRobot).append(sep);
-        sb.append("28").append(sep).append(accGlow).append(sep);
-        sb.append("29").append(sep).append(isRegistered).append(sep);
-        sb.append("30").append(sep).append(globalRank).append(sep);
-        sb.append("31").append(sep).append(friendsState).append(sep);
-        sb.append("38").append(sep).append(messages).append(sep);
-        sb.append("39").append(sep).append(friendRequests).append(sep);
-        sb.append("40").append(sep).append(newFriends).append(sep);
-        sb.append("41").append(sep).append(newFriendRequest).append(sep);
-        sb.append("42").append(sep).append(age).append(sep);
-        sb.append("43").append(sep).append(accSpider).append(sep);
-        sb.append("44").append(sep).append(twitter).append(sep);
-        sb.append("45").append(sep).append(twitch).append(sep);
-        sb.append("46").append(sep).append(diamonds).append(sep);
-        sb.append("48").append(sep).append(accExplosion).append(sep);
-        sb.append("49").append(sep).append(modLevel);
-        return sb.toString();
+        String sb = "1" + sep + userID + sep +
+                "2" + sep + username + sep +
+                "3" + sep + stars + sep +
+                "4" + sep + demons + sep +
+                "6" + sep + ranking + sep +
+                "8" + sep + creatorPoints + sep +
+                "9" + sep + iconID + sep +
+                "10" + sep + playerColor + sep +
+                "11" + sep + playerColor2 + sep +
+                "13" + sep + secretCoins + sep +
+                "14" + sep + iconType + sep +
+                "15" + sep + special + sep +
+                "16" + sep + userID + sep +
+                "17" + sep + userCoins + sep +
+                "18" + sep + messagesState + sep +
+                "19" + sep + friendsState + sep +
+                "20" + sep + youtube + sep +
+                "21" + sep + accIcon + sep +
+                "22" + sep + accShip + sep +
+                "23" + sep + accBall + sep +
+                "24" + sep + accBird + sep +
+                "25" + sep + accDart + sep +
+                "26" + sep + accRobot + sep +
+                "28" + sep + accGlow + sep +
+                "29" + sep + isRegistered + sep +
+                "30" + sep + globalRank + sep +
+                "31" + sep + friendsState + sep +
+                "38" + sep + messages + sep +
+                "39" + sep + friendRequests + sep +
+                "40" + sep + newFriends + sep +
+                "41" + sep + newFriendRequest + sep +
+                "42" + sep + age + sep +
+                "43" + sep + accSpider + sep +
+                "44" + sep + twitter + sep +
+                "45" + sep + twitch + sep +
+                "46" + sep + diamonds + sep +
+                "48" + sep + accExplosion + sep +
+                "49" + sep + modLevel;
+        return sb;
     }
 
     public String toString(String sep, boolean isLvlCommentCalled) {
         if (!isLvlCommentCalled) return toString(sep);
-        StringBuilder sb = new StringBuilder();
-        sb.append("1").append(sep).append(username).append(sep);
-        sb.append("9").append(sep).append(iconID).append(sep);
-        sb.append("10").append(sep).append(playerColor).append(sep);
-        sb.append("11").append(sep).append(playerColor2).append(sep);
-        sb.append("14").append(sep).append(iconType).append(sep);
-        sb.append("15").append(sep).append(special).append(sep);
-        sb.append("16").append(sep).append(userID);
-        return sb.toString();
+        String sb = "1" + sep + username + sep +
+                "9" + sep + iconID + sep +
+                "10" + sep + playerColor + sep +
+                "11" + sep + playerColor2 + sep +
+                "14" + sep + iconType + sep +
+                "15" + sep + special + sep +
+                "16" + sep + userID;
+        return sb;
     }
 
     public Account(String username, String gjpSalt, String gjp,
@@ -332,8 +327,9 @@ public class Account extends GDObject {
 
     public Account() {}
 
-    public void save(String data) {
-        Utils.writeToFile(new File(accountsResourcesPath.toUri()+"/acc"+getUserID()+"/accdata.jac"), data);
+    public void save(String data) throws IOException, URISyntaxException {
+        File file = new File(Utils.resources+"/data/accounts/"+getUsername()+".jac");
+        Utils.writeToFile(file, data);
     }
 
     public byte register() {
@@ -427,31 +423,32 @@ public class Account extends GDObject {
 
             ps2.execute();
 
-            newSaveData = Utils.base64UrlSafeEncode(newSaveData);
-            newSaveData = Utils.DataEncoder.encode(newSaveData);
-            String saveString = newSaveData+Utils.DataEncoder.encode(saveData.split(";")[1]);
+            //newSaveData = Utils.base64UrlSafeEncode(newSaveData);
+            //newSaveData = Utils.DataEncoder.encode(newSaveData);
+            String saveString = newSaveData+/*Utils.DataEncoder.encode(*/saveData.split(";")[1];//);
 
             save(saveString); //free tyep bieat
             return 1;
-        } catch (SQLException | IOException e) {
+        } catch (SQLException | IOException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }
 
     public String sync() {
         String saveData;
-        File saveFile = new File(accountsResourcesPath.toString()+"/"+getUserID()+"/accdata.jac");
+        File saveFile = new File(Utils.resources+"/data/accounts/"+getUsername()+".jac");
+        logger.info(saveFile.exists());
         if (!saveFile.exists()) return "-1";
 
         try {
             byte[] sdbarr = Files.readAllBytes(saveFile.toPath()); //sdbarr = save data byte array
             saveData = new String(sdbarr);
+            logger.info(saveData);
             if (!saveData.startsWith("H4s")) throw new Exception("dayum");
             save(saveData);
-            return saveData+";21;30;a;a";
+            return saveData;
         } catch (Exception e) {
-            e.printStackTrace();
-            return "-1";
+            throw new RuntimeException(e);
         }
     }
 

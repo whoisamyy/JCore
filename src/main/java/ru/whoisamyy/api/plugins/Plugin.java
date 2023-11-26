@@ -7,8 +7,11 @@ import org.apache.logging.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 import ru.whoisamyy.api.plugins.annotations.EventListener;
 import ru.whoisamyy.api.plugins.annotations.PluginClass;
+import ru.whoisamyy.api.plugins.events.Event;
+import ru.whoisamyy.api.plugins.events.listeners.EventHandler;
 import ru.whoisamyy.api.utils.Utils;
 import ru.whoisamyy.api.utils.enums.EndpointName;
+import ru.whoisamyy.api.utils.enums.Priority;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,11 +31,20 @@ import java.util.*;
 public abstract class Plugin implements Runnable {
     public String name;
     public Version version;
-    public int priority;
+    /**
+     * Priority is used to define order of running plugin's methods and event handlers.
+     */
+    public Priority priority;
     @Setter public String packageName;
     public Logger logger;
     public Hashtable<EndpointName, Method> methods = new Hashtable<>(); //method endpoint, method
+    public Hashtable<Class<? extends Event>, Set<EventHandler>> eventHandlers = new Hashtable<>();
     public Connection connection;
+    public ru.whoisamyy.api.plugins.events.listeners.EventListener eventListener;
+
+    private void setEventListener(ru.whoisamyy.api.plugins.events.listeners.EventListener eventListener) {
+        this.eventListener = eventListener;
+    }
 
     public Plugin(String name) {
         this.name = name;
@@ -43,26 +55,39 @@ public abstract class Plugin implements Runnable {
     public Plugin(String name, String version, int priority) {
         this.name = name;
         this.version = new Version(version);
-        this.priority = priority;
+        this.priority = Priority.getByValue(priority);
     }
 
     public Plugin(String name, Version version, int priority) {
         this.name = name;
         this.version = version;
-        this.priority = priority;
+        this.priority = Priority.getByValue(priority);
     }
 
-    public Plugin getInstance(Connection connection, String packageName) {
+    /**
+     * Basically plugin initializer
+     * @param connection database connection for sql queries
+     * @param packageName
+     * @return returns initialized plugin object
+     */
+    public Plugin getInstance(Connection connection, String packageName, ru.whoisamyy.api.plugins.events.listeners.EventListener eventListener) {
         setPackageName(packageName);
         long startTime;
         startTime = init(connection);
+        setEventListener(eventListener);
         initialize();
         getLogger().info("Initialized plugin: "+ (System.currentTimeMillis()-startTime) +"ms");
         return this;
     }
 
+    /**
+     * This method can be used to initialize variables of class from config file, or for whatever reason
+     */
     public abstract void initialize();
 
+    /**
+     * This method can be used for <code>while(true)</code> loops.
+     */
     public void run() {}
 
     protected long init(Connection connection) {
@@ -81,10 +106,12 @@ public abstract class Plugin implements Runnable {
         long l = System.currentTimeMillis();
         getVersion();
         getLogger().info("Done! "+(System.currentTimeMillis()-l)+"ms");
+        getLogger().info("Version of "+name+" is "+this.version);
         getLogger().info("Getting priority...");
         l = System.currentTimeMillis();
         getPriority();
         getLogger().info("Done! "+(System.currentTimeMillis()-l)+"ms");
+
 
         setConnection(connection);
 
@@ -98,7 +125,7 @@ public abstract class Plugin implements Runnable {
 
 
     /**
-     * Unfortunately laods methods only from main plugin class. To be fixed in future
+     * Unfortunately, loads methods only from main plugin class. To be fixed in future
      * @throws IOException
      * @throws ClassNotFoundException
      */
@@ -111,7 +138,6 @@ public abstract class Plugin implements Runnable {
         Class<?> clazz = this.getClass();
         Method[] methods = clazz.getMethods();
         for (Method md : methods) {
-            logger.info(md.getName());
             if (!md.isAnnotationPresent(EventListener.class)) continue;
             this.methods.put(md.getAnnotation(EventListener.class).endpointName(), md);
         }
@@ -189,23 +215,32 @@ public abstract class Plugin implements Runnable {
         }
     }
 
-    public int getPriority() {
+    public Priority getPriority() {
         try {
             String configPath = "plugins/configs/" + getName() + ".yml";
 
             InputStream input = Plugin.class.getResourceAsStream(configPath);
             if (input == null) {
                 Utils.createFile(getName()+".yml", Utils.createDirs(configPath));
-                return 0;
+                return Priority.HIGHEST;
             }
             Yaml yaml = new Yaml();
             Map<String, Object> data = yaml.load(input);
-            this.priority = (int) data.get("priority");
+            this.priority = Priority.getByValue((int) data.get("priority"));
             return this.priority;
         } catch (IOException e) {
-            e.printStackTrace();
-            return 0;
+            return Priority.HIGHEST;
         }
+    }
+
+    protected <T extends Event, R> void onEvent(Class<? extends Event> event, EventHandler<T, R>[] eventHandlers) {
+        //this.eventHandlers.put(event, Set.of(eventHandlers));
+        getEventListener().registerHandlers(event, eventHandlers);
+    }
+
+    protected <T extends Event, R> void onEvent(Class<? extends Event> event, EventHandler<T, R> eventHandler) {
+        //this.eventHandlers.put(event, Set.of(eventHandlers));
+        getEventListener().registerHandler(event, eventHandler);
     }
 
     protected void log(String s) {

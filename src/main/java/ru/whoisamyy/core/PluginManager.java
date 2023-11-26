@@ -1,16 +1,18 @@
-//
-// Source code recreated from a .class file by Quiltflower
-//
-
 package ru.whoisamyy.core;
 
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.whoisamyy.api.plugins.Plugin;
 import ru.whoisamyy.api.plugins.annotations.EndpointParameter;
 import ru.whoisamyy.api.plugins.annotations.PluginClass;
+import ru.whoisamyy.api.plugins.annotations.RunMethod;
+import ru.whoisamyy.api.plugins.events.Event;
+import ru.whoisamyy.api.plugins.events.listeners.EventHandler;
+import ru.whoisamyy.api.plugins.events.listeners.EventListener;
 import ru.whoisamyy.api.utils.Utils;
 import ru.whoisamyy.api.utils.enums.EndpointName;
+import ru.whoisamyy.api.utils.enums.Priority;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,9 +28,11 @@ import java.util.jar.JarFile;
 
 public class PluginManager {
     private static PluginManager instance;
-    private String pluginsFolderPath = "plugins";
-    private Hashtable<Integer, Object> plugins = new Hashtable();
-    private Hashtable<Object, Hashtable<EndpointName, Method>> pluginsMethods = new Hashtable();
+    private final String pluginsFolderPath = "plugins";
+    @Getter
+    private final Hashtable<Priority, Object> plugins = new Hashtable();
+    @Getter
+    private final Hashtable<Object, Hashtable<EndpointName, Method>> pluginsMethods = new Hashtable();
     private static final Logger logger = LogManager.getLogger(PluginManager.class);
 
     private PluginManager() {
@@ -52,7 +56,7 @@ public class PluginManager {
                     Enumeration<JarEntry> entries = jarFile.entries();
                     while(entries.hasMoreElements()) {
                         try {
-                            JarEntry entry = (JarEntry)entries.nextElement();
+                            JarEntry entry = entries.nextElement();
                             String className = entry.getName();
 
                             if (!className.endsWith(".class")) continue;
@@ -69,14 +73,21 @@ public class PluginManager {
                                 String name = loadedClass.getAnnotation(PluginClass.class).pluginName();
                                 Object instance = loadedClass.getDeclaredConstructor(String.class).newInstance(name);
                                 if (instance instanceof Plugin p) {
-                                    Plugin pl = p.getInstance(Core.conn, className);
+                                    ru.whoisamyy.api.plugins.Plugin pl = p.getInstance(Core.conn, className, EventListener.getInstance());
 
                                     this.plugins.put(pl.getPriority(), pl);
                                     Hashtable<EndpointName, Method> pluginMethods = pl.getMethods();
                                     this.pluginsMethods.put(pl, pluginMethods);
+                                    Hashtable<Class<? extends Event>, Set<EventHandler>> pluginEventHandlers = new Hashtable<>();
+                                    for (Map.Entry<Class<? extends Event>, Set<EventHandler>> eventEntry : pluginEventHandlers.entrySet()) {
+                                        var handlersSet = eventEntry.getValue();
+                                        EventListener.getInstance().registerHandlers(eventEntry.getKey(), handlersSet.toArray(new EventHandler[0]));
+                                    }
 
-                                    if (pl.getClass().getMethod("run").isAnnotationPresent(Override.class)) {
+
+                                    if (pl.getClass().getMethod("run").isAnnotationPresent(RunMethod.class)) {
                                         Thread t = new Thread(pl);
+                                        t.start();
                                         pl.logger.info("Plugin run thread started");
                                     } else {
                                         pl.logger.info("No plugin run thread found. Skipping");
@@ -121,7 +132,7 @@ public class PluginManager {
     public Object getField(Object pluginObject, String fieldName) throws NoSuchFieldException, IllegalAccessException {
         Field field = pluginObject.getClass().getDeclaredField(fieldName);
         Object fieldVal = field.get(pluginObject);
-        return fieldVal == null ? null : fieldVal;
+        return fieldVal;
     }
 
     public Hashtable<String, Method> getPluginEndpointMethods(Object pluginObject) throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
@@ -130,8 +141,8 @@ public class PluginManager {
         return methods instanceof Hashtable ? (Hashtable)methods : null;
     }
 
-    public SortedMap<Integer, Object> getSortedPlugins() {
-        SortedMap<Integer, Object> map = new TreeMap(Comparator.naturalOrder());
+    public SortedMap<Priority, Object> getSortedPlugins() {
+        SortedMap<Priority, Object> map = new TreeMap(Comparator.naturalOrder());
         map.putAll(this.plugins);
         return map;
     }
@@ -143,7 +154,7 @@ public class PluginManager {
             parsVals.put(pars[i].getName(), vals[i]);
         }
 
-        for(Entry<Integer, Object> entry : getInstance().getSortedPlugins().entrySet()) {
+        for(Entry<Priority, Object> entry : getInstance().getSortedPlugins().entrySet()) {
             Method md = (Method)((Hashtable)getInstance().getPluginsMethods().get(entry.getValue())).get(endpointName);
             if (md != null) {
                 if (md.getParameters().length == 0) {
@@ -154,7 +165,7 @@ public class PluginManager {
                     List<Object> arguments = new ArrayList();
 
                     for(int i = 0; i < params.size(); ++i) {
-                        String s = ((EndpointParameter)((Parameter)params.get(i)).getAnnotation(EndpointParameter.class)).parameterName();
+                        String s = params.get(i).getAnnotation(EndpointParameter.class).parameterName();
                         arguments.add(parsVals.get(s));
                     }
 
@@ -171,13 +182,5 @@ public class PluginManager {
         }
 
         return instance;
-    }
-
-    public Hashtable<Integer, Object> getPlugins() {
-        return this.plugins;
-    }
-
-    public Hashtable<Object, Hashtable<EndpointName, Method>> getPluginsMethods() {
-        return this.pluginsMethods;
     }
 }

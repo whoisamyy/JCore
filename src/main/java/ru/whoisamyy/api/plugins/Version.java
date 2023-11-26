@@ -19,4 +19,9 @@ public class Version {
         this.version = version;
         this.suffix = suffix;
     }
+
+    @Override
+    public String toString() {
+        return version+":"+suffix;
+    }
 }

@@ -25,7 +25,7 @@ public class Level extends GDObject {
     public static String secret;
     public static int lastLevelID;
 
-    private static Hashtable<Integer, Level> levels = new Hashtable<>();
+    private static final Hashtable<Integer, Level> levels = new Hashtable<>();
     private static Connection conn;
 
     @Getter
@@ -619,8 +619,8 @@ public class Level extends GDObject {
                 if (saveAsFile) save();
                 return levelID;
             } catch (Exception e) {
-                e.printStackTrace();
-                return -1;
+                throw new RuntimeException(e);
+                //return -1;
             }
         }
         else {
@@ -657,8 +657,8 @@ public class Level extends GDObject {
                 if (saveAsFile) save();
                 return levelID;
             } catch (Exception e) {
-                e.printStackTrace();
-                return -1;
+                throw new RuntimeException(e);
+                //return -1;
             }
         }
     }
@@ -671,13 +671,13 @@ public class Level extends GDObject {
             ps.execute();
             setDescription(newDesc);
         } catch (SQLException e) {
-            e.printStackTrace();
-            return -1;
+            throw new RuntimeException(e);
+            //return -1;
         }
         return 1;
     }
 
-    public static String getLevels(String secret, @Nullable Integer gameVersion, @Nullable Integer binaryVersion,
+    public static List<Level> getLevels(String secret, @Nullable Integer gameVersion, @Nullable Integer binaryVersion,
                                    Integer type, @Nullable String str, @Nullable Integer page,
                                    @Nullable Integer total, @Nullable String gjp, @Nullable Integer accountID,
                                    @Nullable Integer gdw, @Nullable Integer gauntlet, @Nullable String diff,
@@ -687,6 +687,7 @@ public class Level extends GDObject {
                                    @Nullable Integer coins, @Nullable Integer epic, @Nullable Integer noStar,
                                    @Nullable Integer star, @Nullable Integer song, @Nullable Integer customSong,
                                    @Nullable String followed, @Nullable Integer local) {
+
         if (str==null) str = "";
         if (completedLevels==null) completedLevels = "";
         if (demonFilter==null) demonFilter="";
@@ -695,7 +696,6 @@ public class Level extends GDObject {
         for (Map.Entry<Integer, Level> entry : levels.entrySet()) {
             sortedLvlsTree.add(entry.getValue());
         }
-
 
         switch (type) {
             case 0 -> {
@@ -838,17 +838,6 @@ public class Level extends GDObject {
             sortedLvlsTree.removeIf(x->x.getStars()!=0);
         }
 
-        if (sortedLvlsTree.isEmpty()) {
-            int randid = ((int) (Math.random() * 100000));
-            char[] randids = String.valueOf(randid).toCharArray();
-            StringBuilder randidsb = new StringBuilder();
-            randidsb.append(randids[0]).append(randids[randids.length-1]).append(0).append(0);
-            return "1:" + randid + ":2:search by id doesn't work:5:1:6:1:8:0:9:0:10:0:12:0:13:21:14:0:17:0:43:0:25:0:18:0:19:0:42:0:45:0:3:ZG9lc24ndCB3b3Jr:15:0:30:0:31:0:37:0:38:0:39:10:46:0:47:2:35:0#1:server:1##1:0:10#" +
-                    Utils.SHA1(randidsb.toString(), "xI25fpAapCQg");
-        }
-
-        TreeSet<Level> subSet = new TreeSet<>(sortedLvlsTree.comparator());
-
         List<Level> levelsList = new ArrayList<>(sortedLvlsTree);
 
         for (Level lvl :
@@ -889,7 +878,16 @@ public class Level extends GDObject {
             subList = levelsList.subList(0, levelsList.size());
         }
 
-        String pageString = "";
+        return subList;
+    }
+
+    public static String levelsListToString(List<Level> subList, Integer page) {
+        if (subList.isEmpty()) {
+            int randid = ((int) (Math.random() * 100000));
+            char[] randids = String.valueOf(randid).toCharArray();
+            return "1:" + randid + ":2:search by id doesn't work:5:1:6:1:8:0:9:0:10:0:12:0:13:21:14:0:17:0:43:0:25:0:18:0:19:0:42:0:45:0:3:ZG9lc24ndCB3b3Jr:15:0:30:0:31:0:37:0:38:0:39:10:46:0:47:2:35:0#1:server:1##1:0:10#" +
+                    Utils.SHA1(String.valueOf(randids[0]) + randids[randids.length - 1] + 0 + 0, "xI25fpAapCQg");
+        }
 
         StringBuilder sb = new StringBuilder();
         StringBuilder sb2 = new StringBuilder();
@@ -915,7 +913,7 @@ public class Level extends GDObject {
         sb.setCharAt(sb.lastIndexOf("|"), '#');
 
         for (Level lvl : subList) {
-            if (lvl.getCustomSongID()!=0) sb.append(Song.map(lvl.getCustomSongID()).toString()).append("~:~");
+            if (lvl.getCustomSongID()!=0) sb.append(Song.map(lvl.getCustomSongID())).append("~:~");
         }
 
         try {
@@ -932,14 +930,12 @@ public class Level extends GDObject {
 
         sb.append(Utils.SHA1(hash, "xI25fpAapCQg"));
 
-        pageString = sb.toString();
-
-        return pageString;
+        return sb.toString();
     }
 
     public static String download(String secret, int id) throws Exception {
         Level l = map(id, true);
-        String s = l.toString()+"#"+Utils.genSolo(l.getLevelString());
+        String s = l +"#"+Utils.genSolo(l.getLevelString());
         String hash = l.getAuthorID()+","+(l.getStars()!=0?1:0)+","+(l.isDemon()?1:0)+","+l.getLevelID()+","+(l.isVerifiedCoins()?1:0)+","+(l.getFeatureScore()==0?0:1)+","+l.getPassword()+","+0;
         l.addDownloads(1);
         return s+"#"+Utils.SHA1(hash, "xI25fpAapCQg");
