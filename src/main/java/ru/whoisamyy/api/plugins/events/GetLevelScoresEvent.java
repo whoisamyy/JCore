@@ -9,10 +9,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public class GetLevelScoresEvent extends Event {
-    static final List<Class<?>> allowedTypes; //allowedTypes is parameters from corresponding method in ru.whoisamyy.core.endpoints.RequestManager
-    static final List<String> parameterNames; //parameter names from correspongind method in ru.whoisamyy.core.endpoints.RequestManager
+    //static final List<Class<?>> allowedTypes; //allowedTypes is parameters from corresponding method in ru.whoisamyy.core.endpoints.RequestManager
+    //static final List<String> parameterNames; //parameter names from correspongind method in ru.whoisamyy.core.endpoints.RequestManager
 
-    static {
+    void init() {
         try {
             Method m = RequestManager.Scores.class.getMethod("getGJLevelScores", int.class, int.class, String.class, String.class, Integer.class, Integer.class, Integer.class, Integer.class, Integer.class, String.class, Integer.class, Integer.class);
             List<Class<?>> at = new ArrayList<>(List.of(m.getParameterTypes()));

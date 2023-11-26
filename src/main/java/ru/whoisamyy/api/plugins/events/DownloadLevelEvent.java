@@ -9,10 +9,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public class DownloadLevelEvent extends Event {
-    static final List<Class<?>> allowedTypes; //allowedTypes is parameters from corresponding method in ru.whoisamyy.core.endpoints.RequestManager
-    static final List<String> parameterNames; //parameter names from correspongind method in ru.whoisamyy.core.endpoints.RequestManager
+    //static final List<Class<?>> allowedTypes; //allowedTypes is parameters from corresponding method in ru.whoisamyy.core.endpoints.RequestManager
+    //static final List<String> parameterNames; //parameter names from correspongind method in ru.whoisamyy.core.endpoints.RequestManager
 
-    static {
+    void init() {
         try {
             Method m = RequestManager.Levels.class.getMethod("downloadGJLevel", int.class, String.class, Integer.class, String.class);
             List<Class<?>> at = new ArrayList<>(List.of(m.getParameterTypes()));

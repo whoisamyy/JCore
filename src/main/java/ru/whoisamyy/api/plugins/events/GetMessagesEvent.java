@@ -9,10 +9,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public class GetMessagesEvent extends Event {
-    static final List<Class<?>> allowedTypes; //allowedTypes is parameters from corresponding method in ru.whoisamyy.core.endpoints.RequestManager
-    static final List<String> parameterNames; //parameter names from correspongind method in ru.whoisamyy.core.endpoints.RequestManager
+    //static final List<Class<?>> allowedTypes; //allowedTypes is parameters from corresponding method in ru.whoisamyy.core.endpoints.RequestManager
+    //static final List<String> parameterNames; //parameter names from correspongind method in ru.whoisamyy.core.endpoints.RequestManager
 
-    static {
+    void init() {
         try {
             Method m = RequestManager.Messages.class.getMethod("getGJMessages", String.class, int.class, Integer.class, Boolean.class);
             List<Class<?>> at = new ArrayList<>(List.of(m.getParameterTypes()));
