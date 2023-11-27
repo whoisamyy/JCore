@@ -22,3 +22,4 @@ JCore is a Geometry Dash Private Server written in Java with Spring as primary f
 ## Contact me
 - discord: whoisamyy
 - or here https://discord.gg/cXbgz24pJV
+- or here https://discord.gg/4mpres7Adp
