@@ -9,22 +9,23 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import ru.whoisamyy.api.gd.misc.GDObject;
 import ru.whoisamyy.api.utils.Utils;
 import ru.whoisamyy.api.utils.comparators.LevelComparators;
+import ru.whoisamyy.api.utils.enums.DemonDifficulty;
 import ru.whoisamyy.api.utils.enums.Length;
+import ru.whoisamyy.api.utils.enums.LevelDifficulty;
 import ru.whoisamyy.api.utils.exceptions.InvalidValueException;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 
 public class Level extends GDObject {
     @Getter public static String secret;
     @Getter public static int lastLevelID;
+    @Getter public static int currentDailyNumber;
+    @Getter public static int currentDailyLevelID;
 
     @Getter private static final Hashtable<Integer, Level> levels = new Hashtable<>();
     @Getter private static Connection conn;
@@ -40,7 +41,7 @@ public class Level extends GDObject {
     @Getter private int version = 1;
     @Getter private int authorID;
     @Getter private int difficultyDenominator = 0;
-    @Getter private int difficultyNumerator = 0;
+    @Getter private LevelDifficulty difficultyNumerator = LevelDifficulty.UNRATED;
     @Getter private int downloads = 0;
     @Getter private int audioTrack = 0;
     @Getter private int gameVersion = 21;
@@ -50,7 +51,7 @@ public class Level extends GDObject {
     @Getter private boolean demon;
     @Getter private int stars = 0;
     @Getter private int featureScore = 0;
-    @Getter private int auto = 0;
+    @Getter private boolean auto = false;
     @Getter private int password = 0;
     @Getter private String uploadDate = "0";
     @Getter private String updateDate = "0";
@@ -62,13 +63,14 @@ public class Level extends GDObject {
     @Getter private int starsRequested = 0;
     @Getter private int dailyNumber = 0;
     @Getter private boolean epic = false;
-    @Getter private int demonDifficulty = 0;
+    @Getter private DemonDifficulty demonDifficulty = DemonDifficulty.HARD_DEMON;
     @Getter private int isGauntlet = 0;
     @Getter private int objects = 0;
     @Getter private int editorTime = 0;
     @Getter private boolean unlisted = false;
     @Getter private int original = 0;
     @Getter private boolean ldm = false;
+    @Getter private String hashCode; //прост по приколу  ¯\_(ツ)_/¯
 
     public void setDownloads(int value) {
         try(PreparedStatement ps = conn.prepareStatement("UPDATE levels SET downloads = ? WHERE levelID = ?")) {
@@ -159,7 +161,7 @@ public class Level extends GDObject {
         sb.append(17).append(':').append(isDemon()?1:0).append(':');
         sb.append(18).append(':').append(getStars()).append(':');
         sb.append(19).append(':').append(getFeatureScore()).append(':');
-        sb.append(25).append(':').append(getAuto()).append(':');
+        sb.append(25).append(':').append(isAuto()?1:0).append(':');
         sb.append(27).append(':').append(getPassword()).append(':');
         sb.append(28).append(':').append(getUploadDate()).append(':');
         sb.append(29).append(':').append(getUpdateDate()).append(':');
@@ -196,7 +198,7 @@ public class Level extends GDObject {
         sb.append("14:").append(getLikes()).append(":");
         sb.append("17:").append(isDemon() ? 1 : 0).append(":");
         sb.append("43:").append(getDemonDifficulty()).append(":");
-        sb.append("25:").append(getAuto()).append(":");
+        sb.append("25:").append(isAuto()?1:0).append(":");
         sb.append("18:").append(getStars()).append(":");
         sb.append("19:").append(getFeatureScore()).append(":");
         sb.append("42:").append(isEpic() ? 1 : 0).append(":");
@@ -242,7 +244,7 @@ public class Level extends GDObject {
         sb.append(17).append(sep).append(isDemon()?1:0).append(sep);
         sb.append(18).append(sep).append(getStars()).append(sep);
         sb.append(19).append(sep).append(getFeatureScore()).append(sep);
-        sb.append(25).append(sep).append(getAuto()).append(sep);
+        sb.append(25).append(sep).append(isAuto()?1:0).append(sep);
         sb.append(27).append(sep).append(getPassword()).append(sep);
         sb.append(28).append(sep).append(getUploadDate()).append(sep);
         sb.append(29).append(sep).append(getUpdateDate()).append(sep);
@@ -262,6 +264,31 @@ public class Level extends GDObject {
         sb.append(46).append(sep).append(getEditorTime());
         return sb.toString();
     }
+
+    String genHash() { // прост
+        try {
+            String s = getLevelString();
+            char[] lname = getLevelName().toCharArray();
+            StringBuilder chars = new StringBuilder();
+            int startIndex = (lname.length+getAuthor().getUsername().length()/lname.length)-1;
+            int indexIterVal = s.getBytes()[28]/lname.length-1;
+            for (char c : s.toCharArray()) {
+                try {
+                    chars.append(c);
+                    chars.append(s.toCharArray()[startIndex]);
+                    startIndex += indexIterVal;
+                } catch (IndexOutOfBoundsException e) {
+                    break;
+                }
+            }
+            String ret = Utils.SHA256(chars.toString(), new String(lname));
+            ret = ret.substring(ret.length()-8);
+            return ret;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public Level() {}
 
     public Level(int levelID, String levelName, String description,
@@ -283,7 +310,7 @@ public class Level extends GDObject {
         this.version = version;
         this.authorID = authorID;
         this.difficultyDenominator = difficultyDenominator;
-        this.difficultyNumerator = difficultyNumerator;
+        this.difficultyNumerator = LevelDifficulty.toLevelDifficulty(difficultyNumerator);
         this.downloads = downloads;
         this.audioTrack = audioTrack;
         this.gameVersion = gameVersion;
@@ -293,7 +320,7 @@ public class Level extends GDObject {
         this.demon = demon;
         this.stars = stars;
         this.featureScore = featureScore;
-        this.auto = auto;
+        this.auto = auto==1;
         this.password = password;
         this.uploadDate = uploadDate;
         this.updateDate = updateDate;
@@ -305,13 +332,14 @@ public class Level extends GDObject {
         this.starsRequested = starsRequested;
         this.dailyNumber = dailyNumber;
         this.epic = epic;
-        this.demonDifficulty = demonDifficulty;
+        this.demonDifficulty = DemonDifficulty.toDemonDifficulty(demonDifficulty);
         this.isGauntlet = isGauntlet;
         this.objects = objects;
         this.editorTime = editorTime;
         this.unlisted = unlisted;
         this.original = original;
         this.ldm = ldm;
+        this.hashCode = genHash();
     }
 
     public Level(int gameVersion,
@@ -360,7 +388,7 @@ public class Level extends GDObject {
                 throw new InvalidValueException("Invalid length");
         }
         this.audioTrack = audioTrack;
-        this.auto = auto;
+        this.auto = auto==1;
         this.password = password;
         this.original = original;
         this.twoPlayer = twoPlayer;
@@ -371,6 +399,7 @@ public class Level extends GDObject {
         this.unlisted = unlisted;
         this.ldm = ldm;
         this.levelString = levelString;
+        this.hashCode = genHash();
     }
 
     public Level(int gameVersion,
@@ -417,7 +446,7 @@ public class Level extends GDObject {
                 throw new InvalidValueException("Invalid length");
         }
         this.audioTrack = audioTrack;
-        this.auto = auto;
+        this.auto = auto==1;
         this.password = password;
         this.original = original;
         this.twoPlayer = twoPlayer;
@@ -428,9 +457,10 @@ public class Level extends GDObject {
         this.unlisted = unlisted;
         this.ldm = ldm;
         this.levelString = levelString;
+        this.hashCode = genHash();
     }
 
-    public int upload(boolean saveAsFile) {
+    public synchronized int upload(boolean saveAsFile) {
         if (getLevelID() != -1) {
             this.levelID = lastLevelID;
             try (PreparedStatement ps = conn.prepareStatement("INSERT INTO levels (gameVersion, authorID, authorGjp, authorName," +
@@ -448,7 +478,7 @@ public class Level extends GDObject {
                 ps.setInt(7, getVersion());
                 ps.setInt(8, getLengthInt());
                 ps.setInt(9, getAudioTrack());
-                ps.setInt(10, getAuto());
+                ps.setBoolean(10, isAuto());
                 ps.setInt(11, getPassword());
                 ps.setInt(12, getOriginal());
                 ps.setBoolean(13, isTwoPlayer());
@@ -485,7 +515,7 @@ public class Level extends GDObject {
                 ps.setInt(7, getVersion());
                 ps.setInt(8, getLengthInt());
                 ps.setInt(9, getAudioTrack());
-                ps.setInt(10, getAuto());
+                ps.setBoolean(10, isAuto());
                 ps.setInt(11, getPassword());
                 ps.setInt(12, getOriginal());
                 ps.setBoolean(13, isTwoPlayer());
@@ -590,12 +620,12 @@ public class Level extends GDObject {
         if (diff!=null) {
             try {
                 int d = Integer.parseInt(diff);
-                sortedLvlsTree.removeIf(x -> x.getDifficultyDenominator() != d);
+                sortedLvlsTree.removeIf(x -> x.getDifficultyDenominator() != d/10);
                 if (d == -2) {
                     String finalDemonFilter = demonFilter;
                     switch (demonFilter) {
                         case "1", "2", "3", "4", "5" ->
-                                sortedLvlsTree.removeIf(x -> x.getDemonDifficulty() != Integer.parseInt(finalDemonFilter));
+                                sortedLvlsTree.removeIf(x -> x.getDemonDifficulty().toInt() != Integer.parseInt(finalDemonFilter));
                         default -> {
                             String[] dfsString = demonFilter.split(",");
                             List<Integer> dfs = new ArrayList<>(dfsString.length);
@@ -613,10 +643,12 @@ public class Level extends GDObject {
                 for (String s : diffsString) {
                     try {
                         diffs.add(Integer.parseInt(s));
-                    } catch (NumberFormatException ignored) {
-                    }
+                    } catch (NumberFormatException ignored) {}
                 }
-                sortedLvlsTree.removeIf(x -> !diffs.contains(x.getDifficultyDenominator()));
+                sortedLvlsTree.removeIf(x -> !diffs.contains(x.getDifficultyNumerator().toInt()/10));
+                if (diffs.contains(-3)) {
+                    sortedLvlsTree.removeIf(x -> !x.isAuto());
+                }
             }
         }
 
@@ -780,12 +812,29 @@ public class Level extends GDObject {
         return sb.toString();
     }
 
-    public static String download(String secret, int id) throws Exception {
+    public static String download(int id) throws Exception {
+        boolean daily = false;
+        if (id==-1) {
+            id = getCurrentDailyLevelID();
+            daily = true;
+        }
         Level l = map(id, true);
         String s = l +"#"+Utils.genSolo(l.getLevelString());
         String hash = l.getAuthorID()+","+(l.getStars()!=0?1:0)+","+(l.isDemon()?1:0)+","+l.getLevelID()+","+(l.isVerifiedCoins()?1:0)+","+(l.getFeatureScore()==0?0:1)+","+l.getPassword()+","+0;
         l.addDownloads(1);
-        return s+"#"+Utils.SHA1(hash, "xI25fpAapCQg");
+        return s+"#"+Utils.SHA1(hash, "xI25fpAapCQg")+(daily?"#"+l.getAuthor().toCreatorString():"");
+    }
+
+    public static String getDaily(boolean weekly) {
+        try(Statement s = conn.createStatement()) {
+            ResultSet rs = s.executeQuery("SELECT MAX(dailyNumber) FROM levels WHERE dailyNumber != 0");
+            if (rs.next()) {
+                currentDailyNumber = rs.getInt(1);
+            } else currentDailyNumber = 0;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return (getCurrentDailyNumber()+(weekly?100001:0))+"|"+"120"; //later
     }
 
     public void save() throws IOException {
