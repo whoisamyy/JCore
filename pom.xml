@@ -13,9 +13,28 @@
 	<version>0.0.2-RELEASE</version>
 	<name>core</name>
 	<description>Geometry Dash core in java</description>
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>https://raw.githubusercontent.com/whoisamyy/JCore/main/LICENSE</url>
+		</license>
+	</licenses>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
+	<developers>
+		<developer>
+			<name>egor nishtyak (егор ништяк)</name>
+			<email>whoamiisnomatter@mail.ru</email>
+			<organization>archive</organization>
+			<organizationUrl>https://discord.gg/4mpres7Adp</organizationUrl>
+		</developer>
+	</developers>
+	<scm>
+		<connection>scm:git:git://github.com/whoisamyy/JCore.git</connection>
+		<developerConnection>scm:git:git://github.com:whoisayy/JCore.git</developerConnection>
+		<url>https://github.com/whoisamyy/JCore</url>
+	</scm>
 	<dependencies>
 		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-maven-plugin -->
 		<dependency>
