@@ -57,6 +57,14 @@ public class Core {
 			Level.lastLevelID = rs.next()?rs.getInt(1):1;
 			logger.info("Level last id: "+Level.lastLevelID);
 
+			rs = s.executeQuery("SELECT MAX(dailyNumber) FROM levels WHERE dailyNumber != 0");
+			Level.currentDailyNumber = rs.next()?rs.getInt(1):0;
+			logger.info("Last daily number: "+Level.getCurrentDailyNumber());
+
+			rs = s.executeQuery("SELECT levelID FROM levels WHERE dailyNumber != 0 ORDER BY dailyNumber DESC");
+			Level.currentDailyLevelID = rs.next()?rs.getInt(1):1;
+			logger.info("Daily level ID: "+Level.getCurrentDailyLevelID());
+
 			rs = s.executeQuery("SELECT MAX(ID) FROM songs");
 			Song.lastSongID = rs.next()?rs.getInt(1):1;
 			logger.info("Custom song last id: "+Song.lastSongID);
@@ -76,6 +84,7 @@ public class Core {
 			rs = s.executeQuery("SELECT MAX(ID) FROM messages");
 			Message.lastMessageID = rs.next()?rs.getInt(1):1;
 			logger.info("Message last id: "+Message.lastMessageID);
+
 
 			logger.info("Initialized database: "+((System.currentTimeMillis()-curtime))+"ms");
 
