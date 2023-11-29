@@ -38,7 +38,8 @@ public enum EndpointName {
     SONGS_UPLOAD("songAdd", 30, UploadSongEvent.class),
     LIKE("likeGJItem", 31, LikeEvent.class),
     MOD_REQUEST_USER_ACCESS("requestGJUserAccess", 32, RequestUserAccessEvent.class),
-    FRIEND_REMOVE("removeGJFriend", 33, RemoveFriendEvent.class); //TODO add all endpoints
+    FRIEND_REMOVE("removeGJFriend", 33, RemoveFriendEvent.class),
+    LEVELS_GET_DAILY("getGJDailyLevel", 34, GetDailyLevelEvent.class); //TODO add all endpoints
 
 
     private final String name;
