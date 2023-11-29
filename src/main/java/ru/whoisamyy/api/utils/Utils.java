@@ -120,6 +120,26 @@ public class Utils {
         }
     }
 
+    public static String SHA256(String input, String salt)
+    {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+
+            byte[] messageDigest = md.digest((input+salt).getBytes());
+
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : messageDigest) {
+                hexString.append(String.format("%02x", b));
+            }
+
+            return hexString.toString();
+        }
+
+        catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static String SHA1(String input)
     {
         try {
