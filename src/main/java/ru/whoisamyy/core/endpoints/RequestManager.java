@@ -212,6 +212,27 @@ public class RequestManager {
             return ret;
         }
 
+        @PostMapping("/{serverURL}/getGJDailyLevel.php")
+        public String getGJDailyLevel(@RequestParam @Nullable Boolean weekly) {
+            weekly = weekly != null && weekly;
+            Object[] vals = {weekly};
+            try {
+                Parameter[] pars = RequestManager.Levels.class.getMethod("getGJDailyLevel", Boolean.class).getParameters();
+                PluginManager.runEndpointMethods(vals, pars, EndpointName.LEVELS_GET_DAILY);
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+
+            try {
+                new GetDailyLevelEvent(vals).callEvent();
+            } catch (NoSuchFieldException e) {
+                throw new RuntimeException(e);
+            }
+            var ret = Level.getDaily(weekly);
+            logger.info(ret);
+            return ret;
+        }
+
         @PostMapping("/{serverURL}/downloadGJLevel22.php")
         public String downloadGJLevel(
                 @RequestParam int levelID,
@@ -243,7 +264,7 @@ public class RequestManager {
                     throw new RuntimeException(e);
                 }
 
-                String s = Level.download(secret, levelID);
+                String s = Level.download(levelID);
                 return s;
             } catch (Exception e) { 
                 throw new RuntimeException(e);
