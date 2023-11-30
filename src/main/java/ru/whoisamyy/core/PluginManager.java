@@ -151,7 +151,7 @@ public class PluginManager {
     public static void runEndpointMethods(Object[] vals, Parameter[] pars, EndpointName endpointName) throws InvocationTargetException, IllegalAccessException {
         HashMap<String, Object> parsVals = new HashMap();
 
-        for(int i = 0; i < pars.length; ++i) {
+        for(int i = 0; i < pars.length; i++) {
             parsVals.put(pars[i].getName(), vals[i]);
         }
 

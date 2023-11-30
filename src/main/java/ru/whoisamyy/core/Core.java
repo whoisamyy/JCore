@@ -98,12 +98,24 @@ public class Core {
 
 			logger.info("Initializing storages...");
 			curtime = System.currentTimeMillis();
+			long t = System.currentTimeMillis();
 			RequestManager.accounts = Account.getAccountsHashtable();
+			logger.info("Accounts initialized. "+(System.currentTimeMillis()-t)+"ms");
+			t = System.currentTimeMillis();
 			RequestManager.levels = Level.getLevelsHashtable();
+			logger.info("Levels initialized. "+(System.currentTimeMillis()-t)+"ms");
+			t = System.currentTimeMillis();
 			RequestManager.comments = Comment.getCommentsHashset();
+			logger.info("Comments initialized. "+(System.currentTimeMillis()-t)+"ms");
+			t = System.currentTimeMillis();
 			RequestManager.messages = Message.getMessagesHashtable();
+			logger.info("Messages initialized. "+(System.currentTimeMillis()-t)+"ms");
+			t = System.currentTimeMillis();
 			RequestManager.scores = Score.getScoresHashtable();
+			logger.info("Scores initialized. "+(System.currentTimeMillis()-t)+"ms");
+			t = System.currentTimeMillis();
 			RequestManager.songs = Song.getSongsHashtable();
+			logger.info("Songs initialized. "+(System.currentTimeMillis()-t)+"ms");
 
 			Utils.createDirs();
 			logger.info("Initialized storages: "+((System.currentTimeMillis()-curtime))+"ms");
