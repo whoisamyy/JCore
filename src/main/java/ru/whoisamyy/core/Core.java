@@ -6,6 +6,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.yaml.snakeyaml.Yaml;
+import ru.whoisamyy.api.gd.commands.CommandManager;
+import ru.whoisamyy.api.gd.misc.GDObject;
 import ru.whoisamyy.api.gd.misc.RelationshipsManager;
 import ru.whoisamyy.api.gd.objects.*;
 import ru.whoisamyy.api.utils.Utils;
@@ -34,6 +36,7 @@ public class Core {
         getSettings();
 		SpringApplication.run(Core.class, args);
 		PluginManager.getInstance().initializePlugins();
+		CommandManager.getInstance().initializeCommands("ru.whoisamyy.api.gd.commands");
 
 		logger.info("Resources folder located at "+ Utils.resources.toString());
 		long curtime;
@@ -43,13 +46,15 @@ public class Core {
 			conn = DriverManager.getConnection(url, username, password);
 			//createDatabase();
 
-			Account.setConn(conn);
-			Song.setConn(conn);
-			Level.setConn(conn);
-			Score.conn = conn;
-			Message.conn = conn;
-			Comment.conn = conn;
-			RelationshipsManager.conn = conn;
+			GDObject.setConn(conn);
+
+			//Account.setConn(conn);
+			//Song.setConn(conn);
+			//Level.setConn(conn);
+			//Score.conn = conn;
+			//Message.conn = conn;
+			//Comment.conn = conn;
+			//RelationshipsManager.conn = conn;
 
 			Statement s = conn.createStatement();
 			ResultSet rs;

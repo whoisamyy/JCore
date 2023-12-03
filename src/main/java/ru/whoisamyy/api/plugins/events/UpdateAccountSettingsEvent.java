@@ -14,7 +14,7 @@ public class UpdateAccountSettingsEvent extends Event {
 
     void init() {
         try {
-            Method m = RequestManager.Accounts.class.getMethod("updateGJAccSettings", int.class, Integer.class, Integer.class, Integer.class, String.class, String.class, String.class, String.class, String.class);
+            Method m = RequestManager.Accounts.class.getMethod("updateGJAccSettings", Integer.class, Integer.class, Integer.class, Integer.class, String.class, String.class, String.class, String.class, String.class);
             List<Class<?>> at = new ArrayList<>(List.of(m.getParameterTypes()));
             at.add(m.getReturnType());
             allowedTypes = at;

@@ -4,15 +4,11 @@ import java.util.HashMap;
 
 public abstract class Command<T> implements CommentCommand<T> {
     public String commandName;
-
     public HashMap<String, Object> namedArgs = new HashMap<>();
 
-    public Command(CommandArgument... args) {
-        for (CommandArgument arg: args) {
-            namedArgs.put(arg.argumentName(), arg.value());
-        }
+    public Command(CommandArgument arg) {
+        this.namedArgs.putAll(arg.namedArgs());
     }
-
 
     /**
      * Not recommended

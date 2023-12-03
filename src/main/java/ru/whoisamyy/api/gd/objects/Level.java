@@ -28,7 +28,7 @@ public class Level extends GDObject {
     @Getter public static int currentDailyLevelID;
 
     @Getter private static final Hashtable<Integer, Level> levels = new Hashtable<>();
-    @Getter private static Connection conn;
+    //@Getter private static Connection conn;
 
     @Getter
     public static Path levelResourcesPath = Paths.get(Utils.resources.toString()+"/data/levels");
@@ -563,6 +563,18 @@ public class Level extends GDObject {
         l.setDemonDifficulty(DemonDifficulty.sequenceNumberToDemonDifficulty(rating));
     }
 
+    public static void suggestStars(int levelID, int stars, boolean feature) {
+        //делай сам (diy)
+        //если не сделаешь сам то просто поставит сложность в зависимости от звёзд
+        Hashtable<Integer, Level> levelHashtable = getLevelsHashtable();
+
+        Level l = levelHashtable.get(levelID);
+        if (stars <= 10)
+            l.setDifficultyNumerator(LevelDifficulty.toLevelDifficulty(stars));
+        else
+            l.setDemonDifficulty(DemonDifficulty.sequenceNumberToDemonDifficulty(stars));
+    }
+
     public static void rateStars(int stars, int levelID) {
         Hashtable<Integer, Level> levelHashtable = getLevelsHashtable();
 
@@ -942,6 +954,7 @@ public class Level extends GDObject {
     }
 
     public static Level map(int levelID) {
+        if (levels.containsKey(levelID)) return levels.get(levelID);
         String sql = "SELECT * FROM levels WHERE levelID = ?";
         try(PreparedStatement ps = getConn().prepareStatement(sql)) {
             ps.setInt(1, levelID);
@@ -966,6 +979,7 @@ public class Level extends GDObject {
      * @return Level object
      */
     public static Level map(int levelID, boolean full) {
+        if (levels.containsKey(levelID)) return levels.get(levelID);
         if (!full) return map(levelID);
         String sql = "SELECT * FROM `levels` WHERE levelID = ?";
         try(PreparedStatement ps = getConn().prepareStatement(sql)) {

@@ -16,7 +16,7 @@ import java.util.*;
 public class Comment extends GDObject {
     public static int lastCommentID;
     private static final HashSet<Comment> comments = new HashSet<>();
-    public static Connection conn;
+    //public static Connection conn;
 
     @Setter int ID;
     @Setter int accountID; //comment author id

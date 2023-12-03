@@ -14,9 +14,9 @@ import static ru.whoisamyy.api.gd.misc.RelationshipsManager.isBlocked;
 
 public class Message extends GDObject {
     public static int lastMessageID;
-    private static Hashtable<Integer, Message> messages = new Hashtable<>();
+    private static final Hashtable<Integer, Message> messages = new Hashtable<>();
 
-    public static Connection conn;
+    //public static Connection conn;
 
     @Getter
     int ID;
@@ -121,7 +121,7 @@ public class Message extends GDObject {
 
         if (sb.isEmpty()) return "";
         sb.deleteCharAt(sb.length()-1);
-        return sb.toString()+"#"+count+":"+page*10+":10";
+        return sb +"#"+count+":"+page*10+":10";
     }
 
     public static byte delete(int id) {
@@ -148,16 +148,15 @@ public class Message extends GDObject {
     }
 
     public String toString(boolean isSender) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("1:").append(ID).append(":");
-        sb.append("2:").append(senderID).append(":");
-        sb.append("3:").append(targetID).append(":");
-        sb.append("4:").append(subject).append(":");
-        sb.append("5:").append(body).append(":");
-        sb.append("6:").append(Account.map(targetID).getUsername()).append(":");
-        sb.append("8:").append(isNew?1:0).append(":");
-        sb.append("9:").append(isSender?1:0).append(":");
-        return sb.toString();
+        String sb = "1:" + ID + ":" +
+                "2:" + senderID + ":" +
+                "3:" + targetID + ":" +
+                "4:" + subject + ":" +
+                "5:" + body + ":" +
+                "6:" + Account.map(targetID).getUsername() + ":" +
+                "8:" + (isNew ? 1 : 0) + ":" +
+                "9:" + (isSender ? 1 : 0) + ":";
+        return sb;
     }
 
     @Override
@@ -166,19 +165,19 @@ public class Message extends GDObject {
     }
 
     public String toString(String sep) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("1").append(sep).append(ID).append(sep);
-        sb.append("2").append(sep).append(senderID).append(sep);
-        sb.append("3").append(sep).append(targetID).append(sep);
-        sb.append("4").append(sep).append(subject).append(sep);
-        sb.append("5").append(sep).append(body).append(sep);
-        sb.append("6").append(sep).append(Account.map(targetID).getUsername()).append(sep);
-        sb.append("8").append(sep).append(isNew?1:0).append(sep);
-        sb.append("9").append(sep).append(0).append(sep);
-        return sb.toString();
+        String sb = "1" + sep + ID + sep +
+                "2" + sep + senderID + sep +
+                "3" + sep + targetID + sep +
+                "4" + sep + subject + sep +
+                "5" + sep + body + sep +
+                "6" + sep + Account.map(targetID).getUsername() + sep +
+                "8" + sep + (isNew ? 1 : 0) + sep +
+                "9" + sep + 0 + sep;
+        return sb;
     }
 
     public static Message map(int messageID) {
+        if (messages.containsKey(messageID)) return messages.get(messageID);
         try(PreparedStatement ps = conn.prepareStatement("SELECT person1ID, person2ID, subject, body, isNew FROM messages WHERE ID = ?")) {
             ps.setInt(1, messageID);
 

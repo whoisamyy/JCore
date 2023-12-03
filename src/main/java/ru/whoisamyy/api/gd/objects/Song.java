@@ -1,5 +1,6 @@
 package ru.whoisamyy.api.gd.objects;
 
+import lombok.Getter;
 import ru.whoisamyy.api.gd.misc.GDObject;
 
 import java.sql.Connection;
@@ -11,63 +12,19 @@ import java.util.Hashtable;
 public class Song extends GDObject {
     public static int lastSongID;
 
-    private static Hashtable<Integer, Song> songs = new Hashtable<>();
-    private static Connection conn;
+    private static final Hashtable<Integer, Song> songs = new Hashtable<>();
+    //private static Connection conn;
 
-    private int id;
-    private String name = "heh), naivniye";
-    private int artistID = 1;
-    private String artistName = "songreupload";
-    private double size = 2.8;
-    private String videoID = "";
-    private String youtubeURL = "UCejLri1RVC7kj8ZVNX2a53g";
-    private boolean isVerified = true;
-    private int songPriority = 0;
-    private String link;
-
-    public static int getLastSongID() {
-        return lastSongID;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getArtistID() {
-        return artistID;
-    }
-
-    public String getArtistName() {
-        return artistName;
-    }
-
-    public double getSize() {
-        return size;
-    }
-
-    public String getVideoID() {
-        return videoID;
-    }
-
-    public String getYoutubeURL() {
-        return youtubeURL;
-    }
-
-    public boolean isVerified() {
-        return isVerified;
-    }
-
-    public int getSongPriority() {
-        return songPriority;
-    }
-
-    public String getLink() {
-        return link;
-    }
+    @Getter private int id;
+    @Getter private String name = "heh), naivniye";
+    @Getter private final int artistID = 1;
+    @Getter private String artistName = "songreupload";
+    @Getter private double size = 2.8;
+    @Getter private final String videoID = "";
+    @Getter private final String youtubeURL = "UCejLri1RVC7kj8ZVNX2a53g";
+    @Getter private boolean isVerified = true;
+    @Getter private final int songPriority = 0;
+    @Getter private String link;
 
     public static void setConn(Connection conn) {
         Song.conn = conn;
@@ -86,32 +43,30 @@ public class Song extends GDObject {
     }
 
     public String toString(String sep) { // 1 ~|~ 223469 ~|~  2 ~|~ ParagonX9 - HyperioxX ~|~  3 ~|~ 31 ~|~  4 ~|~ ParagonX9 ~|~  5 ~|~ 3.77 ~|~  6 ~|~ ~|~  10 ~|~ http%3A%2F%2Faudio.ngfiles.com%2F223000%2F223469_ParagonX9___HyperioxX.mp3 ~|~  7~|~ ~|~  8 ~|~ 1
-        StringBuilder sb = new StringBuilder();
-        sb.append(1).append(sep).append(getId()).append(sep);
-        sb.append(2).append(sep).append(getArtistID()).append(sep);
-        sb.append(3).append(sep).append(getName()).append(sep);
-        sb.append(4).append(sep).append(getArtistName()).append(sep);
-        sb.append(5).append(sep).append(getSize()).append(sep);
-        sb.append(6).append(sep).append(sep);
-        sb.append(10).append(sep).append(getLink()).append(sep);
-        sb.append(7).append(sep).append(getYoutubeURL());
+        String sb = 1 + sep + getId() + sep +
+                2 + sep + getArtistID() + sep +
+                3 + sep + getName() + sep +
+                4 + sep + getArtistName() + sep +
+                5 + sep + getSize() + sep +
+                6 + sep + sep +
+                10 + sep + getLink() + sep +
+                7 + sep + getYoutubeURL();
         //sb.append(8).append(sep).append(isVerified()?1:0);
-        return sb.toString();
+        return sb;
     }
 
     public String toString() { //  1 ~|~ 223469 ~|~  2 ~|~ ParagonX9 - HyperioxX ~|~  3 ~|~ 31 ~|~  4 ~|~ ParagonX9 ~|~  5 ~|~ 3.77 ~|~  6 ~|~ ~|~  10 ~|~ http%3A%2F%2Faudio.ngfiles.com%2F223000%2F223469_ParagonX9___HyperioxX.mp3 ~|~  7~|~ ~|~  8 ~|~ 1
         String sep = "~|~";
-        StringBuilder sb = new StringBuilder();
-        sb.append(1).append(sep).append(getId()).append(sep);
-        sb.append(2).append(sep).append(getName()).append(sep);
-        sb.append(3).append(sep).append(2159).append(sep);
-        sb.append(4).append(sep).append(getArtistName()).append(sep);
-        sb.append(5).append(sep).append(getSize()).append(sep);
-        sb.append(6).append(sep).append(sep);
-        sb.append(10).append(sep).append(getLink()).append(sep);
-        sb.append(7).append(sep).append(getYoutubeURL());
+        String sb = 1 + sep + getId() + sep +
+                2 + sep + getName() + sep +
+                3 + sep + 2159 + sep +
+                4 + sep + getArtistName() + sep +
+                5 + sep + getSize() + sep +
+                6 + sep + sep +
+                10 + sep + getLink() + sep +
+                7 + sep + getYoutubeURL();
         //sb.append(8).append(sep).append(isVerified()?1:0);
-        return sb.toString();
+        return sb;
     }
 
     public Song() {}
@@ -157,6 +112,7 @@ public class Song extends GDObject {
     }
 
     public static Song map(int songID) {
+        if (songs.containsKey(songID)) return songs.get(songID);
         try(PreparedStatement ps = conn.prepareStatement("SELECT name, artistName, size, link FROM songs WHERE ID = ?")) {
             ps.setInt(1, songID);
 

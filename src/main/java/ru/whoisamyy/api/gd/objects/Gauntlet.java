@@ -15,7 +15,7 @@ import java.util.List;
 @Getter
 public class Gauntlet extends GDObject {
     public static Hashtable<Integer, Gauntlet> gauntlets = new Hashtable<>();
-    @Setter private static Connection conn;
+    //@Setter private static Connection conn;
 
     private int id = 1;
     private List<Level> levels;
@@ -57,7 +57,6 @@ public class Gauntlet extends GDObject {
         return sb.toString();
     }
 
-    @Override
     public String toString(String sep) {
         StringBuilder sb = new StringBuilder();
         sb.append(1).append(":").append(getId()).append(":");
@@ -72,7 +71,9 @@ public class Gauntlet extends GDObject {
     public static String getGauntlets() {
         StringBuilder sb = new StringBuilder();
         gauntlets.forEach((x,y)->sb.append(y.toString()).append("|"));
-        sb.deleteCharAt(sb.length()-1);
+        try {
+            sb.deleteCharAt(sb.length() - 1);
+        } catch (IndexOutOfBoundsException ignored) {}
         return sb.toString();
     }
 

@@ -42,7 +42,11 @@ public enum EndpointName {
     COMMENT_DELETE("deleteGJComment", 35, DeleteCommentEvent.class),
     GAUNTLETS_GET("getGJGauntlets", 36, GetGauntletsEvent.class),
     LEVELS_RATE_STARS("rateGJStars", 37, RateLevelStarsEvent.class),
-    LEVELS_RATE_DEMON("rateGJDemon", 38, RateLevelDemonEvent.class);
+    LEVELS_RATE_DEMON("rateGJDemon", 38, RateLevelDemonEvent.class),
+    LEVELS_SUGGEST_STARS("suggestGJStars", 39, SuggestLevelStarsEvent.class),
+    CHALLENGES_GET("getGJChallenges", 40, GetChallengesEvent.class),
+    REWARDS_GET("getGJRewards", 41, GetRewardsEvent.class),
+    USER_SCORE_UPDATE("updateGJUserScore", 42, UpdateUserScoreEvent.class);
     //TODO add all endpoints
 
 
