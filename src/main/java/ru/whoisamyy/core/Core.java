@@ -6,14 +6,16 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.yaml.snakeyaml.Yaml;
-import ru.whoisamyy.api.gd.commands.CommandManager;
-import ru.whoisamyy.api.gd.misc.GDObject;
-import ru.whoisamyy.api.gd.misc.RelationshipsManager;
+import ru.whoisamyy.api.gd.commands.RateCommand;
 import ru.whoisamyy.api.gd.objects.*;
+import ru.whoisamyy.api.plugins.annotations.CommandHandler;
+import ru.whoisamyy.api.plugins.commands.Command;
+import ru.whoisamyy.api.plugins.commands.CommandManager;
 import ru.whoisamyy.api.utils.Utils;
 import ru.whoisamyy.core.endpoints.RequestManager;
 
 import java.io.*;
+import java.lang.reflect.Method;
 import java.sql.*;
 import java.util.Hashtable;
 import java.util.Map;
@@ -36,7 +38,7 @@ public class Core {
         getSettings();
 		SpringApplication.run(Core.class, args);
 		PluginManager.getInstance().initializePlugins();
-		CommandManager.getInstance().initializeCommands("ru.whoisamyy.api.gd.commands");
+		registerCommand("!", new RateCommand());
 
 		logger.info("Resources folder located at "+ Utils.resources.toString());
 		long curtime;
@@ -127,7 +129,7 @@ public class Core {
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
-		//Scanner scanner = new Scanner(System.in); //зародыш команд
+		//Scanner scanner = new Scanner(System.in); //зародыш консольных команд
 		/*
 		File file = new File("src/main/resources/database.sql");
 		String sql;
@@ -239,5 +241,13 @@ public class Core {
 		Map<String, Object> data = yaml.load(input);
 		serverURL = (String) data.get("server_url");
 		return serverURL;
+	}
+
+	 static <T extends Command> void registerCommand(String commandPrefix, T commandClass) {
+		for (Method md : commandClass.getClass().getMethods()) {
+			if (md.isAnnotationPresent(CommandHandler.class)) {
+				CommandManager.getInstance().addCommand(commandPrefix, md.getAnnotation(CommandHandler.class).commandName(), commandClass);
+			}
+		}
 	}
 }

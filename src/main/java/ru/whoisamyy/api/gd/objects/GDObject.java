@@ -1,4 +1,4 @@
-package ru.whoisamyy.api.gd.misc;
+package ru.whoisamyy.api.gd.objects;
 
 import lombok.Getter;
 

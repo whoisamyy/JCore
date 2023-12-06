@@ -7,6 +7,7 @@ import ru.whoisamyy.api.plugins.Plugin;
 import ru.whoisamyy.api.plugins.annotations.EndpointParameter;
 import ru.whoisamyy.api.plugins.annotations.PluginClass;
 import ru.whoisamyy.api.plugins.annotations.RunMethod;
+import ru.whoisamyy.api.plugins.commands.CommandManager;
 import ru.whoisamyy.api.plugins.events.Event;
 import ru.whoisamyy.api.plugins.events.listeners.EventHandler;
 import ru.whoisamyy.api.plugins.events.listeners.EventListener;
@@ -20,9 +21,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.net.MalformedURLException;
-import java.net.URLClassLoader;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.jar.JarEntry;
@@ -67,13 +67,16 @@ public class PluginManager {
                             if (!className.endsWith(".class")) continue;
 
                             className = className.replaceAll("/", ".").replace(".class", "");
+
+                            logger.info(className);
+
                             Class<?> loadedClass = classLoader.loadClass(className);
 
                             if (loadedClass.isAnnotationPresent(PluginClass.class)) {
                                 String name = loadedClass.getAnnotation(PluginClass.class).pluginName();
                                 Object instance = loadedClass.getDeclaredConstructor(String.class).newInstance(name);
                                 if (instance instanceof Plugin p) {
-                                    ru.whoisamyy.api.plugins.Plugin pl = p.initializePlugin(Core.conn, className, EventListener.getInstance());
+                                    ru.whoisamyy.api.plugins.Plugin pl = p.initializePlugin(Core.conn, EventListener.getInstance(), CommandManager.getInstance());
 
                                     this.plugins.put(pl.getPriority(), pl);
                                     Hashtable<EndpointName, Method> pluginMethods = pl.getMethods();

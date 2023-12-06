@@ -1,12 +1,10 @@
 package ru.whoisamyy.api.gd.objects;
 
 import lombok.Getter;
-import ru.whoisamyy.api.gd.misc.GDObject;
 import ru.whoisamyy.api.utils.comparators.AccountComparators;
 import ru.whoisamyy.api.utils.comparators.ScoreComparators;
 import ru.whoisamyy.api.utils.enums.LeaderboardType;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;

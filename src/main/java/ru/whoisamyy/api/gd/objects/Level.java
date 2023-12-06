@@ -6,7 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.lang.Nullable;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import ru.whoisamyy.api.gd.misc.GDObject;
 import ru.whoisamyy.api.utils.Utils;
 import ru.whoisamyy.api.utils.comparators.LevelComparators;
 import ru.whoisamyy.api.utils.enums.DemonDifficulty;
@@ -36,11 +35,11 @@ public class Level extends GDObject {
 
     @Getter private int levelID = -1;
     @Getter private String levelName = "zero";
-    @Setter @Getter private String description = "zero";
-    @Setter @Getter private String levelString = "H4sIAAAAAAAAC63WzQ3UMBAG0IYWlNjz4xUnaqCAFEALiNrJrh-cQEKCy47imTjS0xdvvn6Z63FecVzjOkde8xqZ13nuMnbZi3F9OK-6zuM4rr7O68zXz7qOa13nt_N6b3GMv9vi_Pctnr_d4jWzb_irTcb1uv8_bJT_a6P6w0aPr5_P-TheJXepXeJxHh8rvx_f77rGrs_1qufHM3edY9ewXtaX9T0_zA39oT_0p_2muWlu6od-6Ifnhbkwl_qpn_rpeWmuzJW5Mlf6rd_6rd_2aXPL3DK3zC39p_7T-tP9z90fx-4PzoPz4Dw4D86D3-A3-A1ug9tdl-vd5zZ43XW53n1ug9fgNcrzeQ1eg9fgNXgNXoPT4DQ4DU53Xa53_-k5vAaveez1yWfymPI2z1_r733m0Je3u4b1sr7neN01XO8-t8ltyt3kN-Vucpz8Jr8pd5Pj5Dg5To6T311_9vc-bY7n5Dnlb_KcyxzXyXXK3-Q6ed41XO--HE45DDm8a7h-z4UchvwF7_B-B_fgG3zD-xycg29wDa7BNXiGXAbXSHN8g2twDe9zcA35DK7BNXgGz-AZchpcg2dwDDkN-QyewTE4ppwmx-SX_JJfym3yS34prymv6f1Onskx5TV5prwm1-SaXFNek29yTZ4pr8k1uSbX5JpcU26Ta3JNnskz5TN5pnwm15TP5Jpck2v-dJXP4lryWc7J4lvOheJcclp8i2_xLb7Ft7gW1-JZPItn8SyeJa_FteS1-BbX4lnOgeJaXItrcS3nQPEtviWnxbW4FteS1-JbfItvOQeKc_Ft-W3OzbnluDk335bj5tzy3Lybd_Nu50PzbudDy3Vzb3lu_s2_-Tf_5t_cm3fLc3NveW7-zb15t3OiuTf35t7cW66bf_Nv7s29uTfv5t28W66b--K-uC_eS74X9yXfi__ivngv_3uL--K-uC_ui_vivrgv7ov74r14L973V-H-Nuz9haisV_kyn--r8f7dH5Tvxud4_-7ueexyPo5PPwAQoD8oIwwAAA==";
+    @Getter private String description = "zero";
+    @Getter private String levelString = "H4sIAAAAAAAAC63WzQ3UMBAG0IYWlNjz4xUnaqCAFEALiNrJrh-cQEKCy47imTjS0xdvvn6Z63FecVzjOkde8xqZ13nuMnbZi3F9OK-6zuM4rr7O68zXz7qOa13nt_N6b3GMv9vi_Pctnr_d4jWzb_irTcb1uv8_bJT_a6P6w0aPr5_P-TheJXepXeJxHh8rvx_f77rGrs_1qufHM3edY9ewXtaX9T0_zA39oT_0p_2muWlu6od-6Ifnhbkwl_qpn_rpeWmuzJW5Mlf6rd_6rd_2aXPL3DK3zC39p_7T-tP9z90fx-4PzoPz4Dw4D86D3-A3-A1ug9tdl-vd5zZ43XW53n1ug9fgNcrzeQ1eg9fgNXgNXoPT4DQ4DU53Xa53_-k5vAaveez1yWfymPI2z1_r733m0Je3u4b1sr7neN01XO8-t8ltyt3kN-Vucpz8Jr8pd5Pj5Dg5To6T311_9vc-bY7n5Dnlb_KcyxzXyXXK3-Q6ed41XO--HE45DDm8a7h-z4UchvwF7_B-B_fgG3zD-xycg29wDa7BNXiGXAbXSHN8g2twDe9zcA35DK7BNXgGz-AZchpcg2dwDDkN-QyewTE4ppwmx-SX_JJfym3yS34prymv6f1Onskx5TV5prwm1-SaXFNek29yTZ4pr8k1uSbX5JpcU26Ta3JNnskz5TN5pnwm15TP5Jpck2v-dJXP4lryWc7J4lvOheJcclp8i2_xLb7Ft7gW1-JZPItn8SyeJa_FteS1-BbX4lnOgeJaXItrcS3nQPEtviWnxbW4FteS1-JbfItvOQeKc_Ft-W3OzbnluDk335bj5tzy3Lybd_Nu50PzbudDy3Vzb3lu_s2_-Tf_5t_cm3fLc3NveW7-zb15t3OiuTf35t7cW66bf_Nv7s29uTfv5t28W66b--K-uC_eS74X9yXfi__ivngv_3uL--K-uC_ui_vivrgv7ov74r14L973V-H-Nuz9haisV_kyn--r8f7dH5Tvxud4_-7ueexyPo5PPwAQoD8oIwwAAA==";
     @Getter private int version = 1;
     @Getter private int authorID;
-    @Setter @Getter private int difficultyDenominator = 0;
+    @Getter private int difficultyDenominator = 0;
     @Setter @Getter private LevelDifficulty difficultyNumerator = LevelDifficulty.UNRATED;
     @Getter private int downloads = 0;
     @Getter private int audioTrack = 0;
@@ -72,13 +71,175 @@ public class Level extends GDObject {
     @Getter private boolean ldm = false;
     @Getter private String hashCode; //прост по приколу  ¯\_(ツ)_/¯
 
+    public void setDescription(String description) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET description = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setString(1, description);
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+
+            this.description = description;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setLevelString(String levelString) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET levelString = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setString(1, levelString);
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+
+            this.levelString = levelString;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setDifficultyDenominator(int numerator) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET difficultyDenominator = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setInt(1, numerator);
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+
+            this.difficultyDenominator = numerator;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setDifficultyNumerator(LevelDifficulty numerator) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET difficultyNumerator = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setInt(1, numerator.toInt());
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+
+            this.difficultyNumerator = numerator;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setDifficultyNumerator(int numerator) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET difficultyNumerator = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setInt(1, numerator);
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+            this.difficultyNumerator = LevelDifficulty.toLevelDifficulty(numerator);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setStars(int stars) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET stars = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setInt(1, stars);
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+
+            this.stars = stars;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setFeatureScore(int score) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET featureScore = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setInt(1, score);
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+            this.featureScore = score;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setAuto(boolean auto) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET auto = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setBoolean(1, auto);
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+            this.auto = auto;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setDailyNumber(int number) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET dailyNumber = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setInt(1, number);
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+            this.dailyNumber = number;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setEpic(boolean epic) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET epic = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setBoolean(1, epic);
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+            this.epic = epic;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setDemon(boolean demon) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET demon = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setBoolean(1, demon);
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+
+            this.demon = demon;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setDemonDifficulty(DemonDifficulty numerator) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET demonDifficulty = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setInt(1, numerator.toInt());
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+            this.demonDifficulty = numerator;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setGauntlet(int num) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET isGauntlet = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setInt(1, num);
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+            this.isGauntlet = num;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void setDownloads(int value) {
         try(PreparedStatement ps = conn.prepareStatement("UPDATE levels SET downloads = ? WHERE levelID = ?")) {
             ps.setInt(1, value);
             ps.setInt(2, getLevelID());
 
+            ps.executeUpdate();
             this.downloads=value;
-            ps.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -586,9 +747,12 @@ public class Level extends GDObject {
         Hashtable<Integer, Level> levelHashtable = getLevelsHashtable();
 
         Level l = levelHashtable.get(id);
+        l.setDifficultyDenominator(10);
         l.setDifficultyNumerator(difficulty);
         l.setStars(stars);
         l.setEpic(epic);
+
+        updateLevels(id);
 
         levelHashtable.replace(id, l); //ohnice
     }
@@ -597,9 +761,12 @@ public class Level extends GDObject {
         Hashtable<Integer, Level> levelHashtable = getLevelsHashtable();
 
         Level l = levelHashtable.get(id);
+        l.setDifficultyDenominator(10);
         l.setDemonDifficulty(difficulty);
         l.setStars(stars);
         l.setEpic(epic);
+
+        updateLevels(id);
 
         levelHashtable.replace(id, l); //ohnice
     }
@@ -949,8 +1116,7 @@ public class Level extends GDObject {
     }
 
     public static void updateLevels(int id) {
-        levels.remove(id);
-        levels.put(id, map(id, true));
+        levels.replace(id, map(id, true));
     }
 
     public static Level map(int levelID) {
@@ -979,7 +1145,7 @@ public class Level extends GDObject {
      * @return Level object
      */
     public static Level map(int levelID, boolean full) {
-        if (levels.containsKey(levelID)) return levels.get(levelID);
+        //if (levels.containsKey(levelID)) return levels.get(levelID);
         if (!full) return map(levelID);
         String sql = "SELECT * FROM `levels` WHERE levelID = ?";
         try(PreparedStatement ps = getConn().prepareStatement(sql)) {

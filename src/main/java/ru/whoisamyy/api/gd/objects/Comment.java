@@ -3,10 +3,7 @@ package ru.whoisamyy.api.gd.objects;
 import lombok.Getter;
 import lombok.Setter;
 import ru.whoisamyy.api.utils.comparators.CommentComparators;
-import ru.whoisamyy.api.gd.misc.GDObject;
-import ru.whoisamyy.core.Core;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;

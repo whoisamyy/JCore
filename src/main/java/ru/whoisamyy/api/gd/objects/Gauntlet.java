@@ -1,10 +1,7 @@
 package ru.whoisamyy.api.gd.objects;
 
 import lombok.Getter;
-import lombok.Setter;
-import ru.whoisamyy.api.gd.misc.GDObject;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;

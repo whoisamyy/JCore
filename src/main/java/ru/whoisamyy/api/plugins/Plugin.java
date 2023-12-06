@@ -5,8 +5,11 @@ import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
+import ru.whoisamyy.api.plugins.annotations.CommandHandler;
 import ru.whoisamyy.api.plugins.annotations.EventListener;
 import ru.whoisamyy.api.plugins.annotations.PluginClass;
+import ru.whoisamyy.api.plugins.commands.Command;
+import ru.whoisamyy.api.plugins.commands.CommandManager;
 import ru.whoisamyy.api.plugins.events.Event;
 import ru.whoisamyy.api.plugins.events.listeners.EventHandler;
 import ru.whoisamyy.api.utils.Utils;
@@ -40,11 +43,8 @@ public abstract class Plugin implements Runnable {
     public Hashtable<EndpointName, Method> methods = new Hashtable<>(); //method endpoint, method
     public Hashtable<Class<? extends Event>, Set<EventHandler>> eventHandlers = new Hashtable<>();
     public Connection connection;
-    public ru.whoisamyy.api.plugins.events.listeners.EventListener eventListener;
-
-    private void setEventListener(ru.whoisamyy.api.plugins.events.listeners.EventListener eventListener) {
-        this.eventListener = eventListener;
-    }
+    @Setter public ru.whoisamyy.api.plugins.events.listeners.EventListener eventListener;
+    @Setter public CommandManager commandManager;
 
     public Plugin(String name) {
         this.name = name;
@@ -65,17 +65,17 @@ public abstract class Plugin implements Runnable {
     }
 
     /**
-     * Plugin initializer
+     * Initializes plugin objects
      * @param connection    Database connection for sql queries.
-     * @param packageName   Name of package, where object is located.
      * @param eventListener Instance of {@link ru.whoisamyy.api.plugins.events.listeners.EventListener}. Event listener is used in {@link Plugin#onEvent} method.
      * @return returns initialized plugin object
      */
-    public Plugin initializePlugin(Connection connection, String packageName, ru.whoisamyy.api.plugins.events.listeners.EventListener eventListener) {
-        setPackageName(packageName);
+    final public Plugin initializePlugin(Connection connection, ru.whoisamyy.api.plugins.events.listeners.EventListener eventListener, CommandManager commandManager) {
+        setPackageName(getClass().getPackageName());
         long startTime;
         startTime = init(connection);
         setEventListener(eventListener);
+        setCommandManager(commandManager);
         initialize();
         getLogger().info("Initialized plugin: "+ (System.currentTimeMillis()-startTime) +"ms");
         return this;
@@ -94,10 +94,10 @@ public abstract class Plugin implements Runnable {
 
     /**
      * Main initialize method in plugin.
-     * @param connection
+     * @param connection database connection
      * @return start time of initializing, used in {@link Plugin#initializePlugin} method
      */
-    protected long init(Connection connection) {
+    final protected long init(Connection connection) {
         setLogger(LogManager.getLogger(packageName));
         getLogger().info("Successfully registered logger");
         getLogger().info("Package name: "+packageName);
@@ -148,6 +148,7 @@ public abstract class Plugin implements Runnable {
     }
 
     //todo fix
+    @Deprecated
     private Set<Class<?>> getClasses(String packageName) throws ClassNotFoundException, IOException {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         String path = packageName.replace('.', '/');
@@ -196,7 +197,7 @@ public abstract class Plugin implements Runnable {
         return classes;
     }
 
-    public Version getVersion() {
+    final public Version getVersion() {
         try {
             String configPath = "plugins/configs/" + getName() + ".yml";
 
@@ -216,7 +217,7 @@ public abstract class Plugin implements Runnable {
         }
     }
 
-    public Priority getPriority() {
+    final public Priority getPriority() {
         try {
             String configPath = "plugins/configs/" + getName() + ".yml";
 
@@ -235,25 +236,33 @@ public abstract class Plugin implements Runnable {
         }
     }
 
-    protected void onEvent(Class<? extends Event> event, EventHandler[] eventHandlers) {
+    final protected void onEvent(Class<? extends Event> event, EventHandler[] eventHandlers) {
         //this.eventHandlers.put(event, Set.of(eventHandlers));
         getEventListener().registerHandlers(event, eventHandlers);
     }
 
-    protected void onEvent(Class<? extends Event> event, EventHandler eventHandler) {
+    final protected void onEvent(Class<? extends Event> event, EventHandler eventHandler) {
         //this.eventHandlers.put(event, Set.of(eventHandlers));
         getEventListener().registerHandler(event, eventHandler);
     }
 
-    protected void log(String s) {
+    final protected <T extends Command> void registerCommand(String commandPrefix, T commandClass) {
+        for (Method md : commandClass.getClass().getMethods()) {
+            if (md.isAnnotationPresent(CommandHandler.class)) {
+                commandManager.addCommand(commandPrefix, md.getAnnotation(CommandHandler.class).commandName(), commandClass);
+            }
+        }
+    }
+
+    final protected void log(String s) {
         logger.info(s);
     }
 
-    public void setConnection(Connection connection) {
+    final public void setConnection(Connection connection) {
         this.connection = connection;
     }
 
-    public void setLogger(Logger logger) {
+    final public void setLogger(Logger logger) {
         this.logger = logger;
     }
 }

@@ -6,7 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.lang.Nullable;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import ru.whoisamyy.api.gd.misc.GDObject;
 import ru.whoisamyy.api.utils.Utils;
 import ru.whoisamyy.api.utils.enums.ModType;
 import ru.whoisamyy.api.utils.exceptions.InvalidEmailException;
@@ -17,7 +16,6 @@ import ru.whoisamyy.core.Core;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
