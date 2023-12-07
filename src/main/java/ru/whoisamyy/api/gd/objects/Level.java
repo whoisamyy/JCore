@@ -329,7 +329,7 @@ public class Level extends GDObject {
         sb.append(30).append(':').append(getCopiedID()).append(':');
         sb.append(31).append(':').append(isTwoPlayer()?1:0).append(':');
         sb.append(35).append(':').append(getCustomSongID()).append(':');
-        sb.append(36).append(':').append(0).append(':');
+        sb.append(36).append(':').append(':');
         sb.append(37).append(':').append(getCoins()).append(':');
         sb.append(38).append(':').append(isVerifiedCoins()?1:0).append(':');
         sb.append(39).append(':').append(getStarsRequested()).append(':');
@@ -752,9 +752,7 @@ public class Level extends GDObject {
         l.setStars(stars);
         l.setEpic(epic);
 
-        updateLevels(id);
-
-        levelHashtable.replace(id, l); //ohnice
+        updateLevel(l);
     }
 
     public static void rateLevel(int id, int stars, boolean epic, DemonDifficulty difficulty) {
@@ -766,9 +764,22 @@ public class Level extends GDObject {
         l.setStars(stars);
         l.setEpic(epic);
 
-        updateLevels(id);
+        updateLevel(l);
+    }
 
-        levelHashtable.replace(id, l); //ohnice
+    public static void unrateLevel(int id) {
+        Hashtable<Integer, Level> levelHashtable = getLevelsHashtable();
+
+        Level l = levelHashtable.get(id);
+        l.setDifficultyDenominator(0);
+        l.setDemonDifficulty(DemonDifficulty.HARD_DEMON);
+        l.setDemon(false);
+        l.setDifficultyNumerator(LevelDifficulty.UNRATED);
+        l.setStars(0);
+        l.setEpic(false);
+        l.setFeatureScore(0);
+
+        updateLevel(l);
     }
 
     public static List<Level> getLevels(String secret, @Nullable Integer gameVersion, @Nullable Integer binaryVersion,
@@ -781,7 +792,6 @@ public class Level extends GDObject {
                                    @Nullable Integer coins, @Nullable Integer epic, @Nullable Integer noStar,
                                    @Nullable Integer star, @Nullable Integer song, @Nullable Integer customSong,
                                    @Nullable String followed, @Nullable Integer local) {
-
         if (str==null) str = "";
         if (completedLevels==null) completedLevels = "";
         if (demonFilter==null) demonFilter="";
@@ -1078,8 +1088,8 @@ public class Level extends GDObject {
         boolean daily = id == -1;
         //id = getCurrentDailyLevelID();
         Level l = map(id, true);
-        String s = l +"#"+Utils.genSolo(l.getLevelString());
-        String hash = l.getAuthorID()+","+(l.getStars()!=0?1:0)+","+(l.isDemon()?1:0)+","+l.getLevelID()+","+(l.isVerifiedCoins()?1:0)+","+(l.getFeatureScore()==0?0:1)+","+l.getPassword()+","+0;
+        String s = l.toString() +"#"+Utils.genSolo(l.getLevelString());
+        String hash = l.getAuthorID()+","+(l.getStars()!=0?l.getStars():0)+","+(l.isDemon()?1:0)+","+l.getLevelID()+","+(l.isVerifiedCoins()?1:0)+","+(l.getFeatureScore()==0?0:1)+","+l.getPassword()+","+(l.getFeatureScore()==0?0:1);
         l.addDownloads(1);
         return s+"#"+Utils.SHA1(hash, "xI25fpAapCQg")+(daily?"#"+l.getAuthor().toCreatorString():"");
     }
@@ -1117,6 +1127,14 @@ public class Level extends GDObject {
 
     public static void updateLevels(int id) {
         levels.replace(id, map(id, true));
+    }
+
+    /**
+     * Updates level in levels hashtable
+     * @param level Updated level
+     */
+    public static void updateLevel(Level level) {
+        levels.replace(level.getLevelID(), level);
     }
 
     public static Level map(int levelID) {

@@ -7,6 +7,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.yaml.snakeyaml.Yaml;
 import ru.whoisamyy.api.gd.commands.RateCommand;
+import ru.whoisamyy.api.gd.commands.UnrateCommand;
 import ru.whoisamyy.api.gd.objects.*;
 import ru.whoisamyy.api.plugins.annotations.CommandHandler;
 import ru.whoisamyy.api.plugins.commands.Command;
@@ -39,6 +40,7 @@ public class Core {
 		SpringApplication.run(Core.class, args);
 		PluginManager.getInstance().initializePlugins();
 		registerCommand("!", new RateCommand());
+		registerCommand("!", new UnrateCommand());
 
 		logger.info("Resources folder located at "+ Utils.resources.toString());
 		long curtime;

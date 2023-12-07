@@ -1,6 +1,7 @@
 package ru.whoisamyy.api.gd.misc;
 
 import ru.whoisamyy.api.gd.objects.Account;
+import ru.whoisamyy.api.gd.objects.GDObject;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,9 +12,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-public class RelationshipsManager {
-    public static Connection conn;
-
+public class RelationshipsManager extends GDObject {
     /**
      * same as uploadGJFriendRequest (may produce NullPointerException)
      * @see RelationshipsManager#sendFriendRequest(Account, Account, String)
@@ -292,7 +291,7 @@ public class RelationshipsManager {
                 countreq.setInt(1, accountID);
                 countreq.setInt(2, page*20);
                 ResultSet rs2 = countreq.executeQuery();
-                if (rs2.next());
+                if (rs2.next())
                     count = rs2.getInt(1);
 
                 while (rs.next()) {

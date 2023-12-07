@@ -1,6 +1,8 @@
 package ru.whoisamyy.api.gd.objects;
 
 import lombok.Getter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ru.whoisamyy.api.utils.comparators.AccountComparators;
 import ru.whoisamyy.api.utils.comparators.ScoreComparators;
 import ru.whoisamyy.api.utils.enums.LeaderboardType;
@@ -8,18 +10,16 @@ import ru.whoisamyy.api.utils.enums.LeaderboardType;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Comparator;
-import java.util.Hashtable;
-import java.util.TreeSet;
+import java.util.*;
 
 public class Score extends GDObject { //it does because 1. can be seen in gd 2. can upload from gd
     //public static Connection conn;
-
+    static Logger logger = LogManager.getLogger(Score.class);
     private static final Hashtable<Integer, Score> scores = new Hashtable<>();
     public static int lastScoreID;
 
     @Getter Account player; //keys 1, 2, 9, 10, 11 and 16
-    @Getter String percentage = "---";
+    @Getter int percentage = 0;
     @Getter int levelID = 0;
     @Getter int rank;
     @Getter int coins;
@@ -39,16 +39,16 @@ public class Score extends GDObject { //it does because 1. can be seen in gd 2. 
         return scores;
     }
 
-    public int getHighestPercentage() {
-        String[] percents = getPercentage().split(",");
-        TreeSet<Integer> sortedPercents = new TreeSet<>(Comparator.reverseOrder());
-        for (String percent : percents) {
-            sortedPercents.add(Integer.parseInt(percent));
-        }
-        return sortedPercents.first();
-    }
+    //public int getHighestPercentage() {
+    //    String[] percents = getPercentage().split(",");
+    //    TreeSet<Integer> sortedPercents = new TreeSet<>(Comparator.reverseOrder());
+    //    for (String percent : percents) {
+    //        sortedPercents.add(Integer.parseInt(percent));
+    //    }
+    //    return sortedPercents.first();
+    //}
 
-    public Score(Account player, String percentage, int levelID, int rank, int coins, String age) { //mapping
+    public Score(Account player, int percentage, int levelID, int rank, int coins, String age) { //mapping
         this.player = player;
         this.percentage = percentage;
         this.levelID = levelID;
@@ -57,7 +57,7 @@ public class Score extends GDObject { //it does because 1. can be seen in gd 2. 
         this.age = age;
     }
 
-    public Score(Account player, String percentage, int rank, int coins, String age) { //levelscore
+    public Score(Account player, int percentage, int rank, int coins, String age) { //levelscore
         this.player = player;
         this.percentage = percentage;
         this.rank = rank;
@@ -81,33 +81,40 @@ public class Score extends GDObject { //it does because 1. can be seen in gd 2. 
             ps.setBoolean(6, false);
 
             ps.execute();
+            lastScoreID++;
+            Score sc = Score.map(lastScoreID);
+            scores.put(lastScoreID, sc);
         } catch (SQLException e) {
             return "-1";
         }
 
 
-        TreeSet<Score> levelScores = new TreeSet<>();
-        TreeSet<Score> sortedLevelScores = new TreeSet<>(new ScoreComparators.UserIDComparator());
+        TreeSet<Score> levelScores = new TreeSet<>(new ScoreComparators.UserIDComparator());
+        TreeSet<Score> sortedLevelScores = new TreeSet<>(new ScoreComparators.HighestPercentageComparator());
         for (Score score : scores.values()) {
-            if (score.percentage!="---" && score.getLevelID()==levelID)
+            if (score.getLevelID()==levelID)
                 levelScores.add(score);
         }
 
         switch (type) {
             case FRIENDS -> {
                 levelScores.removeIf(score -> !score.player.getFriendsHashtable().contains(player));
+                sortedLevelScores.addAll(levelScores);
             }
             case TOP -> {
                 sortedLevelScores = new TreeSet<>(new ScoreComparators.HighestPercentageComparator());
                 sortedLevelScores.addAll(levelScores);
             }
-            default -> sortedLevelScores = new TreeSet<>(levelScores);
+            default -> {
+                sortedLevelScores = new TreeSet<>(new ScoreComparators.UserIDComparator());
+                sortedLevelScores.addAll(levelScores);
+            }
         }
 
         StringBuilder sb = new StringBuilder();
         int i = 0;
         for (Score score : sortedLevelScores) {
-            if (i>=count);
+            if (i>=count) break;
             sb.append(score.toString()).append("|");
             i++;
         }
@@ -165,7 +172,7 @@ public class Score extends GDObject { //it does because 1. can be seen in gd 2. 
     public String toString() {
         String sb = "1:" + getPlayer().getUsername() + ":" +
                 "2:" + getPlayer().getUserID() + ":" +
-                "3:" + getHighestPercentage() + ":" +
+                "3:" + getPercentage() + ":" +
                 "6:" + getRank() + ":" +
                 "9:" + getPlayer().getIconID() + ":" +
                 "10:" + getPlayer().getPlayerColor() + ":" +
@@ -182,7 +189,7 @@ public class Score extends GDObject { //it does because 1. can be seen in gd 2. 
     public String toString(String sep) {
         String sb = "1" + sep + getPlayer().getUsername() + sep +
                 "2" + sep + getPlayer().getUserID() + sep +
-                "3" + sep + getHighestPercentage() + sep +
+                "3" + sep + getPercentage() + sep +
                 "6" + sep + getRank() + sep +
                 "9" + sep + getPlayer().getIconID() + sep +
                 "10" + sep + getPlayer().getPlayerColor() + sep +
@@ -204,7 +211,7 @@ public class Score extends GDObject { //it does because 1. can be seen in gd 2. 
 
             ResultSet rs = ps.executeQuery();
             if (rs.next())
-                return new Score(Account.map(rs.getInt("accountID"), true), rs.getString("progresses"), rs.getInt("levelID"), rs.getInt("coins"), "0");
+                return new Score(Account.map(rs.getInt("accountID"), true), rs.getInt("percent"), rs.getInt("levelID"), 0, rs.getInt("coins"), "0");
             return new Score();
         } catch (SQLException e) {
             throw new RuntimeException(e);

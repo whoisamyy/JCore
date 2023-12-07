@@ -230,7 +230,7 @@ public class RequestManager {
                 throw new RuntimeException(e);
             }
             var ret = Level.getDaily(weekly);
-            logger.info(ret);
+            //logger.info(ret);
             return ret;
         }
 
@@ -536,7 +536,7 @@ public class RequestManager {
             }
 
             String ret = acc.sync();
-            logger.info(ret);
+            //logger.info(ret);
             return ret;
         }
 
@@ -596,7 +596,7 @@ public class RequestManager {
             }
 
             var ret = serverURL;
-            logger.info(serverURL);
+            //logger.info(serverURL);
             return ret;
         }
 
@@ -1277,8 +1277,8 @@ public class RequestManager {
 
             type = type==null? 0: type;
             s8 = s8==null? 0: s8;
-            s9 = s9==null? -5819 : s9;
-            count = count==null? 0: count;
+            s9 = s9==null? 0 : s9-5819;
+            count = count==null? 25: count;
             percent = percent==null? 0: percent;
 
             LeaderboardType leaderboardType = null;
@@ -1624,7 +1624,7 @@ public class RequestManager {
         }
 
         String s = Chest.getInstance().toString(accountID, rewardType, chk, udid);
-        logger.info(s);
+        //logger.info(s);
         return "lEpSa" + s; // хз почему не работает
     }
 

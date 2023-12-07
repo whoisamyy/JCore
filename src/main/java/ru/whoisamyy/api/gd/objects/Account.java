@@ -539,7 +539,7 @@ public class Account extends GDObject {
         setTwitter(twitter==null?"":twitter);
         setTwitch(twitch==null?"":twitch);
 
-        try(PreparedStatement ps = conn.prepareStatement("UPDATE users SET messagesState = ?, friendsState = ?, commentsState = ?, youtube = ?, twitter = ?, twitch = ? WHERE userID = ?")) {
+        try(PreparedStatement ps = conn.prepareStatement("UPDATE users SET messageState = ?, friendsState = ?, commentsState = ?, youtube = ?, twitter = ?, twitch = ? WHERE userID = ?")) {
             ps.setInt(1, getMessagesState());
             ps.setInt(2, getFriendsState());
             ps.setInt(3, getCommentsState());
