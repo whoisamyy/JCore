@@ -5,6 +5,9 @@ import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
+import ru.whoisamyy.api.console.AbstractConsoleCommand;
+import ru.whoisamyy.api.console.ConsoleManager;
+import ru.whoisamyy.api.console.commands.EchoConsoleCommand;
 import ru.whoisamyy.api.plugins.annotations.CommandHandler;
 import ru.whoisamyy.api.plugins.annotations.EventListener;
 import ru.whoisamyy.api.plugins.annotations.PluginClass;
@@ -45,6 +48,7 @@ public abstract class Plugin implements Runnable {
     public Connection connection;
     @Setter public ru.whoisamyy.api.plugins.events.listeners.EventListener eventListener;
     @Setter public CommandManager commandManager;
+    @Setter public ConsoleManager consoleManager;
 
     public Plugin(String name) {
         this.name = name;
@@ -70,12 +74,13 @@ public abstract class Plugin implements Runnable {
      * @param eventListener Instance of {@link ru.whoisamyy.api.plugins.events.listeners.EventListener}. Event listener is used in {@link Plugin#onEvent} method.
      * @return returns initialized plugin object
      */
-    final public Plugin initializePlugin(Connection connection, ru.whoisamyy.api.plugins.events.listeners.EventListener eventListener, CommandManager commandManager) {
+    final public Plugin initializePlugin(Connection connection, ru.whoisamyy.api.plugins.events.listeners.EventListener eventListener, CommandManager commandManager, ConsoleManager consoleManager) {
         setPackageName(getClass().getPackageName());
         long startTime;
         startTime = init(connection);
         setEventListener(eventListener);
         setCommandManager(commandManager);
+        setConsoleManager(consoleManager);
         initialize();
         getLogger().info("Initialized plugin: "+ (System.currentTimeMillis()-startTime) +"ms");
         return this;
@@ -244,6 +249,10 @@ public abstract class Plugin implements Runnable {
     final protected void onEvent(Class<? extends Event> event, EventHandler eventHandler) {
         //this.eventHandlers.put(event, Set.of(eventHandlers));
         getEventListener().registerHandler(event, eventHandler);
+    }
+
+    final protected void registerConsoleCommand(Class<? extends AbstractConsoleCommand> commandClass) {
+        consoleManager.registerCommand(commandClass);
     }
 
     final protected <T extends AbstractCommentCommand> void registerCommand(String commandPrefix, T commandClass) {

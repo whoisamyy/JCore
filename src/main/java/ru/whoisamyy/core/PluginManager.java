@@ -3,6 +3,7 @@ package ru.whoisamyy.core;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ru.whoisamyy.api.console.ConsoleManager;
 import ru.whoisamyy.api.plugins.Plugin;
 import ru.whoisamyy.api.plugins.annotations.EndpointParameter;
 import ru.whoisamyy.api.plugins.annotations.PluginClass;
@@ -76,7 +77,7 @@ public class PluginManager {
                                 String name = loadedClass.getAnnotation(PluginClass.class).pluginName();
                                 Object instance = loadedClass.getDeclaredConstructor(String.class).newInstance(name);
                                 if (instance instanceof Plugin p) {
-                                    ru.whoisamyy.api.plugins.Plugin pl = p.initializePlugin(Core.conn, EventListener.getInstance(), CommandManager.getInstance());
+                                    ru.whoisamyy.api.plugins.Plugin pl = p.initializePlugin(Core.conn, EventListener.getInstance(), CommandManager.getInstance(), ConsoleManager.getInstance());
 
                                     this.plugins.put(pl.getPriority(), pl);
                                     Hashtable<EndpointName, Method> pluginMethods = pl.getMethods();
