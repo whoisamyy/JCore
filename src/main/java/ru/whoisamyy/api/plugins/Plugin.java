@@ -8,7 +8,7 @@ import org.yaml.snakeyaml.Yaml;
 import ru.whoisamyy.api.plugins.annotations.CommandHandler;
 import ru.whoisamyy.api.plugins.annotations.EventListener;
 import ru.whoisamyy.api.plugins.annotations.PluginClass;
-import ru.whoisamyy.api.plugins.commands.Command;
+import ru.whoisamyy.api.plugins.commands.AbstractCommentCommand;
 import ru.whoisamyy.api.plugins.commands.CommandManager;
 import ru.whoisamyy.api.plugins.events.Event;
 import ru.whoisamyy.api.plugins.events.listeners.EventHandler;
@@ -246,10 +246,10 @@ public abstract class Plugin implements Runnable {
         getEventListener().registerHandler(event, eventHandler);
     }
 
-    final protected <T extends Command> void registerCommand(String commandPrefix, T commandClass) {
+    final protected <T extends AbstractCommentCommand> void registerCommand(String commandPrefix, T commandClass) {
         for (Method md : commandClass.getClass().getMethods()) {
             if (md.isAnnotationPresent(CommandHandler.class)) {
-                commandManager.addCommand(commandPrefix, md.getAnnotation(CommandHandler.class).commandName(), commandClass);
+                getCommandManager().addCommand(commandPrefix, md.getAnnotation(CommandHandler.class).commandName(), commandClass);
             }
         }
     }
