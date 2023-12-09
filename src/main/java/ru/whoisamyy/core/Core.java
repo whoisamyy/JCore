@@ -6,11 +6,13 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.yaml.snakeyaml.Yaml;
+import ru.whoisamyy.api.console.ConsoleManager;
+import ru.whoisamyy.api.console.commands.EchoConsoleCommand;
 import ru.whoisamyy.api.gd.commands.RateCommand;
 import ru.whoisamyy.api.gd.commands.UnrateCommand;
 import ru.whoisamyy.api.gd.objects.*;
 import ru.whoisamyy.api.plugins.annotations.CommandHandler;
-import ru.whoisamyy.api.plugins.commands.Command;
+import ru.whoisamyy.api.plugins.commands.AbstractCommentCommand;
 import ru.whoisamyy.api.plugins.commands.CommandManager;
 import ru.whoisamyy.api.utils.Utils;
 import ru.whoisamyy.core.endpoints.RequestManager;
@@ -41,6 +43,7 @@ public class Core {
 		PluginManager.getInstance().initializePlugins();
 		registerCommand("!", new RateCommand());
 		registerCommand("!", new UnrateCommand());
+		ConsoleManager.getInstance().registerCommand(EchoConsoleCommand.class);
 
 		logger.info("Resources folder located at "+ Utils.resources.toString());
 		long curtime;
@@ -131,7 +134,15 @@ public class Core {
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
-		//Scanner scanner = new Scanner(System.in); //зародыш консольных команд
+
+		Console con = System.console();
+		while (con != null) {
+			String input = con.readLine(" >>> ");
+
+			ConsoleManager.getInstance().invokeCommand(input);
+		}
+
+        //Scanner scanner = new Scanner(System.in); //зародыш консольных команд
 		/*
 		File file = new File("src/main/resources/database.sql");
 		String sql;
@@ -245,7 +256,7 @@ public class Core {
 		return serverURL;
 	}
 
-	 static <T extends Command> void registerCommand(String commandPrefix, T commandClass) {
+	 static <T extends AbstractCommentCommand> void registerCommand(String commandPrefix, T commandClass) {
 		for (Method md : commandClass.getClass().getMethods()) {
 			if (md.isAnnotationPresent(CommandHandler.class)) {
 				CommandManager.getInstance().addCommand(commandPrefix, md.getAnnotation(CommandHandler.class).commandName(), commandClass);
