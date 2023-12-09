@@ -8,6 +8,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.yaml.snakeyaml.Yaml;
 import ru.whoisamyy.api.console.ConsoleManager;
 import ru.whoisamyy.api.console.commands.EchoConsoleCommand;
+import ru.whoisamyy.api.console.commands.GetLevelInfoConsoleCommand;
+import ru.whoisamyy.api.console.commands.HelpConsoleCommand;
 import ru.whoisamyy.api.gd.commands.RateCommand;
 import ru.whoisamyy.api.gd.commands.UnrateCommand;
 import ru.whoisamyy.api.gd.objects.*;
@@ -43,7 +45,7 @@ public class Core {
 		PluginManager.getInstance().initializePlugins();
 		registerCommand("!", new RateCommand());
 		registerCommand("!", new UnrateCommand());
-		ConsoleManager.getInstance().registerCommand(EchoConsoleCommand.class);
+		registerConsoleCommands();
 
 		logger.info("Resources folder located at "+ Utils.resources.toString());
 		long curtime;
@@ -141,31 +143,6 @@ public class Core {
 
 			ConsoleManager.getInstance().invokeCommand(input);
 		}
-
-        //Scanner scanner = new Scanner(System.in); //зародыш консольных команд
-		/*
-		File file = new File("src/main/resources/database.sql");
-		String sql;
-		StringBuilder sb = new StringBuilder();
-		int i=0;
-		try(BufferedReader reader = new BufferedReader(new FileReader(file))) {
-			while (i != -1) {
-				i = reader.read();
-				sb.append(i);
-			}
-			sql = sb.toString();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-
-		try(Statement ps = conn.createStatement()) {
-			if (!ps.execute(sql))
-				throw new SQLException();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-
-		 */
 	}
 
 	/**
@@ -262,5 +239,11 @@ public class Core {
 				CommandManager.getInstance().addCommand(commandPrefix, md.getAnnotation(CommandHandler.class).commandName(), commandClass);
 			}
 		}
+	}
+
+	static void registerConsoleCommands() {
+		ConsoleManager.getInstance().registerCommand(EchoConsoleCommand.class);
+		ConsoleManager.getInstance().registerCommand(HelpConsoleCommand.class);
+		ConsoleManager.getInstance().registerCommand(GetLevelInfoConsoleCommand.class);
 	}
 }
