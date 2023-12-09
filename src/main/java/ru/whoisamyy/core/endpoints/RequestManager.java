@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.whoisamyy.api.gd.misc.Likes;
 import ru.whoisamyy.api.gd.misc.RelationshipsManager;
-import ru.whoisamyy.api.gd.misc.Reward;
 import ru.whoisamyy.api.gd.objects.*;
 import ru.whoisamyy.api.plugins.events.*;
 import ru.whoisamyy.api.utils.Utils;
