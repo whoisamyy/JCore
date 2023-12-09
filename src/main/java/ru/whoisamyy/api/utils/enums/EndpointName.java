@@ -2,7 +2,6 @@ package ru.whoisamyy.api.utils.enums;
 
 import lombok.Getter;
 import ru.whoisamyy.api.plugins.events.*;
-import ru.whoisamyy.core.Core;
 
 public enum EndpointName {
     LEVELS_GET("getGJLevels", 0, GetLevelsEvent.class),
@@ -38,7 +37,17 @@ public enum EndpointName {
     SONGS_UPLOAD("songAdd", 30, UploadSongEvent.class),
     LIKE("likeGJItem", 31, LikeEvent.class),
     MOD_REQUEST_USER_ACCESS("requestGJUserAccess", 32, RequestUserAccessEvent.class),
-    FRIEND_REMOVE("removeGJFriend", 33, RemoveFriendEvent.class); //TODO add all endpoints
+    FRIEND_REMOVE("removeGJFriend", 33, RemoveFriendEvent.class),
+    LEVELS_GET_DAILY("getGJDailyLevel", 34, GetDailyLevelEvent.class),
+    COMMENT_DELETE("deleteGJComment", 35, DeleteCommentEvent.class),
+    GAUNTLETS_GET("getGJGauntlets", 36, GetGauntletsEvent.class),
+    LEVELS_RATE_STARS("rateGJStars", 37, RateLevelStarsEvent.class),
+    LEVELS_RATE_DEMON("rateGJDemon", 38, RateLevelDemonEvent.class),
+    LEVELS_SUGGEST_STARS("suggestGJStars", 39, SuggestLevelStarsEvent.class),
+    CHALLENGES_GET("getGJChallenges", 40, GetChallengesEvent.class),
+    REWARDS_GET("getGJRewards", 41, GetRewardsEvent.class),
+    USER_SCORE_UPDATE("updateGJUserScore", 42, UpdateUserScoreEvent.class);
+    //TODO add all endpoints
 
 
     private final String name;

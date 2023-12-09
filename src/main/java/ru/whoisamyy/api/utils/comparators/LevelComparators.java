@@ -59,5 +59,12 @@ public class LevelComparators {
             return Integer.compare(o1.getFeatureScore(), o2.getFeatureScore());
         }
     }
+
+    public static class DailyIDComparator implements Comparator<Level> {
+        @Override
+        public int compare(Level o1, Level o2) {
+            return Integer.compare(o1.getDailyNumber(), o2.getDailyNumber());
+        }
+    }
 }
 

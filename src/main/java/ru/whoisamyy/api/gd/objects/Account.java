@@ -6,7 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.lang.Nullable;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import ru.whoisamyy.api.gd.misc.GDObject;
 import ru.whoisamyy.api.utils.Utils;
 import ru.whoisamyy.api.utils.enums.ModType;
 import ru.whoisamyy.api.utils.exceptions.InvalidEmailException;
@@ -17,7 +16,6 @@ import ru.whoisamyy.core.Core;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -32,7 +30,7 @@ public class Account extends GDObject {
     public static int lastAccountID;
 
     private static final Hashtable<Integer, Account> accounts = new Hashtable<>(); //<id, account>
-    private static Connection conn;
+    //private static Connection conn;
     @Getter
     private static final String accountsResourcesPath = Utils.resources+"/data/accounts";
 
@@ -458,8 +456,9 @@ public class Account extends GDObject {
                                int accRobot, int accGlow, int lastPlayed, int accSpider,
                                int accExplosion, int diamonds) {
         if (update(username, gameVersion, coins, secret, stars, demons, icon, color1, color2, iconType, userCoins, special, accIcon,
-                accShip, accBall, accBird, accDart, accRobot, accGlow, lastPlayed, accSpider, accExplosion, diamonds)!=0)
+                accShip, accBall, accBird, accDart, accRobot, accGlow, lastPlayed, accSpider, accExplosion, diamonds)!=0) {
             return getUserID();
+        }
         return -1;
     }
 
@@ -468,15 +467,14 @@ public class Account extends GDObject {
                       int accIcon, int accShip, int accBall, int accBird, int accDart,
                       int accRobot, int accGlow, int lastPlayed, int accSpider,
                       int accExplosion, int diamonds) {
-        String sql = "UPDATE users SET " +
+        try(PreparedStatement ps = conn.prepareStatement("UPDATE users SET " +
                 " userName= ?," +
-                " coins= ?," +
-                " secret= ?," +
+                " secretCoins= ?," +
                 " stars= ?," +
                 " demons= ?," +
-                " icon= ?," +
-                " color1= ?," +
-                " color2= ?," +
+                " iconID = ?," +
+                " playerColor= ?," +
+                " playerColor2= ?," +
                 " iconType= ?," +
                 " userCoins= ?," +
                 " special= ?," +
@@ -490,42 +488,40 @@ public class Account extends GDObject {
                 "lastPlayed= ?, " +
                 "accSpider= ?, " +
                 "accExplosion= ?, " +
-                "diamonds= ? WHERE userID=?"; //24
-
-        try(PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(23, getUserID());
+                "diamonds= ? WHERE userID=?")) {
+            ps.setInt(22, getUserID());
 
             ps.setString(1, username);
-            ps.setInt(2, gameVersion);
-            ps.setInt(3, coins);
-            ps.setString(4, secret);
-            ps.setInt(5, stars);
-            ps.setInt(6, demons);
-            ps.setInt(7, icon);
-            ps.setInt(8, color1);
-            ps.setInt(9, color2);
-            ps.setInt(10, iconType);
-            ps.setInt(11, userCoins);
-            ps.setInt(12, special);
-            ps.setInt(13, accIcon);
-            ps.setInt(14, accShip);
-            ps.setInt(15, accBall);
-            ps.setInt(16, accBird);
-            ps.setInt(17, accDart);
-            ps.setInt(18, accRobot);
-            ps.setInt(19, accGlow);
-            ps.setInt(20, lastPlayed);
-            ps.setInt(21, accSpider);
-            ps.setInt(22, accExplosion);
-            ps.setInt(23, diamonds);
+            ps.setInt(2, coins);
+            ps.setInt(3, stars);
+            ps.setInt(4, demons);
+            ps.setInt(5, icon);
+            ps.setInt(6, color1);
+            ps.setInt(7, color2);
+            ps.setInt(8, iconType);
+            ps.setInt(9, userCoins);
+            ps.setInt(10, special);
+            ps.setInt(11, accIcon);
+            ps.setInt(12, accShip);
+            ps.setInt(13, accBall);
+            ps.setInt(14, accBird);
+            ps.setInt(15, accDart);
+            ps.setInt(16, accRobot);
+            ps.setInt(17, accGlow);
+            ps.setInt(18, lastPlayed);
+            ps.setInt(19, accSpider);
+            ps.setInt(20, accExplosion);
+            ps.setInt(21, diamonds);
 
-            ps.execute();
+            logger.info(iconType);
+
+            logger.info(ps.executeUpdate());
 
             accounts.remove(getUserID());
             accounts.put(getUserID(), map(getUserID(), true));
             return getUserID();
         } catch (SQLException e) {
-            return 0;
+            throw new RuntimeException(e);
         }
     }
 
@@ -543,7 +539,7 @@ public class Account extends GDObject {
         setTwitter(twitter==null?"":twitter);
         setTwitch(twitch==null?"":twitch);
 
-        try(PreparedStatement ps = conn.prepareStatement("UPDATE users SET messagesState = ?, friendsState = ?, commentsState = ?, youtube = ?, twitter = ?, twitch = ? WHERE userID = ?")) {
+        try(PreparedStatement ps = conn.prepareStatement("UPDATE users SET messageState = ?, friendsState = ?, commentsState = ?, youtube = ?, twitter = ?, twitch = ? WHERE userID = ?")) {
             ps.setInt(1, getMessagesState());
             ps.setInt(2, getFriendsState());
             ps.setInt(3, getCommentsState());
@@ -566,6 +562,7 @@ public class Account extends GDObject {
     }
 
     public static Account map(int userID) {
+        if (accounts.containsKey(userID)) return accounts.get(userID);
         try(PreparedStatement ps = conn.prepareStatement("SELECT userName, gjp, email FROM users WHERE userID = ?")) {
             ps.setInt(1, userID);
 
@@ -582,6 +579,7 @@ public class Account extends GDObject {
     }
 
     public static Account map(int userID, boolean full) {
+        if (accounts.containsKey(userID)) return accounts.get(userID);
         if (!full) return map(userID);
         try(PreparedStatement ps = conn.prepareStatement("SELECT * FROM users WHERE userID = ? LIMIT 1")) {
             ps.setInt(1, userID);
@@ -634,15 +632,71 @@ public class Account extends GDObject {
         }
     }
 
+    public static Account map(int userID, boolean full, boolean fromDB) {
+        if (accounts.containsKey(userID) && !fromDB) return accounts.get(userID);
+        if (!full) return map(userID);
+        try(PreparedStatement ps = conn.prepareStatement("SELECT * FROM users WHERE userID = ? LIMIT 1")) {
+            ps.setInt(1, userID);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next())
+                return new Account(rs.getString("userName"),
+                        rs.getString("gjpSalt"),
+                        rs.getString("gjp"),
+                        rs.getString("email"),
+                        rs.getString("twitter"),
+                        rs.getString("twitch"),
+                        rs.getString("youtube"),
+                        rs.getInt("userID"),
+                        rs.getInt("stars"),
+                        rs.getInt("demons"),
+                        rs.getInt("ranking"),
+                        rs.getInt("creatorpoints"),
+                        rs.getInt("iconID"),
+                        rs.getInt("playerColor"),
+                        rs.getInt("playerColor2"),
+                        rs.getInt("secretCoins"),
+                        rs.getInt("iconType"),
+                        rs.getInt("special"),
+                        rs.getInt("userCoins"),
+                        rs.getInt("messageState"),
+                        rs.getInt("friendsState"),
+                        rs.getInt("accIcon"),
+                        rs.getInt("accBall"),
+                        rs.getInt("accBird"),
+                        rs.getInt("accShip"),
+                        rs.getInt("accDart"),
+                        rs.getInt("accRobot"),
+                        rs.getInt("accGlow"),
+                        rs.getInt("isRegistered"),
+                        rs.getInt("globalRank"),
+                        rs.getInt("messages"),
+                        rs.getInt("friendRequests"),
+                        rs.getInt("newFriends"),
+                        rs.getInt("newFriendRequest"),
+                        rs.getInt("age"),
+                        rs.getInt("accSpider"),
+                        rs.getInt("diamonds"),
+                        rs.getInt("accExplosion"),
+                        rs.getInt("modType"));
+            return new Account();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static Account map(String username) {
-        try(PreparedStatement ps = conn.prepareStatement("SELECT userName, gjp, email FROM users WHERE userName = ?")) {
+        try(PreparedStatement ps = conn.prepareStatement("SELECT userName, gjp, email, userID FROM users WHERE userName = ?")) {
             ps.setString(1, username);
 
             ResultSet rs = ps.executeQuery();
-            if (rs.next())
+            if (rs.next()) {
+                if (accounts.containsKey(rs.getInt("userID"))) return accounts.get(rs.getInt("userID"));
                 return new Account(rs.getString("userName"),
                         rs.getString("gjp"),
                         rs.getString("email"));
+            }
             return new Account();
         } catch (Exception e) {
             throw new RuntimeException(e);

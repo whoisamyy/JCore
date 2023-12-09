@@ -8,13 +8,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class GetLevelScoresEvent extends Event {
-    //static final List<Class<?>> allowedTypes; //allowedTypes is parameters from corresponding method in ru.whoisamyy.core.endpoints.RequestManager
-    //static final List<String> parameterNames; //parameter names from correspongind method in ru.whoisamyy.core.endpoints.RequestManager
+public class GetGauntletsEvent extends Event {
 
+
+    @Override
     void init() {
         try {
-            Method m = RequestManager.Scores.class.getMethod("getGjLevelScores", int.class, int.class, String.class, String.class, Integer.class, Integer.class, Integer.class, Integer.class, Integer.class, String.class, Integer.class, Integer.class);
+            Method m = RequestManager.class.getMethod("getGJGauntlets", String.class);
             List<Class<?>> at = new ArrayList<>(List.of(m.getParameterTypes()));
             at.add(m.getReturnType());
             allowedTypes = at;
@@ -26,8 +26,7 @@ public class GetLevelScoresEvent extends Event {
             throw new RuntimeException(e);
         }
     }
-
-    public GetLevelScoresEvent(Object... parameterValues) throws NoSuchFieldException {
+    public GetGauntletsEvent(Object... parameterValues) throws NoSuchFieldException {
         super(parameterValues);
     }
 }

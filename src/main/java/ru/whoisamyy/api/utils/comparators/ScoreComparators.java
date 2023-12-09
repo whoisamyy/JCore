@@ -15,7 +15,7 @@ public class ScoreComparators  {
     public static class HighestPercentageComparator implements Comparator<Score> { // use this only when Score.percentage != "---"
         @Override
         public int compare(Score o1, Score o2) {
-            return Integer.compare(o1.getHighestPercentage(), o2.getHighestPercentage());
+            return Integer.compare(o1.getPercentage(), o2.getPercentage());
         }
     }
 }

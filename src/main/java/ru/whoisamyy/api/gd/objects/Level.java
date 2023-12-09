@@ -6,28 +6,28 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.lang.Nullable;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import ru.whoisamyy.api.gd.misc.GDObject;
 import ru.whoisamyy.api.utils.Utils;
 import ru.whoisamyy.api.utils.comparators.LevelComparators;
+import ru.whoisamyy.api.utils.enums.DemonDifficulty;
 import ru.whoisamyy.api.utils.enums.Length;
+import ru.whoisamyy.api.utils.enums.LevelDifficulty;
 import ru.whoisamyy.api.utils.exceptions.InvalidValueException;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 
 public class Level extends GDObject {
     @Getter public static String secret;
     @Getter public static int lastLevelID;
+    @Getter public static int currentDailyNumber;
+    @Getter public static int currentDailyLevelID;
 
     @Getter private static final Hashtable<Integer, Level> levels = new Hashtable<>();
-    @Getter private static Connection conn;
+    //@Getter private static Connection conn;
 
     @Getter
     public static Path levelResourcesPath = Paths.get(Utils.resources.toString()+"/data/levels");
@@ -35,12 +35,12 @@ public class Level extends GDObject {
 
     @Getter private int levelID = -1;
     @Getter private String levelName = "zero";
-    @Setter @Getter private String description = "zero";
-    @Setter @Getter private String levelString = "H4sIAAAAAAAAC63WzQ3UMBAG0IYWlNjz4xUnaqCAFEALiNrJrh-cQEKCy47imTjS0xdvvn6Z63FecVzjOkde8xqZ13nuMnbZi3F9OK-6zuM4rr7O68zXz7qOa13nt_N6b3GMv9vi_Pctnr_d4jWzb_irTcb1uv8_bJT_a6P6w0aPr5_P-TheJXepXeJxHh8rvx_f77rGrs_1qufHM3edY9ewXtaX9T0_zA39oT_0p_2muWlu6od-6Ifnhbkwl_qpn_rpeWmuzJW5Mlf6rd_6rd_2aXPL3DK3zC39p_7T-tP9z90fx-4PzoPz4Dw4D86D3-A3-A1ug9tdl-vd5zZ43XW53n1ug9fgNcrzeQ1eg9fgNXgNXoPT4DQ4DU53Xa53_-k5vAaveez1yWfymPI2z1_r733m0Je3u4b1sr7neN01XO8-t8ltyt3kN-Vucpz8Jr8pd5Pj5Dg5To6T311_9vc-bY7n5Dnlb_KcyxzXyXXK3-Q6ed41XO--HE45DDm8a7h-z4UchvwF7_B-B_fgG3zD-xycg29wDa7BNXiGXAbXSHN8g2twDe9zcA35DK7BNXgGz-AZchpcg2dwDDkN-QyewTE4ppwmx-SX_JJfym3yS34prymv6f1Onskx5TV5prwm1-SaXFNek29yTZ4pr8k1uSbX5JpcU26Ta3JNnskz5TN5pnwm15TP5Jpck2v-dJXP4lryWc7J4lvOheJcclp8i2_xLb7Ft7gW1-JZPItn8SyeJa_FteS1-BbX4lnOgeJaXItrcS3nQPEtviWnxbW4FteS1-JbfItvOQeKc_Ft-W3OzbnluDk335bj5tzy3Lybd_Nu50PzbudDy3Vzb3lu_s2_-Tf_5t_cm3fLc3NveW7-zb15t3OiuTf35t7cW66bf_Nv7s29uTfv5t28W66b--K-uC_eS74X9yXfi__ivngv_3uL--K-uC_ui_vivrgv7ov74r14L973V-H-Nuz9haisV_kyn--r8f7dH5Tvxud4_-7ueexyPo5PPwAQoD8oIwwAAA==";
+    @Getter private String description = "zero";
+    @Getter private String levelString = "H4sIAAAAAAAAC63WzQ3UMBAG0IYWlNjz4xUnaqCAFEALiNrJrh-cQEKCy47imTjS0xdvvn6Z63FecVzjOkde8xqZ13nuMnbZi3F9OK-6zuM4rr7O68zXz7qOa13nt_N6b3GMv9vi_Pctnr_d4jWzb_irTcb1uv8_bJT_a6P6w0aPr5_P-TheJXepXeJxHh8rvx_f77rGrs_1qufHM3edY9ewXtaX9T0_zA39oT_0p_2muWlu6od-6Ifnhbkwl_qpn_rpeWmuzJW5Mlf6rd_6rd_2aXPL3DK3zC39p_7T-tP9z90fx-4PzoPz4Dw4D86D3-A3-A1ug9tdl-vd5zZ43XW53n1ug9fgNcrzeQ1eg9fgNXgNXoPT4DQ4DU53Xa53_-k5vAaveez1yWfymPI2z1_r733m0Je3u4b1sr7neN01XO8-t8ltyt3kN-Vucpz8Jr8pd5Pj5Dg5To6T311_9vc-bY7n5Dnlb_KcyxzXyXXK3-Q6ed41XO--HE45DDm8a7h-z4UchvwF7_B-B_fgG3zD-xycg29wDa7BNXiGXAbXSHN8g2twDe9zcA35DK7BNXgGz-AZchpcg2dwDDkN-QyewTE4ppwmx-SX_JJfym3yS34prymv6f1Onskx5TV5prwm1-SaXFNek29yTZ4pr8k1uSbX5JpcU26Ta3JNnskz5TN5pnwm15TP5Jpck2v-dJXP4lryWc7J4lvOheJcclp8i2_xLb7Ft7gW1-JZPItn8SyeJa_FteS1-BbX4lnOgeJaXItrcS3nQPEtviWnxbW4FteS1-JbfItvOQeKc_Ft-W3OzbnluDk335bj5tzy3Lybd_Nu50PzbudDy3Vzb3lu_s2_-Tf_5t_cm3fLc3NveW7-zb15t3OiuTf35t7cW66bf_Nv7s29uTfv5t28W66b--K-uC_eS74X9yXfi__ivngv_3uL--K-uC_ui_vivrgv7ov74r14L973V-H-Nuz9haisV_kyn--r8f7dH5Tvxud4_-7ueexyPo5PPwAQoD8oIwwAAA==";
     @Getter private int version = 1;
     @Getter private int authorID;
     @Getter private int difficultyDenominator = 0;
-    @Getter private int difficultyNumerator = 0;
+    @Setter @Getter private LevelDifficulty difficultyNumerator = LevelDifficulty.UNRATED;
     @Getter private int downloads = 0;
     @Getter private int audioTrack = 0;
     @Getter private int gameVersion = 21;
@@ -48,9 +48,9 @@ public class Level extends GDObject {
     @Getter private Length length = Length.TINY;
     @Getter private int dislikes = 0;
     @Getter private boolean demon;
-    @Getter private int stars = 0;
-    @Getter private int featureScore = 0;
-    @Getter private int auto = 0;
+    @Setter @Getter private int stars = 0;
+    @Setter @Getter private int featureScore = 0;
+    @Setter @Getter private boolean auto = false;
     @Getter private int password = 0;
     @Getter private String uploadDate = "0";
     @Getter private String updateDate = "0";
@@ -60,23 +60,186 @@ public class Level extends GDObject {
     @Getter private int coins = 0;
     @Getter private boolean verifiedCoins = false;
     @Getter private int starsRequested = 0;
-    @Getter private int dailyNumber = 0;
-    @Getter private boolean epic = false;
-    @Getter private int demonDifficulty = 0;
-    @Getter private int isGauntlet = 0;
+    @Setter @Getter private int dailyNumber = 0;
+    @Setter @Getter private boolean epic = false;
+    @Setter @Getter private DemonDifficulty demonDifficulty = DemonDifficulty.HARD_DEMON;
+    @Setter @Getter private int isGauntlet = 0;
     @Getter private int objects = 0;
     @Getter private int editorTime = 0;
     @Getter private boolean unlisted = false;
     @Getter private int original = 0;
     @Getter private boolean ldm = false;
+    @Getter private String hashCode; //прост по приколу  ¯\_(ツ)_/¯
+
+    public void setDescription(String description) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET description = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setString(1, description);
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+
+            this.description = description;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setLevelString(String levelString) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET levelString = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setString(1, levelString);
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+
+            this.levelString = levelString;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setDifficultyDenominator(int numerator) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET difficultyDenominator = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setInt(1, numerator);
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+
+            this.difficultyDenominator = numerator;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setDifficultyNumerator(LevelDifficulty numerator) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET difficultyNumerator = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setInt(1, numerator.toInt());
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+
+            this.difficultyNumerator = numerator;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setDifficultyNumerator(int numerator) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET difficultyNumerator = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setInt(1, numerator);
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+            this.difficultyNumerator = LevelDifficulty.toLevelDifficulty(numerator);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setStars(int stars) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET stars = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setInt(1, stars);
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+
+            this.stars = stars;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setFeatureScore(int score) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET featureScore = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setInt(1, score);
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+            this.featureScore = score;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setAuto(boolean auto) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET auto = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setBoolean(1, auto);
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+            this.auto = auto;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setDailyNumber(int number) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET dailyNumber = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setInt(1, number);
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+            this.dailyNumber = number;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setEpic(boolean epic) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET epic = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setBoolean(1, epic);
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+            this.epic = epic;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setDemon(boolean demon) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET demon = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setBoolean(1, demon);
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+
+            this.demon = demon;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setDemonDifficulty(DemonDifficulty numerator) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET demonDifficulty = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setInt(1, numerator.toInt());
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+            this.demonDifficulty = numerator;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setGauntlet(int num) {
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE levels SET isGauntlet = ? WHERE levelID = ? LIMIT 1")) {
+            ps.setInt(1, num);
+            ps.setInt(2, getLevelID());
+
+            ps.executeUpdate();
+            this.isGauntlet = num;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public void setDownloads(int value) {
         try(PreparedStatement ps = conn.prepareStatement("UPDATE levels SET downloads = ? WHERE levelID = ?")) {
             ps.setInt(1, value);
             ps.setInt(2, getLevelID());
 
+            ps.executeUpdate();
             this.downloads=value;
-            ps.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -145,7 +308,7 @@ public class Level extends GDObject {
         sb.append(5).append(':').append(getVersion()).append(':');
         sb.append(6).append(':').append(getAuthorID()).append(':');
         sb.append(8).append(':').append(getDifficultyDenominator()).append(':');
-        sb.append(9).append(':').append(getDifficultyNumerator()).append(':');
+        sb.append(9).append(':').append(getDifficultyNumerator().toInt()).append(':');
         sb.append(10).append(':').append(getDownloads()).append(':');
         sb.append(12).append(':').append(getAudioTrack()).append(':');
         sb.append(13).append(':').append(getGameVersion()).append(':');
@@ -159,21 +322,21 @@ public class Level extends GDObject {
         sb.append(17).append(':').append(isDemon()?1:0).append(':');
         sb.append(18).append(':').append(getStars()).append(':');
         sb.append(19).append(':').append(getFeatureScore()).append(':');
-        sb.append(25).append(':').append(getAuto()).append(':');
+        sb.append(25).append(':').append(isAuto()?1:0).append(':');
         sb.append(27).append(':').append(getPassword()).append(':');
         sb.append(28).append(':').append(getUploadDate()).append(':');
         sb.append(29).append(':').append(getUpdateDate()).append(':');
         sb.append(30).append(':').append(getCopiedID()).append(':');
         sb.append(31).append(':').append(isTwoPlayer()?1:0).append(':');
         sb.append(35).append(':').append(getCustomSongID()).append(':');
-        sb.append(36).append(':').append(0).append(':');
+        sb.append(36).append(':').append(':');
         sb.append(37).append(':').append(getCoins()).append(':');
         sb.append(38).append(':').append(isVerifiedCoins()?1:0).append(':');
         sb.append(39).append(':').append(getStarsRequested()).append(':');
         sb.append(40).append(':').append(isLdm()?1:0).append(':');
         sb.append(41).append(':').append(getDailyNumber()).append(':');
         sb.append(42).append(':').append(isEpic()?1:0).append(':');
-        sb.append(43).append(':').append(getDemonDifficulty()).append(':');
+        sb.append(43).append(':').append(getDemonDifficulty().toInt()).append(':');
         sb.append(44).append(':').append(getIsGauntlet()).append(':');
         sb.append(45).append(':').append(getObjects()).append(':');
         sb.append(46).append(':').append(getEditorTime());
@@ -189,14 +352,14 @@ public class Level extends GDObject {
         sb.append("5:").append(getVersion()).append(":");
         sb.append("6:").append(getAuthorID()).append(":");
         sb.append("8:").append(getDifficultyDenominator()).append(":");
-        sb.append("9:").append(getDifficultyNumerator()).append(":");
+        sb.append("9:").append(getDifficultyNumerator().toInt()).append(":");
         sb.append("10:").append(getDownloads()).append(":");
         sb.append("12:").append(getAudioTrack()).append(":");
         sb.append("13:").append(getGameVersion()).append(":");
         sb.append("14:").append(getLikes()).append(":");
         sb.append("17:").append(isDemon() ? 1 : 0).append(":");
-        sb.append("43:").append(getDemonDifficulty()).append(":");
-        sb.append("25:").append(getAuto()).append(":");
+        sb.append("43:").append(getDemonDifficulty().toInt()).append(":");
+        sb.append("25:").append(isAuto()?1:0).append(":");
         sb.append("18:").append(getStars()).append(":");
         sb.append("19:").append(getFeatureScore()).append(":");
         sb.append("42:").append(isEpic() ? 1 : 0).append(":");
@@ -228,7 +391,7 @@ public class Level extends GDObject {
         sb.append(5).append(sep).append(getVersion()).append(sep);
         sb.append(6).append(sep).append(getAuthorID()).append(sep);
         sb.append(8).append(sep).append(getDifficultyDenominator()).append(sep);
-        sb.append(9).append(sep).append(getDifficultyNumerator()).append(sep);
+        sb.append(9).append(sep).append(getDifficultyNumerator().toInt()).append(sep);
         sb.append(10).append(sep).append(getDownloads()).append(sep);
         sb.append(12).append(sep).append(getAudioTrack()).append(sep);
         sb.append(13).append(sep).append(getGameVersion()).append(sep);
@@ -242,7 +405,7 @@ public class Level extends GDObject {
         sb.append(17).append(sep).append(isDemon()?1:0).append(sep);
         sb.append(18).append(sep).append(getStars()).append(sep);
         sb.append(19).append(sep).append(getFeatureScore()).append(sep);
-        sb.append(25).append(sep).append(getAuto()).append(sep);
+        sb.append(25).append(sep).append(isAuto()?1:0).append(sep);
         sb.append(27).append(sep).append(getPassword()).append(sep);
         sb.append(28).append(sep).append(getUploadDate()).append(sep);
         sb.append(29).append(sep).append(getUpdateDate()).append(sep);
@@ -256,12 +419,37 @@ public class Level extends GDObject {
         sb.append(40).append(sep).append(isLdm()?1:0).append(sep);
         sb.append(41).append(sep).append(getDailyNumber()).append(sep);
         sb.append(42).append(sep).append(isEpic()?1:0).append(sep);
-        sb.append(43).append(sep).append(getDemonDifficulty()).append(sep);
+        sb.append(43).append(sep).append(getDemonDifficulty().toInt()).append(sep);
         sb.append(44).append(sep).append(getIsGauntlet()).append(sep);
         sb.append(45).append(sep).append(getObjects()).append(sep);
         sb.append(46).append(sep).append(getEditorTime());
         return sb.toString();
     }
+
+    String genHash() { // прост
+        try {
+            String s = getLevelString();
+            char[] lname = getLevelName().toCharArray();
+            StringBuilder chars = new StringBuilder();
+            int startIndex = (lname.length+getAuthor().getUsername().length()/lname.length)-1;
+            int indexIterVal = s.getBytes()[28]/lname.length-1;
+            for (char c : s.toCharArray()) {
+                try {
+                    chars.append(c);
+                    chars.append(s.toCharArray()[startIndex]);
+                    startIndex += indexIterVal;
+                } catch (IndexOutOfBoundsException e) {
+                    break;
+                }
+            }
+            String ret = Utils.SHA256(chars.toString(), new String(lname));
+            ret = ret.substring(ret.length()-8);
+            return ret;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public Level() {}
 
     public Level(int levelID, String levelName, String description,
@@ -283,7 +471,7 @@ public class Level extends GDObject {
         this.version = version;
         this.authorID = authorID;
         this.difficultyDenominator = difficultyDenominator;
-        this.difficultyNumerator = difficultyNumerator;
+        this.difficultyNumerator = LevelDifficulty.toLevelDifficulty(difficultyNumerator);
         this.downloads = downloads;
         this.audioTrack = audioTrack;
         this.gameVersion = gameVersion;
@@ -293,7 +481,7 @@ public class Level extends GDObject {
         this.demon = demon;
         this.stars = stars;
         this.featureScore = featureScore;
-        this.auto = auto;
+        this.auto = auto==1;
         this.password = password;
         this.uploadDate = uploadDate;
         this.updateDate = updateDate;
@@ -305,13 +493,14 @@ public class Level extends GDObject {
         this.starsRequested = starsRequested;
         this.dailyNumber = dailyNumber;
         this.epic = epic;
-        this.demonDifficulty = demonDifficulty;
+        this.demonDifficulty = DemonDifficulty.valToDemonDifficulty(demonDifficulty);
         this.isGauntlet = isGauntlet;
         this.objects = objects;
         this.editorTime = editorTime;
         this.unlisted = unlisted;
         this.original = original;
         this.ldm = ldm;
+        this.hashCode = genHash();
     }
 
     public Level(int gameVersion,
@@ -360,7 +549,7 @@ public class Level extends GDObject {
                 throw new InvalidValueException("Invalid length");
         }
         this.audioTrack = audioTrack;
-        this.auto = auto;
+        this.auto = auto==1;
         this.password = password;
         this.original = original;
         this.twoPlayer = twoPlayer;
@@ -371,6 +560,7 @@ public class Level extends GDObject {
         this.unlisted = unlisted;
         this.ldm = ldm;
         this.levelString = levelString;
+        this.hashCode = genHash();
     }
 
     public Level(int gameVersion,
@@ -417,7 +607,7 @@ public class Level extends GDObject {
                 throw new InvalidValueException("Invalid length");
         }
         this.audioTrack = audioTrack;
-        this.auto = auto;
+        this.auto = auto==1;
         this.password = password;
         this.original = original;
         this.twoPlayer = twoPlayer;
@@ -428,9 +618,10 @@ public class Level extends GDObject {
         this.unlisted = unlisted;
         this.ldm = ldm;
         this.levelString = levelString;
+        this.hashCode = genHash();
     }
 
-    public int upload(boolean saveAsFile) {
+    public synchronized int upload(boolean saveAsFile) {
         if (getLevelID() != -1) {
             this.levelID = lastLevelID;
             try (PreparedStatement ps = conn.prepareStatement("INSERT INTO levels (gameVersion, authorID, authorGjp, authorName," +
@@ -448,7 +639,7 @@ public class Level extends GDObject {
                 ps.setInt(7, getVersion());
                 ps.setInt(8, getLengthInt());
                 ps.setInt(9, getAudioTrack());
-                ps.setInt(10, getAuto());
+                ps.setBoolean(10, isAuto());
                 ps.setInt(11, getPassword());
                 ps.setInt(12, getOriginal());
                 ps.setBoolean(13, isTwoPlayer());
@@ -485,7 +676,7 @@ public class Level extends GDObject {
                 ps.setInt(7, getVersion());
                 ps.setInt(8, getLengthInt());
                 ps.setInt(9, getAudioTrack());
-                ps.setInt(10, getAuto());
+                ps.setBoolean(10, isAuto());
                 ps.setInt(11, getPassword());
                 ps.setInt(12, getOriginal());
                 ps.setBoolean(13, isTwoPlayer());
@@ -524,6 +715,73 @@ public class Level extends GDObject {
         return 1;
     }
 
+    public static void rateDemon(int rating, int levelID) {
+        Hashtable<Integer, Level> levelHashtable = getLevelsHashtable();
+
+        Level l = levelHashtable.get(levelID);
+        //нормально оно выглядит
+        //я думал будет хуже
+        l.setDemonDifficulty(DemonDifficulty.sequenceNumberToDemonDifficulty(rating));
+    }
+
+    public static void suggestStars(int levelID, int stars, boolean feature) {
+        //делай сам (diy)
+        //если не сделаешь сам то просто поставит сложность в зависимости от звёзд
+        Hashtable<Integer, Level> levelHashtable = getLevelsHashtable();
+
+        Level l = levelHashtable.get(levelID);
+        if (stars <= 10)
+            l.setDifficultyNumerator(LevelDifficulty.toLevelDifficulty(stars));
+        else
+            l.setDemonDifficulty(DemonDifficulty.sequenceNumberToDemonDifficulty(stars));
+    }
+
+    public static void rateStars(int stars, int levelID) {
+        Hashtable<Integer, Level> levelHashtable = getLevelsHashtable();
+
+        Level l = levelHashtable.get(levelID);
+        l.setStars(stars);
+    }
+
+    public static void rateLevel(int id, int stars, boolean epic, LevelDifficulty difficulty) {
+        Hashtable<Integer, Level> levelHashtable = getLevelsHashtable();
+
+        Level l = levelHashtable.get(id);
+        l.setDifficultyDenominator(10);
+        l.setDifficultyNumerator(difficulty);
+        l.setStars(stars);
+        l.setEpic(epic);
+
+        updateLevel(l);
+    }
+
+    public static void rateLevel(int id, int stars, boolean epic, DemonDifficulty difficulty) {
+        Hashtable<Integer, Level> levelHashtable = getLevelsHashtable();
+
+        Level l = levelHashtable.get(id);
+        l.setDifficultyDenominator(10);
+        l.setDemonDifficulty(difficulty);
+        l.setStars(stars);
+        l.setEpic(epic);
+
+        updateLevel(l);
+    }
+
+    public static void unrateLevel(int id) {
+        Hashtable<Integer, Level> levelHashtable = getLevelsHashtable();
+
+        Level l = levelHashtable.get(id);
+        l.setDifficultyDenominator(0);
+        l.setDemonDifficulty(DemonDifficulty.HARD_DEMON);
+        l.setDemon(false);
+        l.setDifficultyNumerator(LevelDifficulty.UNRATED);
+        l.setStars(0);
+        l.setEpic(false);
+        l.setFeatureScore(0);
+
+        updateLevel(l);
+    }
+
     public static List<Level> getLevels(String secret, @Nullable Integer gameVersion, @Nullable Integer binaryVersion,
                                    Integer type, @Nullable String str, @Nullable Integer page,
                                    @Nullable Integer total, @Nullable String gjp, @Nullable Integer accountID,
@@ -534,7 +792,6 @@ public class Level extends GDObject {
                                    @Nullable Integer coins, @Nullable Integer epic, @Nullable Integer noStar,
                                    @Nullable Integer star, @Nullable Integer song, @Nullable Integer customSong,
                                    @Nullable String followed, @Nullable Integer local) {
-
         if (str==null) str = "";
         if (completedLevels==null) completedLevels = "";
         if (demonFilter==null) demonFilter="";
@@ -590,19 +847,19 @@ public class Level extends GDObject {
         if (diff!=null) {
             try {
                 int d = Integer.parseInt(diff);
-                sortedLvlsTree.removeIf(x -> x.getDifficultyDenominator() != d);
+                sortedLvlsTree.removeIf(x -> x.getDifficultyDenominator() != d/10);
                 if (d == -2) {
                     String finalDemonFilter = demonFilter;
                     switch (demonFilter) {
                         case "1", "2", "3", "4", "5" ->
-                                sortedLvlsTree.removeIf(x -> x.getDemonDifficulty() != Integer.parseInt(finalDemonFilter));
+                                sortedLvlsTree.removeIf(x -> x.getDemonDifficulty().toInt() != Integer.parseInt(finalDemonFilter));
                         default -> {
                             String[] dfsString = demonFilter.split(",");
                             List<Integer> dfs = new ArrayList<>(dfsString.length);
                             for (int i = 0; i < dfsString.length; i++) {
                                 dfs.add(Integer.parseInt(dfsString[i]));
                             }
-                            sortedLvlsTree.removeIf(x -> !dfs.contains(x.getDemonDifficulty()));
+                            sortedLvlsTree.removeIf(x -> !dfs.contains(x.getDemonDifficulty().toInt()));
                         }
                     }
                 }
@@ -613,10 +870,12 @@ public class Level extends GDObject {
                 for (String s : diffsString) {
                     try {
                         diffs.add(Integer.parseInt(s));
-                    } catch (NumberFormatException ignored) {
-                    }
+                    } catch (NumberFormatException ignored) {}
                 }
-                sortedLvlsTree.removeIf(x -> !diffs.contains(x.getDifficultyDenominator()));
+                sortedLvlsTree.removeIf(x -> !diffs.contains(x.getDifficultyNumerator().toInt()/10));
+                if (diffs.contains(-3)) {
+                    sortedLvlsTree.removeIf(x -> !x.isAuto());
+                }
             }
         }
 
@@ -643,16 +902,31 @@ public class Level extends GDObject {
         List<String> cl = new ArrayList<>(List.of(completedLevels.split(",")));
         onlyCompleted=onlyCompleted==null?0:onlyCompleted;
         uncompleted=uncompleted==null?0:uncompleted;
+
         if (onlyCompleted==1) {
-            sortedLvlsTree.removeIf(x->!cl.contains(String.valueOf(x.getLevelID())));
+            sortedLvlsTree.removeIf(x->!cl.contains("["+x.getLevelID()+"]"));
         }
+
+        if (sortedLvlsTree.isEmpty()) {
+            logger.info("sortedLevelsTree is empty, 680");
+        }
+
         if (uncompleted==1) {
             sortedLvlsTree.removeIf(x->cl.contains("\\("+x.getLevelID()+"\\)"));
         }
 
+        if (sortedLvlsTree.isEmpty()) {
+            logger.info("sortedLevelsTree is empty, 688");
+        }
+
+
         featured = featured==null?0:featured;
         if (featured==1) {
-            sortedLvlsTree.removeIf(x->x.getFeatureScore()!=1);
+            sortedLvlsTree.removeIf(x->x.getFeatureScore()<=0);
+        }
+
+        if (sortedLvlsTree.isEmpty()) {
+            logger.info("sortedLevelsTree is empty, 698");
         }
 
         original = original==null?0:original;
@@ -660,9 +934,18 @@ public class Level extends GDObject {
             sortedLvlsTree.removeIf(x->x.getOriginal()!=1);
         }
 
+        if (sortedLvlsTree.isEmpty()) {
+            logger.info("sortedLevelsTree is empty, 707");
+        }
+
+
         twoPlayer = twoPlayer==null?0:twoPlayer;
         if (twoPlayer==1) {
             sortedLvlsTree.removeIf(x -> !x.isTwoPlayer());
+        }
+
+        if (sortedLvlsTree.isEmpty()) {
+            logger.info("sortedLevelsTree is empty, 717");
         }
 
         coins = coins==null?0:coins;
@@ -670,19 +953,35 @@ public class Level extends GDObject {
             sortedLvlsTree.removeIf(x->!x.isVerifiedCoins());
         }
 
+        if (sortedLvlsTree.isEmpty()) {
+            logger.info("sortedLevelsTree is empty, 726");
+        }
+
         epic = epic==null?0:epic;
         if (epic==1) {
             sortedLvlsTree.removeIf(x->!x.isEpic());
         }
 
+        if (sortedLvlsTree.isEmpty()) {
+            logger.info("sortedLevelsTree is empty, 735");
+        }
+
         noStar = noStar==null?0:noStar;
         if (noStar==1) {
-            sortedLvlsTree.removeIf(x->x.getStars()!=0);
+            sortedLvlsTree.removeIf(x->x.getStars()==0);
+        }
+
+        if (sortedLvlsTree.isEmpty()) {
+            logger.info("sortedLevelsTree is empty, 744");
         }
 
         star = star==null?0:star;
         if (star==1) {
             sortedLvlsTree.removeIf(x->x.getStars()!=0);
+        }
+
+        if (sortedLvlsTree.isEmpty()) {
+            logger.info("sortedLevelsTree is empty, 753");
         }
 
         List<Level> levelsList = new ArrayList<>(sortedLvlsTree);
@@ -717,19 +1016,24 @@ public class Level extends GDObject {
         }
 
          */
-        List<Level> subList;
-        if (levelsList.size()>10) {
-            subList = levelsList.subList(page*10, page*10 + 10);
-        }
-        else {
-            subList = levelsList.subList(0, levelsList.size());
-        }
 
-        return subList;
+        return levelsList;
     }
 
-    public static String levelsListToString(List<Level> subList, Integer page) {
-        if (subList.isEmpty()) {
+    public static String levelsListToString(List<Level> levelsList, Integer page, int listSize, int pageSize) {
+        List<Level> pageList = new ArrayList<>();
+
+        int totalPages = (int) Math.ceil((double) levelsList.size() / pageSize);
+
+        if (page < totalPages) {
+            int startIndex = page * pageSize;
+            int endIndex = Math.min(startIndex + pageSize, levelsList.size());
+
+            pageList = levelsList.subList(startIndex, endIndex);
+        }
+        
+
+        if (pageList.isEmpty()) {
             int randid = ((int) (Math.random() * 100000));
             char[] randids = String.valueOf(randid).toCharArray();
             return "1:" + randid + ":2:search by id doesn't work:5:1:6:1:8:0:9:0:10:0:12:0:13:21:14:0:17:0:43:0:25:0:18:0:19:0:42:0:45:0:3:ZG9lc24ndCB3b3Jr:15:0:30:0:31:0:37:0:38:0:39:10:46:0:47:2:35:0#1:server:1##1:0:10#" +
@@ -739,18 +1043,18 @@ public class Level extends GDObject {
         StringBuilder sb = new StringBuilder();
         StringBuilder sb2 = new StringBuilder();
         char[] s;
-        for (Level lvl : subList) {
+        for (Level lvl : pageList) {
             sb.append(lvl.toString(true)).append("|");
 
             s = (String.valueOf(lvl.getLevelID())).toCharArray();
-            sb2.append(s[0]).append(s[s.length-1]).append(lvl.getStars()!=0?1:0).append(lvl.isVerifiedCoins()?1:0);
+            sb2.append(s[0]).append(s[s.length-1]).append(lvl.getStars()).append(lvl.isVerifiedCoins()?1:0);
         }
         String hash = sb2.toString();
 
         sb.setCharAt(sb.lastIndexOf("|"), '#');
 
         try {
-            for (Level lvl : subList) {
+            for (Level lvl : pageList) {
                 sb.append(lvl.getAuthor().toCreatorString()).append("|");
             }
         } catch (Exception e) {
@@ -759,7 +1063,7 @@ public class Level extends GDObject {
 
         sb.setCharAt(sb.lastIndexOf("|"), '#');
 
-        for (Level lvl : subList) {
+        for (Level lvl : pageList) {
             if (lvl.getCustomSongID()!=0) sb.append(Song.map(lvl.getCustomSongID())).append("~:~");
         }
 
@@ -773,19 +1077,33 @@ public class Level extends GDObject {
 
         page = page==null?1:page;
 
-        sb.append(subList.size()).append(":").append(page*10).append(":").append(10).append("#");
+        sb.append(listSize).append(":").append(page*pageSize).append(":").append(pageSize).append("#");
 
         sb.append(Utils.SHA1(hash, "xI25fpAapCQg"));
 
         return sb.toString();
     }
 
-    public static String download(String secret, int id) throws Exception {
+    public static String download(int id) throws Exception {
+        boolean daily = id == -1;
+        //id = getCurrentDailyLevelID();
         Level l = map(id, true);
-        String s = l +"#"+Utils.genSolo(l.getLevelString());
-        String hash = l.getAuthorID()+","+(l.getStars()!=0?1:0)+","+(l.isDemon()?1:0)+","+l.getLevelID()+","+(l.isVerifiedCoins()?1:0)+","+(l.getFeatureScore()==0?0:1)+","+l.getPassword()+","+0;
+        String s = l.toString() +"#"+Utils.genSolo(l.getLevelString());
+        String hash = l.getAuthorID()+","+(l.getStars()!=0?l.getStars():0)+","+(l.isDemon()?1:0)+","+l.getLevelID()+","+(l.isVerifiedCoins()?1:0)+","+(l.getFeatureScore()==0?0:1)+","+l.getPassword()+","+(l.getFeatureScore()==0?0:1);
         l.addDownloads(1);
-        return s+"#"+Utils.SHA1(hash, "xI25fpAapCQg");
+        return s+"#"+Utils.SHA1(hash, "xI25fpAapCQg")+(daily?"#"+l.getAuthor().toCreatorString():"");
+    }
+
+    public static String getDaily(boolean weekly) {
+        try(Statement s = conn.createStatement()) {
+            ResultSet rs = s.executeQuery("SELECT MAX(dailyNumber) FROM levels WHERE dailyNumber != 0");
+            if (rs.next()) {
+                currentDailyNumber = rs.getInt(1);
+            } else currentDailyNumber = 0;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return (getCurrentDailyNumber()+(weekly?100001:0))+"|"+"120"; //later
     }
 
     public void save() throws IOException {
@@ -808,11 +1126,19 @@ public class Level extends GDObject {
     }
 
     public static void updateLevels(int id) {
-        levels.remove(id);
-        levels.put(id, map(id, true));
+        levels.replace(id, map(id, true));
+    }
+
+    /**
+     * Updates level in levels hashtable
+     * @param level Updated level
+     */
+    public static void updateLevel(Level level) {
+        levels.replace(level.getLevelID(), level);
     }
 
     public static Level map(int levelID) {
+        if (levels.containsKey(levelID)) return levels.get(levelID);
         String sql = "SELECT * FROM levels WHERE levelID = ?";
         try(PreparedStatement ps = getConn().prepareStatement(sql)) {
             ps.setInt(1, levelID);
@@ -837,6 +1163,7 @@ public class Level extends GDObject {
      * @return Level object
      */
     public static Level map(int levelID, boolean full) {
+        //if (levels.containsKey(levelID)) return levels.get(levelID);
         if (!full) return map(levelID);
         String sql = "SELECT * FROM `levels` WHERE levelID = ?";
         try(PreparedStatement ps = getConn().prepareStatement(sql)) {

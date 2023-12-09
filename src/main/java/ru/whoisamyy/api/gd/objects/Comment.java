@@ -1,105 +1,34 @@
 package ru.whoisamyy.api.gd.objects;
 
+import lombok.Getter;
+import lombok.Setter;
 import ru.whoisamyy.api.utils.comparators.CommentComparators;
-import ru.whoisamyy.api.gd.misc.GDObject;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
+@Getter
 public class Comment extends GDObject {
     public static int lastCommentID;
     private static final HashSet<Comment> comments = new HashSet<>();
-    public static Connection conn;
+    //public static Connection conn;
 
-    int ID;
-    int accountID; //comment author id
-    String username;
-    String comment;
-    int levelID = 0;
-    int percentage = 0;
-    int likes;
-    boolean isSpam;
-    boolean isAcc = false;
+    @Setter int ID;
+    @Setter int accountID; //comment author id
+    @Setter String username;
+    @Setter String comment;
+    @Setter int levelID = 0;
+    @Setter int percentage = 0;
+    @Setter int likes;
+    @Setter boolean isSpam;
+    @Setter boolean isAcc = false;
 
-
-    public int getID() {
-        return ID;
-    }
-
-    public int getAccountID() {
-        return accountID;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public int getLevelID() {
-        return levelID;
-    }
-
-    public int getPercentage() {
-        return percentage;
-    }
-
-    public int getLikes() {
-        return likes;
-    }
 
     public static HashSet<Comment> getCommentsHashset() {
         getComments();
         return comments;
-    }
-
-    public boolean isSpam() {
-        return isSpam;
-    }
-
-    public boolean isAcc() {
-        return isAcc;
-    }
-
-    public void setID(int ID) {
-        this.ID = ID;
-    }
-
-    public void setAccountID(int accountID) {
-        this.accountID = accountID;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-
-    public void setLevelID(int levelID) {
-        this.levelID = levelID;
-    }
-
-    public void setPercentage(int percentage) {
-        this.percentage = percentage;
-    }
-
-    public void setLikes(int likes) {
-        this.likes = likes;
-    }
-
-    public void setSpam(boolean spam) {
-        isSpam = spam;
-    }
-
-    public void setAcc(boolean acc) {
-        isAcc = acc;
     }
     public Comment() {
 
@@ -222,6 +151,8 @@ public class Comment extends GDObject {
             ps.setInt(1, getID());
 
             ps.execute();
+
+            comments.removeIf(x->x.getID()==getID());
             return 1;
         } catch (SQLException e) {
             return -1;
@@ -277,28 +208,32 @@ public class Comment extends GDObject {
         getComments();
         TreeSet<Comment> commentTreeSet = new TreeSet<>(mode==0? new CommentComparators.IDComparatorDescension():new CommentComparators.LikeComparator());
         commentTreeSet.addAll(comments);
-        if (acc) commentTreeSet.removeIf(x->x.getAccountID()!=ID);
-        else commentTreeSet.removeIf(x->x.getLevelID()!=ID);
-        ArrayList<Comment> commentArrayList = new ArrayList<>(commentTreeSet);
-        ArrayList<Comment> subList = new ArrayList<>();
-        if (commentArrayList.size()==1) {
-            subList.add(commentArrayList.get(0));
+        List<Comment> commentArrayList = new ArrayList<>(commentTreeSet);
+        List<Comment> subList = new ArrayList<>();
+
+        if (acc) {
+            commentArrayList.removeIf(x -> !x.isAcc() || x.getAccountID()!=ID || x.getLevelID()!=0);
         } else {
-            subList.addAll(commentArrayList.subList(page*10, commentArrayList.size()>=10?page*10+10:commentArrayList.size()));
+            commentArrayList.removeIf(x -> x.isAcc() || x.getLevelID()!=ID);
+        }
+
+        int totalPages = (int) Math.ceil((double) commentArrayList.size() / 10);
+
+        if (page < totalPages) {
+            int startIndex = page * 10;
+            int endIndex = Math.min(startIndex + 10, commentArrayList.size());
+
+            subList = commentArrayList.subList(startIndex, endIndex);
         }
 
         StringBuilder sb = new StringBuilder();
         for (Comment comment : subList) {
-            if (comment.isAcc() && acc && comment.getAccountID()==ID)
-                sb.append(comment.toString(true)).append("|");
-            else if (!comment.isAcc() && !acc && comment.getLevelID()==ID)
-                sb.append(comment.toString(true)).append("|");
+            sb.append(comment.toString(true)).append("|");
         }
         try {
             sb.deleteCharAt(sb.lastIndexOf("|"));
-        } catch (StringIndexOutOfBoundsException ignored) {
-        }
-        sb.append("#").append(commentTreeSet.size()).append(":").append(page).append(":").append("10");
+        } catch (StringIndexOutOfBoundsException ignored) {}
+        sb.append("#").append(commentArrayList.size()).append(":").append(page*10).append(":").append("10");
         return new Hashtable<>(Map.of(sb.toString(), subList));
     }
 
@@ -309,7 +244,7 @@ public class Comment extends GDObject {
      * @return Comment object with given id
      */
     public static Comment map(int id) {
-        try(PreparedStatement ps = conn.prepareStatement("SELECT ID, userID, userName, levelID, comment, likes, percent, isSpam FROM comments WHERE ID = ?")) {
+        try(PreparedStatement ps = conn.prepareStatement("SELECT * FROM comments WHERE ID = ?")) {
             ps.setInt(1, id);
 
             ResultSet rs = ps.executeQuery();
@@ -317,7 +252,7 @@ public class Comment extends GDObject {
             if (!rs.next()) return new Comment();
             return new Comment(rs.getInt("ID"), rs.getInt("userID"), rs.getString("userName"),
                     rs.getString("comment"), rs.getInt("levelID"), rs.getInt("percent"),
-                    rs.getInt("likes"), rs.getBoolean("isSpam"), rs.getInt("levelID")<=0);
+                    rs.getInt("likes"), rs.getBoolean("isSpam"), rs.getBoolean("isAcc"));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
