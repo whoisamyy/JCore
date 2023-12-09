@@ -10,9 +10,9 @@
 	</parent>
 	<groupId>ru.whoisamyy</groupId>
 	<artifactId>core</artifactId>
-	<version>0.0.2-RELEASE</version>
+	<version>0.0.3-RELEASE</version>
 	<name>core</name>
-	<description>Geometry Dash core in java</description>
+	<description>Geometry Dash kernel in java</description>
 	<licenses>
 		<license>
 			<name>MIT License</name>
@@ -89,7 +89,8 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<optional>true</optional>
+			<version>1.18.30</version>
+			<optional>false</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -104,19 +105,19 @@
 		</dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jdk8</artifactId>
-            <version>${kotlin.version}</version>
+            <artifactId>kotlin-stdlib</artifactId>
+			<version>1.9.21</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-test</artifactId>
-            <version>${kotlin.version}</version>
+            <version>1.9.21</version>
             <scope>test</scope>
         </dependency>
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
-			<artifactId>kotlin-stdlib-jdk8</artifactId>
-			<version>${kotlin.version}</version>
+			<artifactId>kotlin-stdlib</artifactId>
+			<version>1.9.21</version>
 		</dependency>
 
 	</dependencies>
@@ -141,7 +142,7 @@
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
-                <version>${kotlin.version}</version>
+                <version>1.9.21</version>
                 <executions>
                     <execution>
                         <id>compile</id>
@@ -172,7 +173,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <jvmTarget>1.8</jvmTarget>
+                    <jvmTarget>17</jvmTarget>
                 </configuration>
             </plugin>
             <plugin>
@@ -203,6 +204,28 @@
                     </execution>
                 </executions>
             </plugin>
+			<plugin>
+				<groupId>org.jetbrains.kotlin</groupId>
+				<artifactId>kotlin-maven-plugin</artifactId>
+				<version>1.9.21</version>
+				<configuration>
+					<compilerPlugins>
+						<plugin>lombok</plugin>
+					</compilerPlugins>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.jetbrains.kotlin</groupId>
+						<artifactId>kotlin-maven-lombok</artifactId>
+						<version>1.9.21</version>
+					</dependency>
+					<dependency>
+						<groupId>org.projectlombok</groupId>
+						<artifactId>lombok</artifactId>
+						<version>1.18.30</version>
+					</dependency>
+				</dependencies>
+			</plugin>
         </plugins>
 	</build>
 </project>
