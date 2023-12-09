@@ -2,12 +2,12 @@ package ru.whoisamyy.api.gd.commands;
 
 import ru.whoisamyy.api.gd.objects.Level;
 import ru.whoisamyy.api.plugins.annotations.CommandHandler;
-import ru.whoisamyy.api.plugins.commands.Command;
+import ru.whoisamyy.api.plugins.commands.AbstractCommentCommand;
 import ru.whoisamyy.api.plugins.commands.CommandArgument;
 import ru.whoisamyy.api.utils.enums.ModType;
 
 @CommandHandler
-public class UnrateCommand extends Command {
+public class UnrateCommand extends AbstractCommentCommand {
     @Override
     @CommandHandler(commandName = "unrate")
     public void execute(CommandArgument args) {

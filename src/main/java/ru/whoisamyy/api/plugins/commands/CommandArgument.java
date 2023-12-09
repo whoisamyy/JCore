@@ -14,7 +14,7 @@ public class CommandArgument {
         this.args.putAll(mapArgs(args, "="));
     }
 
-    static Hashtable<String, Object> mapArgs(String argsString, String separator) {
+    public static Hashtable<String, Object> mapArgs(String argsString, String separator) {
         String[] nameArg = argsString.split(" ");
         Hashtable<String, Object> namesArgs = new Hashtable<>();
         for (int i = 1; i < nameArg.length; i++) {

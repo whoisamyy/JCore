@@ -8,9 +8,9 @@ import java.util.Hashtable;
 
 public class CommandManager {
     private static CommandManager instance;
-    public Hashtable<String, CommandHandler> commands = new Hashtable<>();
+    public Hashtable<String, CommentCommandHandler> commands = new Hashtable<>();
 
-    public void addCommand(String prefix, String commandName, CommandHandler handler) {
+    public void addCommand(String prefix, String commandName, CommentCommandHandler handler) {
         commands.put(commandName, handler);
         //adds event handler, that executes command
         EventListener.getInstance().registerHandler(UploadCommentEvent.class, (event) -> {
@@ -24,8 +24,8 @@ public class CommandManager {
         });
     }
 
-    public void addCommands(String prefix, String commandName, CommandHandler[] handlers) {
-        for (CommandHandler handler : handlers) {
+    public void addCommands(String prefix, String commandName, CommentCommandHandler[] handlers) {
+        for (CommentCommandHandler handler : handlers) {
             addCommand(prefix, commandName, handler);
         }
     }

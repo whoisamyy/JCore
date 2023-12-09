@@ -1,6 +1,6 @@
 package ru.whoisamyy.api.plugins.commands;
 
 @FunctionalInterface
-public interface CommandHandler {
+public interface CommentCommandHandler {
     void execute(CommandArgument args);
 }

@@ -1,18 +1,19 @@
 package ru.whoisamyy.api.plugins.commands;
 
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public abstract class Command implements CommandHandler {
+public abstract class AbstractCommentCommand implements CommentCommandHandler {
     protected Logger logger;
-    protected String name;
+    @Getter protected String name;
 
-    public Command(String name) {
+    public AbstractCommentCommand(String name) {
         this.name = name;
         this.logger = LogManager.getLogger(this.getClass());
     }
 
-    public Command() {
+    public AbstractCommentCommand() {
         this.logger = LogManager.getLogger(this.getClass());
     }
 }
