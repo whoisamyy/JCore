@@ -4,7 +4,7 @@ import ru.whoisamyy.api.console.AbstractConsoleCommand;
 import ru.whoisamyy.api.plugins.annotations.ConsoleCommand;
 
 public class EchoConsoleCommand extends AbstractConsoleCommand {
-    @ConsoleCommand(name = "echo")
+    @ConsoleCommand(name = "echo", help = "returns given in argument text")
     public String echo(String text) {
         return text;
     }
