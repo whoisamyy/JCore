@@ -726,7 +726,7 @@ public class RequestManager {
 
             try {
                 new UploadCommentEvent(vals).callEvent();
-            } catch (NoSuchFieldException e) { 
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
@@ -1634,12 +1634,5 @@ public class RequestManager {
     }
 }
 
-
-
-//COMMENTS: DONE
-//RELATIONSHIPS: DONE
-//TODO REWARDS мне в падлу, потом займус( прокрастинация убивает проекты )
-//SCORES: LEFT:
-//updateGJUserScore
-//LEVELS: LEFT:
-//getGJDailyLevel.php, rateGJDemon.php, rateGJStars.php, reportGJLevel.php, suggestGJStars.php, getGJGauntlets.php, getGJMapPacks.php
+////LEVELS: LEFT:
+//getGJMapPacks.php
