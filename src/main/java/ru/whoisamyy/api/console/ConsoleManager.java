@@ -28,7 +28,7 @@ public class ConsoleManager {
 
         AbstractConsoleCommand consoleCommand = commands.get(commandName);
         if (consoleCommand==null) {
-            logger.info("No such command: \""+commandName+"\"");
+            logger.info("No such command: "+commandName);
             return;
         }
         Object retOfInvoke = consoleCommand.invoke(args);
