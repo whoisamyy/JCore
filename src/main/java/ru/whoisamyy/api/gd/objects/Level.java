@@ -907,26 +907,13 @@ public class Level extends GDObject {
             sortedLvlsTree.removeIf(x->!cl.contains("["+x.getLevelID()+"]"));
         }
 
-        if (sortedLvlsTree.isEmpty()) {
-            logger.info("sortedLevelsTree is empty, 680");
-        }
-
         if (uncompleted==1) {
             sortedLvlsTree.removeIf(x->cl.contains("\\("+x.getLevelID()+"\\)"));
         }
 
-        if (sortedLvlsTree.isEmpty()) {
-            logger.info("sortedLevelsTree is empty, 688");
-        }
-
-
         featured = featured==null?0:featured;
         if (featured==1) {
             sortedLvlsTree.removeIf(x->x.getFeatureScore()<=0);
-        }
-
-        if (sortedLvlsTree.isEmpty()) {
-            logger.info("sortedLevelsTree is empty, 698");
         }
 
         original = original==null?0:original;
@@ -934,18 +921,9 @@ public class Level extends GDObject {
             sortedLvlsTree.removeIf(x->x.getOriginal()!=1);
         }
 
-        if (sortedLvlsTree.isEmpty()) {
-            logger.info("sortedLevelsTree is empty, 707");
-        }
-
-
         twoPlayer = twoPlayer==null?0:twoPlayer;
         if (twoPlayer==1) {
             sortedLvlsTree.removeIf(x -> !x.isTwoPlayer());
-        }
-
-        if (sortedLvlsTree.isEmpty()) {
-            logger.info("sortedLevelsTree is empty, 717");
         }
 
         coins = coins==null?0:coins;
@@ -953,17 +931,9 @@ public class Level extends GDObject {
             sortedLvlsTree.removeIf(x->!x.isVerifiedCoins());
         }
 
-        if (sortedLvlsTree.isEmpty()) {
-            logger.info("sortedLevelsTree is empty, 726");
-        }
-
         epic = epic==null?0:epic;
         if (epic==1) {
             sortedLvlsTree.removeIf(x->!x.isEpic());
-        }
-
-        if (sortedLvlsTree.isEmpty()) {
-            logger.info("sortedLevelsTree is empty, 735");
         }
 
         noStar = noStar==null?0:noStar;
@@ -971,25 +941,17 @@ public class Level extends GDObject {
             sortedLvlsTree.removeIf(x->x.getStars()==0);
         }
 
-        if (sortedLvlsTree.isEmpty()) {
-            logger.info("sortedLevelsTree is empty, 744");
-        }
-
         star = star==null?0:star;
         if (star==1) {
             sortedLvlsTree.removeIf(x->x.getStars()!=0);
         }
 
-        if (sortedLvlsTree.isEmpty()) {
-            logger.info("sortedLevelsTree is empty, 753");
-        }
-
         List<Level> levelsList = new ArrayList<>(sortedLvlsTree);
 
-        for (Level lvl :
-                levelsList) {
-            logger.debug(lvl.toString());
-        }
+        //for (Level lvl :
+        //        levelsList) {
+        //    logger.debug(lvl.toString());
+        //}
 
         //Iterator<Level> iter = sortedLvlsTree.iterator();
         /*

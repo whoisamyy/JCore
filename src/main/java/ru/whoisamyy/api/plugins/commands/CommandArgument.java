@@ -2,11 +2,11 @@ package ru.whoisamyy.api.plugins.commands;
 
 import ru.whoisamyy.api.gd.objects.*;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 
 public class CommandArgument {
-    Hashtable<String, Object> args = new Hashtable<>();
-    public CommandArgument(Hashtable<String, Object> namedArgs) {
+    HashMap<String, Object> args = new HashMap<>();
+    public CommandArgument(HashMap<String, Object> namedArgs) {
         args.putAll(namedArgs);
     }
 
@@ -14,9 +14,9 @@ public class CommandArgument {
         this.args.putAll(mapArgs(args, "="));
     }
 
-    public static Hashtable<String, Object> mapArgs(String argsString, String separator) {
+    public static HashMap<String, Object> mapArgs(String argsString, String separator) {
         String[] nameArg = argsString.split(" ");
-        Hashtable<String, Object> namesArgs = new Hashtable<>();
+        HashMap<String, Object> namesArgs = new HashMap<>();
         for (int i = 1; i < nameArg.length; i++) {
             String[] nameArgPair = nameArg[i].split(separator);
             namesArgs.put(nameArgPair[0], nameArgPair[1]);
@@ -29,7 +29,7 @@ public class CommandArgument {
             setDefault(argName, 0);
             return getInt(argName);
         }
-        return Integer.parseInt((String) args.get(argName));
+        return Integer.parseInt(args.get(argName).toString());
     }
 
     public String getString(String argName) {
@@ -97,6 +97,10 @@ public class CommandArgument {
 
     public Song getSong(String argName) {
         return Song.map(getInt(argName));
+    }
+
+    public Object get(String argName) {
+        return args.get(argName);
     }
 
     void setDefault(String argName, Object value) {

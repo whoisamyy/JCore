@@ -199,9 +199,11 @@ public class Comment extends GDObject {
     }
 
     /**
-     * getGJAccountComments or getGJComments
+     * Same as getGJAccountComments or getGJComments
      * @param ID level/account id based on acc param
      * @param acc get account or level comment (true=account, false=level)
+     * @param page page to return
+     * @param mode sort mode: 0 = default(id descension), 1 = likes(likes descension)
      * @return commentsString
      */
     public static Map<String, List<Comment>> getComments(int ID, int page, boolean acc, int mode) {

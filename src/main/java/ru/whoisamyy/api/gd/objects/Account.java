@@ -384,7 +384,6 @@ public class Account extends GDObject {
      * @param password account password
      * @return if success: 1,
      *         if not: -1
-     * @devnote PLS DEBUG THIS
      */
     public byte backup(String saveData, String password) { //pls debug
         try(PreparedStatement ps = conn.prepareStatement("SELECT userID FROM users WHERE username = ? AND gjp = ?")) {

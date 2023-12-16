@@ -20,8 +20,14 @@ class GetLevelInfoConsoleCommand : AbstractConsoleCommand() {
         val levelDownloads: Int = l.downloads
         val levelLikes: Int = l.likes
         val levelObjCount: Int = l.objects
+        val isDemon: Boolean = l.isDemon
+        val isLevelRated: Boolean = l.featureScore!=0
+        val isEpic: Boolean = l.isEpic
+        val authorName: String = l.author.username
+        val levelDiff = if (!isDemon) l.difficultyNumerator else l.demonDifficulty
 
         return "Level name: $levelName \nLevel desc: $levelDesc \nLevel length: $levelLength" +
-                " \nDownloads: $levelDownloads \n${if (levelLikes < 0) "dislikes" else "likes"}: ${levelLikes.absoluteValue} \nObjects: $levelObjCount"
+                " \nDownloads: $levelDownloads \n${if (levelLikes < 0) "dislikes" else "likes"}: ${levelLikes.absoluteValue} \nObjects: $levelObjCount" +
+                "\nDifficulty: $levelDiff \nIs rated? $isLevelRated \nIs epic? $isEpic \nAuthor: $authorName"
     }
 }

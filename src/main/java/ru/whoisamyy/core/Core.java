@@ -7,21 +7,22 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.yaml.snakeyaml.Yaml;
 import ru.whoisamyy.api.console.ConsoleManager;
-import ru.whoisamyy.api.console.commands.EchoConsoleCommand;
-import ru.whoisamyy.api.console.commands.GetLevelInfoConsoleCommand;
-import ru.whoisamyy.api.console.commands.HelpConsoleCommand;
+import ru.whoisamyy.api.console.commands.*;
 import ru.whoisamyy.api.gd.commands.RateCommand;
 import ru.whoisamyy.api.gd.commands.UnrateCommand;
 import ru.whoisamyy.api.gd.objects.*;
 import ru.whoisamyy.api.plugins.annotations.CommandHandler;
 import ru.whoisamyy.api.plugins.commands.AbstractCommentCommand;
+import ru.whoisamyy.api.plugins.commands.CommandArgument;
 import ru.whoisamyy.api.plugins.commands.CommandManager;
 import ru.whoisamyy.api.utils.Utils;
 import ru.whoisamyy.core.endpoints.RequestManager;
+import ru.whoisamyy.core.out.MultiOutStream;
 
 import java.io.*;
 import java.lang.reflect.Method;
 import java.sql.*;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -39,6 +40,22 @@ public class Core {
 	public static Logger logger = LogManager.getLogger(Core.class);
 
 	public static void main(String[] args) {
+		MultiOutStream.getInstance().addStream(System.out);
+		if (args.length!=0) {
+			HashMap<String, String> mappedArgs = mapArgs(args);
+
+			File outputFile = new File(mappedArgs.get("-o"));
+
+			try {
+				if (!outputFile.exists()) outputFile.createNewFile();
+				MultiOutStream.getInstance().addStream(new FileOutputStream(outputFile));
+				System.setOut(new PrintStream(MultiOutStream.getInstance()));
+				System.setIn(System.in);
+			} catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
 		Utils.logger = logger;
         getSettings();
 		SpringApplication.run(Core.class, args);
@@ -245,5 +262,15 @@ public class Core {
 		ConsoleManager.getInstance().registerCommand(EchoConsoleCommand.class);
 		ConsoleManager.getInstance().registerCommand(HelpConsoleCommand.class);
 		ConsoleManager.getInstance().registerCommand(GetLevelInfoConsoleCommand.class);
+	}
+
+	static HashMap<String, String> mapArgs(String[] args) {
+		HashMap<String, String> mappedArgs = new HashMap<>();
+		for (int i = 0; i < args.length; i+=2) {
+			if(args.length%2!=0) throw new IndexOutOfBoundsException("Args length is odd! Cannot map uneven arrays!");
+			if(!args[i].startsWith("-")) throw new RuntimeException("Invalid argument name: "+args[i]);
+			mappedArgs.put(args[i], args[i+1]);
+		}
+		return mappedArgs;
 	}
 }

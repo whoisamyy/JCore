@@ -22,8 +22,13 @@ public abstract class AbstractConsoleCommand {
         for (Method md : this.getClass().getMethods()) {
             if (md.isAnnotationPresent(ConsoleCommand.class)) {
                 String name = md.getAnnotation(ConsoleCommand.class).name();
+                String desc = md.getAnnotation(ConsoleCommand.class).help();
+
                 if (!name.isEmpty()) commandName = name;
                 else commandName = md.getName();
+                commandHelp = desc;
+                commandDesc = commandHelp;
+
                 executable = md;
                 returnType = md.getReturnType();
             }

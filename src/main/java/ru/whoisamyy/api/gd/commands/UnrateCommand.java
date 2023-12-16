@@ -15,6 +15,6 @@ public class UnrateCommand extends AbstractCommentCommand {
             Level.unrateLevel(args.getInt("id"));
         }
 
-        logger.info(args.getAccount("senderID").getUsername() + " unrated(or at least tried to) a level with name: "+ args.getLevel("id").getLevelName());
+        //logger.info(args.getAccount("senderID").getUsername() + " unrated(or at least tried to) a level with name: "+ args.getLevel("id").getLevelName()); //ааэээ эта хрень должна быть в плагинах, я забыл её убрать в релизе простите
     }
 }

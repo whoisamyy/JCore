@@ -23,6 +23,6 @@ public class RateCommand extends AbstractCommentCommand {
             }
         }
 
-        logger.info(acc.getUsername() + " rated (or at least tried to) level with name " + Level.map(args.getInt("id")));
+        //logger.info(acc.getUsername() + " rated (or at least tried to) level with name " + Level.map(args.getInt("id"))); //эта штука должна быть в плагинах, я тоже забыл убрать её из релиза
     }
 }

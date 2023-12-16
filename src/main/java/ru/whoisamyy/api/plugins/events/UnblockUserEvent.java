@@ -21,6 +21,7 @@ public class UnblockUserEvent extends Event {
             Parameter[] params= m.getParameters();
             List<String> strings = new ArrayList<>();
             Arrays.stream(params).forEach(x->strings.add(x.getName()));
+            strings.add("returnValue");
             parameterNames = new ArrayList<>(strings);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);

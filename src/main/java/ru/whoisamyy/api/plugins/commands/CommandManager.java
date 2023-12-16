@@ -14,13 +14,14 @@ public class CommandManager {
         commands.put(commandName, handler);
         //adds event handler, that executes command
         EventListener.getInstance().registerHandler(UploadCommentEvent.class, (event) -> {
-            String rawStr = Utils.base64UrlSafeDecode(((String) event.eventParameters.get("comment")));
+            String rawStr = Utils.base64UrlSafeDecode(event.getString("comment"));
 
             if (rawStr.startsWith(prefix+commandName)) {
                 rawStr = rawStr.replace("!"+commandName, "");
-                rawStr = rawStr + " senderID="+event.eventParameters.get("accountID")+" id="+event.eventParameters.get("levelID");
+                rawStr = rawStr + " senderID="+event.getInt("accountID")+" id="+event.getInt("levelID");
                 handler.execute(new CommandArgument(CommandArgument.mapArgs(rawStr, "=")));
             }
+            return null; //return null is basically alias for  void execute() {}
         });
     }
 
