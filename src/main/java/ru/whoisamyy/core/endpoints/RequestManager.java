@@ -100,14 +100,15 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
                 throw new RuntimeException(e);
             }
+            int lvlid = lvl.upload(true);
+            vals = new Object[]{gameVersion, accountID, levelID, levelName, levelDesc, levelVersion, levelLength, audioTrack, auto, password, original, twoPlayer, songID, objects, coins, requestedStars, unlisted, ldm, levelString, secret, gjp, lvlid};
 
             try {
                 new UploadLevelEvent(vals).callEvent();
-            } catch (NoSuchFieldException e) { 
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            int lvlid = lvl.upload(true);
             levels = Level.getLevelsHashtable(); //gl
             return lvlid;
         }
@@ -131,17 +132,19 @@ public class RequestManager {
             try {
                 Parameter[] pars = RequestManager.Levels.class.getMethod("updateGJDesc", int.class, int.class, String.class, String.class, String.class).getParameters();
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.LEVELS_UPDATE_DESCRIPTION);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
+            int ret = lvl.updateDesc(levelDesc);
+            vals = new Object[]{accountID, levelID, levelDesc, secret, gjp, ret};
+
 
             try {
                 new UpdateLevelDescEvent(vals).callEvent();
-            } catch (NoSuchFieldException e) { 
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            int ret = lvl.updateDesc(levelDesc);
             return ret;
         }
 
@@ -199,6 +202,7 @@ public class RequestManager {
 
             var retList = Level.getLevels(secret, gameVersion, binaryVersion, type, str, page, total, gjp, accountID, gdw, gauntlet, diff, demonFilter, len, uncompleted, onlyCompleted, completedLevels, featured, original, twoPlayer, coins, epic, noStar, star, song, customSong, followed, local);
             var ret = Level.levelsListToString(retList, page, retList.size(), 10);
+            vals = new Object[]{secret, gameVersion, binaryVersion, type, str, page, total, gjp, accountID, gdw, gauntlet, diff, demonFilter, len, uncompleted, onlyCompleted, completedLevels, featured, original, twoPlayer, coins, epic, noStar, star, song, customSong, followed, local, ret};
 
             //List<Object> values = new ArrayList<>(Arrays.asList(vals));
             //values.add(retList);
@@ -222,14 +226,15 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
+            var ret = Level.getDaily(weekly);
+            vals = new Object[]{weekly, ret};
 
             try {
                 new GetDailyLevelEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
-            var ret = Level.getDaily(weekly);
-            //logger.info(ret);
+
             return ret;
         }
 
@@ -257,14 +262,15 @@ public class RequestManager {
             }
 
             try {
+                String s = Level.download(levelID);
+                vals = new Object[]{levelID, secret, accountID, gjp, s};
 
                 try {
                     new DownloadLevelEvent(vals).callEvent();
-                } catch (NoSuchFieldException e) { 
+                } catch (NoSuchFieldException e) {
                     throw new RuntimeException(e);
                 }
 
-                String s = Level.download(levelID);
                 return s;
             } catch (Exception e) { 
                 throw new RuntimeException(e);
@@ -294,14 +300,15 @@ public class RequestManager {
             }
 
             try {
+                int ret = Level.delete(accountID, gjp, levelID, secret, true);
+                vals = new Object[]{accountID, gjp, levelID, secret, ret};
 
                 try {
                     new DeleteLevelEvent(vals).callEvent();
-                } catch (NoSuchFieldException e) { 
+                } catch (NoSuchFieldException e) {
                     throw new RuntimeException(e);
                 }
 
-                int ret = Level.delete(accountID, gjp, levelID, secret, true);
                 return ret;
             } catch (Exception e) { 
                 throw new RuntimeException(e);
@@ -309,7 +316,7 @@ public class RequestManager {
             }
         }
 
-        @PostMapping("/{}/rateGJDemon21.php")
+        @PostMapping("/{serverURL}/rateGJDemon21.php")
         public int rateGJDemon(
                 @RequestParam Integer levelID,
                 @RequestParam Integer rating,
@@ -331,6 +338,8 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
+            Level.rateDemon(rating, levelID);
+            vals = new Object[]{accountID, gjp, levelID, rating, secret, 1};
 
             try {
                 new RateLevelDemonEvent(vals).callEvent();
@@ -338,7 +347,6 @@ public class RequestManager {
                 throw new RuntimeException(e);
             }
 
-            Level.rateDemon(rating, levelID);
             return 1;
         }
 
@@ -365,6 +373,8 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
+            Level.rateStars(stars, levelID);
+            vals = new Object[]{accountID, gjp, levelID, stars, secret, 1};
 
             try {
                 new RateLevelStarsEvent(vals).callEvent();
@@ -372,7 +382,6 @@ public class RequestManager {
                 throw new RuntimeException(e);
             }
 
-            Level.rateStars(stars, levelID);
             return 1;
         }
 
@@ -399,6 +408,8 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
+            Level.suggestStars(levelID, stars, feature);
+            vals = new Object[]{accountID, stars, feature, accountID, gjp, secret, 1};
 
             try {
                 new SuggestLevelStarsEvent(vals).callEvent();
@@ -406,7 +417,6 @@ public class RequestManager {
                 throw new RuntimeException(e);
             }
 
-            Level.suggestStars(levelID, stars, feature);
             return 1;
         }
     }
@@ -433,14 +443,15 @@ public class RequestManager {
                 } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
                     throw new RuntimeException(e);
                 }
+                int ret = acc.register();
+                vals = new Object[]{userName, password, email, secret, ret};
 
                 try {
                     new RegisterAccountEvent(vals).callEvent();
-                } catch (NoSuchFieldException e) { 
+                } catch (NoSuchFieldException e) {
                     throw new RuntimeException(e);
                 }
 
-                int ret = acc.register();
                 accounts = Account.getAccountsHashtable();
                 return ret;
             } catch (Exception e) { 
@@ -469,14 +480,15 @@ public class RequestManager {
                 } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
                     throw new RuntimeException(e);
                 }
+                var ret = acc.login(userName, password);
+                vals = new Object[]{userName, password, email, secret, ret};
 
                 try {
                     new LoginAccountEvent(vals).callEvent();
-                } catch (NoSuchFieldException e) { 
+                } catch (NoSuchFieldException e) {
                     throw new RuntimeException(e);
                 }
 
-                var ret = acc.login(userName, password);
                 return ret;
             } catch (Exception e) { 
                 throw new RuntimeException(e);
@@ -501,13 +513,14 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
                 throw new RuntimeException(e);
             }
+            var ret = acc.backup(saveData, password);
+            vals = new Object[]{saveData, password, userName, secret, ret};
 
             try {
                 new BackupAccountEvent(vals).callEvent();
-            } catch (NoSuchFieldException e) { 
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
-            var ret = acc.backup(saveData, password);
             return ret;
         }
 
@@ -527,15 +540,15 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
                 throw new RuntimeException(e);
             }
+            String ret = acc.sync();
+            vals = new Object[]{userName, secret, password, ret};
 
             try {
                 new SyncAccountEvent(vals).callEvent();
-            } catch (NoSuchFieldException e) { 
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            String ret = acc.sync();
-            //logger.info(ret);
             return ret;
         }
 
@@ -561,14 +574,15 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
+            String ret = Account.map(targetAccountID, true, true).toString();
+            vals = new Object[]{targetAccountID, secret, accountID, gjp, ret};
 
             try {
                 new GetUserInfoEvent(vals).callEvent();
-            } catch (NoSuchFieldException e) { 
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            String ret = Account.map(targetAccountID, true, true).toString();
             return ret;
         }
 
@@ -587,15 +601,14 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException e) { 
                 throw new RuntimeException(e);
             }
+            var ret = serverURL;
 
             try {
-                new GetAccountURLEvent().callEvent();
-            } catch (NoSuchFieldException e) { 
+                new GetAccountURLEvent(ret).callEvent();
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            var ret = serverURL;
-            //logger.info(serverURL);
             return ret;
         }
 
@@ -625,14 +638,15 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
                 throw new RuntimeException(e);
             }
+            var ret = acc.updateAccSettings(mS, frS, cS, yt, twitter, twitch);
+            vals = new Object[]{accountID, mS, frS, cS, yt, twitter, twitch, secret, gjp, ret};
 
             try {
                 new UpdateAccountSettingsEvent(vals).callEvent();
-            } catch (NoSuchFieldException e) { 
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            var ret = acc.updateAccSettings(mS, frS, cS, yt, twitter, twitch);
             return ret;
         }
 
@@ -678,6 +692,8 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
+            int ret = accounts.get(accountID).updateUserScore(userName, 21, coins, secret, stars, demons, icon, color1, color2, iconType, userCoins, special, accIcon, accShip, accBall, accBird, accDart, accRobot, accGlow, 0, accSpider, accExplosion, diamonds);
+            vals = new Object[]{accountID, gjp, userName, stars, demons, diamonds, icon, iconType, coins, userCoins, accIcon, accShip, accBall, accBird, accDart, accRobot, accGlow, accSpider, accExplosion, special, color1, color2, secret, ret};
 
             try {
                 new UpdateUserScoreEvent(vals).callEvent();
@@ -685,7 +701,6 @@ public class RequestManager {
                 throw new RuntimeException(e);
             }
 
-            int ret = accounts.get(accountID).updateUserScore(userName, 21, coins, secret, stars, demons, icon, color1, color2, iconType, userCoins, special, accIcon, accShip, accBall, accBird, accDart, accRobot, accGlow, 0, accSpider, accExplosion, diamonds);
             accounts = Account.getAccountsHashtable();
             return ret;
         }
@@ -722,6 +737,8 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
                 throw new RuntimeException(e);
             }
+            int ret = com.upload();
+            vals = new Object[]{accountID, userName, comment, levelID, percent, secret, gjp, ret};
 
             try {
                 new UploadCommentEvent(vals).callEvent();
@@ -729,7 +746,6 @@ public class RequestManager {
                 throw new RuntimeException(e);
             }
 
-            int ret = com.upload();
             return ret;
         }
 
@@ -756,14 +772,15 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
                 throw new RuntimeException(e);
             }
+            int ret = com.upload();
+            vals = new Object[]{accountID, userName, comment, secret, gjp, ret};
 
             try {
                 new UploadAccountCommentEvent(vals).callEvent();
-            } catch (NoSuchFieldException e) { 
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            int ret = com.upload();
             return ret;
         }
 
@@ -789,17 +806,15 @@ public class RequestManager {
                 throw new RuntimeException(e);
             }
             var r = Comment.getComments(levelID, page, false, mode);
-
-            //List<Object> values = new ArrayList<>(Arrays.asList(vals));
-            //values.add(r.values().toArray()[0]);
+            String ret = (String) r.keySet().toArray()[0];
+            vals = new Object[]{levelID, page, mode, secret, ret};
 
             try {
                 new GetCommentsEvent(vals).callEvent();
-            } catch (NoSuchFieldException e) { 
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            String ret = (String) r.keySet().toArray()[0];
             return ret;
         }
 
@@ -820,17 +835,16 @@ public class RequestManager {
                 throw new RuntimeException(e);
             }
             var r = Comment.getComments(accountID, page, true, 0);
+            String ret = (String) r.keySet().toArray()[0];
+            vals = new Object[]{accountID, page, secret, ret};
 
-            List<Object> values = new ArrayList<>(Arrays.asList(vals));
-            values.add(r.values().toArray()[0]);
 
             try {
-                new GetAccountCommentsEvent(values).callEvent();
-            } catch (NoSuchFieldException e) { 
+                new GetAccountCommentsEvent(vals).callEvent();
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            String ret = (String) r.keySet().toArray()[0];
             return ret;
         }
 
@@ -857,6 +871,8 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
+            var ret = Comment.map(commentID).delete();
+            vals = new Object[]{secret, accountID, gjp, commentID, levelID, ret};
 
             try {
                 new DeleteCommentEvent(vals).callEvent();
@@ -864,7 +880,6 @@ public class RequestManager {
                 throw new RuntimeException(e);
             }
 
-            var ret = Comment.map(commentID).delete();
             return ret;
         }
 
@@ -890,6 +905,8 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
+            var ret = Comment.map(commentID).delete();
+            vals = new Object[]{secret, accountID, gjp, commentID, ret};
 
             try {
                 new DeleteAccCommentEvent(vals).callEvent();
@@ -897,7 +914,6 @@ public class RequestManager {
                 throw new RuntimeException(e);
             }
 
-            var ret = Comment.map(commentID).delete();
             return ret;
         }
     }
@@ -923,14 +939,15 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
                 throw new RuntimeException(e);
             }
+            var ret = RelationshipsManager.blockUser(accountID, targetAccountID);
+            vals = new Object[]{secret, accountID, targetAccountID, gjp, ret};
 
             try {
                 new BlockUserEvent(vals).callEvent();
-            } catch (NoSuchFieldException e) { 
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            var ret = RelationshipsManager.blockUser(accountID, targetAccountID);
             return ret;
         }
 
@@ -953,14 +970,15 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
                 throw new RuntimeException(e);
             }
+            var ret = RelationshipsManager.unblockUser(accountID, targetAccountID);
+            vals = new Object[]{secret, accountID, targetAccountID, gjp, ret};
 
             try {
                 new UnblockUserEvent(vals).callEvent();
-            } catch (NoSuchFieldException e) { 
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            var ret = RelationshipsManager.unblockUser(accountID, targetAccountID);
             return ret;
         }
 
@@ -987,18 +1005,16 @@ public class RequestManager {
                 throw new RuntimeException(e);
             }
             var r = RelationshipsManager.getUserList(accountID, type);
-
-            List<Account> ret = (List<Account>) r.values().toArray()[0];
-            List<Object> values = new ArrayList<>(Arrays.asList(vals));
-            values.add(ret);
+            String ret = (String) r.keySet().toArray()[0];
+            vals = new Object[]{secret, accountID, type, gjp, ret};
 
             try {
-                new GetUserListEvent(values).callEvent();
+                new GetUserListEvent(vals).callEvent();
             } catch (NoSuchFieldException e) { 
                 throw new RuntimeException(e);
             }
 
-            return (String) r.keySet().toArray()[0];
+            return ret;
         }
 
         @PostMapping("/{serverURL}/readGJFriendRequest20.php")
@@ -1022,14 +1038,15 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
                 throw new RuntimeException(e);
             }
+            int ret = RelationshipsManager.readFriendRequest(requestID, accountID);
+            vals = new Object[]{accountID, requestID, secret, gjp, ret};
 
             try {
                 new ReadFriendRequestEvent(vals).callEvent();
-            } catch (NoSuchFieldException e) { 
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            int ret = RelationshipsManager.readFriendRequest(requestID, accountID);
             return ret;
         }
 
@@ -1054,30 +1071,31 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
                 throw new RuntimeException(e);
             }
+            int ret = RelationshipsManager.removeFriend(accountID, targetAccountID);
+            vals = new Object[]{secret, accountID, targetAccountID, gjp, ret};
 
             try {
                 new RemoveFriendEvent(vals).callEvent();
-            } catch (NoSuchFieldException e) { 
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            int ret = RelationshipsManager.removeFriend(accountID, targetAccountID);
             return ret;
         }
 
         @PostMapping("/{serverURL}/uploadFriendRequest20.php")
-        public String uploadGJFriendRequest(
+        public int uploadGJFriendRequest(
                 @RequestParam int accountID,
                 @RequestParam int toAccountID,
                 @RequestParam @Nullable String comment,
                 @RequestParam String secret,
                 @RequestParam String gjp) {
             if (!Objects.equals(secret, Core.secrets.get("common"))) {
-                return "-1";
+                return -1;
             }
 
             if (!Account.map(accountID, true).checkGJP(gjp)) {
-                return "-1";
+                return -1;
             }
 
             if (comment == null) {
@@ -1091,21 +1109,16 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
                 throw new RuntimeException(e);
             }
+            int ret = RelationshipsManager.sendFriendRequest(accountID, toAccountID, comment);
+            vals = new Object[]{accountID, toAccountID, comment, secret, gjp, ret};
 
             try {
                 new UploadFriendRequestEvent(vals).callEvent();
-            } catch (NoSuchFieldException e) { 
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            int ret = RelationshipsManager.sendFriendRequest(accountID, toAccountID, comment);
-            String r = null;
-            if (ret == -1) {
-                r =  "-1";
-            } else {
-                r = String.valueOf(ret);
-            }
-            return r;
+            return ret;
         }
 
         @PostMapping("/{serverURL}/acceptGJFriendRequest20.php")
@@ -1126,17 +1139,18 @@ public class RequestManager {
             try {
                 Parameter[] pars = Relationships.class.getMethod("acceptGJFriendRequest", int.class, int.class, String.class, String.class).getParameters();
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.FRIEND_REQUESTS_ACCEPT);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
+            int ret = RelationshipsManager.addFriend(accountID, targetAccountID);
+            vals = new Object[]{accountID, targetAccountID, secret, gjp, ret};
 
             try {
                 new AcceptFriendRequestEvent(vals).callEvent();
-            } catch (NoSuchFieldException e) { 
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            int ret = RelationshipsManager.addFriend(accountID, targetAccountID);
             return ret;
         }
 
@@ -1161,14 +1175,15 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
                 throw new RuntimeException(e);
             }
+            int ret = RelationshipsManager.deleteFriendRequest(accountID, targetAccountID);
+            vals = new Object[]{accountID, targetAccountID, secret, gjp, ret};
 
             try {
                 new DeleteFriendRequestEvent(vals).callEvent();
-            } catch (NoSuchFieldException e) { 
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            int ret = RelationshipsManager.deleteFriendRequest(accountID, targetAccountID);
             return ret;
         }
 
@@ -1202,14 +1217,15 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
                 throw new RuntimeException(e);
             }
+            String ret = RelationshipsManager.getFriendRequests(accountID, getSent, page);
+            vals = new Object[]{accountID, getSent, page, secret, gjp};
 
             try {
                 new GetFriendRequestsEvent(vals).callEvent();
-            } catch (NoSuchFieldException e) { 
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            String ret = RelationshipsManager.getFriendRequests(accountID, getSent, page);
             return ret;
         }
     }
@@ -1244,14 +1260,15 @@ public class RequestManager {
             }
 
             try {
+                String ret = Score.getScores(accountID, LeaderboardType.getLeaderboardType(type), count);
+                vals = new Object[]{secret, accountID, type, count, gjp, ret};
 
                 try {
                     new GetScoresEvent(vals).callEvent();
-                } catch (NoSuchFieldException e) { 
+                } catch (NoSuchFieldException e) {
                     throw new RuntimeException(e);
                 }
 
-                String ret = Score.getScores(accountID, LeaderboardType.getLeaderboardType(type), count);
                 return ret;
             } catch (InvalidValueException e) { 
                 throw new RuntimeException(e);
@@ -1296,14 +1313,15 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
                 throw new RuntimeException(e);
             }
+            String ret = Score.getLevelScores(accountID, leaderboardType, count, levelID, percent, s8, s9);
+            vals = new Object[]{accountID, levelID, gjp, secret, percent, type, s8, s9, count, s6, s1, s2, ret};
 
             try {
                 new GetLevelScoresEvent(vals).callEvent();
-            } catch (NoSuchFieldException e) { 
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            String ret = Score.getLevelScores(accountID, leaderboardType, count, levelID, percent, s8, s9);
             return ret;
         }
     }
@@ -1331,6 +1349,8 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
                 throw new RuntimeException(e);
             }
+            String ret = Message.download(messageID, Message.map(messageID).getSenderID() == accountID);
+            vals = new Object[]{secret, accountID, messageID, ret};
 
             try {
                 new DownloadMessageEvent(vals).callEvent();
@@ -1338,7 +1358,7 @@ public class RequestManager {
                 throw new RuntimeException(e);
             }
 
-            return Message.download(messageID, Message.map(messageID).getSenderID() == accountID);
+            return ret;
         }
 
         @PostMapping("/{serverURL}/getGJMessages20.php")
@@ -1364,6 +1384,8 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
                 throw new RuntimeException(e);
             }
+            String ret = Message.getMessages(accountID, page, getSent);
+            vals = new Object[]{secret, accountID, page, getSent, ret};
 
             try {
                 new GetMessagesEvent(vals).callEvent();
@@ -1371,7 +1393,7 @@ public class RequestManager {
                 throw new RuntimeException(e);
             }
 
-            return Message.getMessages(accountID, page, getSent);
+            return ret;
         }
 
         @PostMapping("/{serverURL}/uploadGJMessage20.php")
@@ -1399,6 +1421,8 @@ public class RequestManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
                 throw new RuntimeException(e);
             }
+            int ret = message.send();
+            vals = new Object[]{secret, accountID, toAccountID, subject, body, ret};
 
             try {
                 new UploadMessageEvent(vals).callEvent();
@@ -1406,7 +1430,7 @@ public class RequestManager {
                 throw new RuntimeException(e);
             }
 
-            return message.send();
+            return ret;
         }
     }
 
@@ -1421,6 +1445,8 @@ public class RequestManager {
         } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) { 
             throw new RuntimeException(e);
         }
+        String ret = Song.getSongInfo(songID);
+        vals = new Object[]{songID, ret};
 
         try {
             new GetSongInfoEvent(vals).callEvent();
@@ -1428,7 +1454,7 @@ public class RequestManager {
             throw new RuntimeException(e);
         }
 
-        return Song.getSongInfo(songID);
+        return ret;
     }
 
     @PostMapping("/{serverURL}/songAdd")
@@ -1443,14 +1469,15 @@ public class RequestManager {
         } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) { 
             throw new RuntimeException(e);
         }
-
+        int ret = song.songAdd();
+        vals = new Object[]{name, artistName, size, link, ret};
         try {
             new AddSongEvent(vals).callEvent();
         } catch (NoSuchFieldException e) { 
             throw new RuntimeException(e);
         }
 
-        return song.songAdd();
+        return ret;
     }
 
     @PostMapping("/{serverURL}/likeGJItem211.php")
@@ -1479,13 +1506,16 @@ public class RequestManager {
             throw new RuntimeException(e);
         }
 
+        int ret = Likes.like(itemID, itemType, like);
+        vals = new Object[]{secret, itemID, type, like, accountID, gjp, ret};
+
         try {
             new LikeEvent(vals).callEvent();
         } catch (NoSuchFieldException e) { 
             throw new RuntimeException(e);
         }
 
-        return Likes.like(itemID, itemType, like);
+        return ret;
     }
 
     @PostMapping("/{serverURL}/requestUserAccess.php")
@@ -1499,7 +1529,6 @@ public class RequestManager {
         }
 
         Object[] values = {secret, accountID, gjp};
-
         try {
             Parameter[] parameters = RequestManager.class
                     .getMethod("requestUserAccess", String.class, int.class, String.class)
@@ -1509,14 +1538,15 @@ public class RequestManager {
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
             throw new RuntimeException(e);
         }
+        int result = Account.requestModAccess(accountID, gjp);
+        values = new Object[]{secret, accountID, gjp, result};
 
         try {
             new RequestUserAccessEvent(values).callEvent();
-        } catch (NoSuchFieldException e) { 
+        } catch (NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
 
-        int result = Account.requestModAccess(accountID, gjp);
         return result;
     }
 
@@ -1538,6 +1568,8 @@ public class RequestManager {
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
+        var ret = Gauntlet.getGauntlets();
+        vals = new Object[]{secret, ret};
 
         try {
             new GetGauntletsEvent(vals).callEvent();
@@ -1545,7 +1577,6 @@ public class RequestManager {
             throw new RuntimeException(e);
         }
 
-        var ret = Gauntlet.getGauntlets();
         return ret;
     }
 
@@ -1575,6 +1606,8 @@ public class RequestManager {
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
+        String s = Challenge.getInstance().toString(accountID, chk, udid);
+        vals = new Object[]{accountID, secret, chk, udid, gjp, s};
 
         try {
             new GetChallengesEvent(vals).callEvent();
@@ -1582,7 +1615,6 @@ public class RequestManager {
             throw new RuntimeException(e);
         }
 
-        String s = Challenge.getInstance().toString(accountID, chk, udid);
         return "lEpSa"+s; // хз почему не работает
     }
 
@@ -1615,6 +1647,8 @@ public class RequestManager {
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
+        String s = Chest.getInstance().toString(accountID, rewardType, chk, udid);
+        vals = new Object[]{accountID, secret, chk, udid, gjp, rewardType, s};
 
         try {
             new GetRewardsEvent(vals).callEvent();
@@ -1622,7 +1656,6 @@ public class RequestManager {
             throw new RuntimeException(e);
         }
 
-        String s = Chest.getInstance().toString(accountID, rewardType, chk, udid);
         //logger.info(s);
         return "lEpSa" + s; // хз почему не работает
     }

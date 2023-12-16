@@ -13,7 +13,6 @@ import java.lang.annotation.Target;
  * This annotation is used to mark a method as an event listener.
  * It is important to note that this annotation should not be confused with
  * {@link ru.whoisamyy.api.plugins.events.listeners.EventListener}.
- * <p></p>
  * The annotated method will be invoked when a specific event occurs.
  *
  * @see EndpointName
