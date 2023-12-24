@@ -46,7 +46,8 @@ public enum EndpointName {
     LEVELS_SUGGEST_STARS("suggestGJStars", 39, SuggestLevelStarsEvent.class),
     CHALLENGES_GET("getGJChallenges", 40, GetChallengesEvent.class),
     REWARDS_GET("getGJRewards", 41, GetRewardsEvent.class),
-    USER_SCORE_UPDATE("updateGJUserScore", 42, UpdateUserScoreEvent.class);
+    USER_SCORE_UPDATE("updateGJUserScore", 42, UpdateUserScoreEvent.class),
+    MAPPACKS_GET("getGJMapPacks", 43, GetMapPacksEvent.class);
     //TODO add all endpoints
 
 

@@ -1,18 +1,20 @@
 package ru.whoisamyy.api.utils.enums;
 
-public enum DemonDifficulty {
-    HARD_DEMON(0, 1),
-    EASY_DEMON(3, 2),
-    MEDIUM_DEMON(4, 3),
-    INSANE_DEMON(5, 4),
-    EXTREME_DEMON(6, 5);
+public enum DemonDifficulty implements Difficulty {
+    HARD_DEMON(0, 1, 6),
+    EASY_DEMON(3, 2, 7),
+    MEDIUM_DEMON(4, 3, 8),
+    INSANE_DEMON(5, 4, 9),
+    EXTREME_DEMON(6, 5, 10);
 
     final int numerator;
     final int sequenceNumber;
+    final int mpn;
 
-    DemonDifficulty(int numerator, int sequenceNumber) {
+    DemonDifficulty(int numerator, int sequenceNumber, int mpn) {
         this.numerator = numerator;
         this.sequenceNumber = sequenceNumber;
+        this.mpn = mpn;
     }
 
     public int toInt() {
@@ -30,7 +32,7 @@ public enum DemonDifficulty {
         return HARD_DEMON;
     }
 
-    public static DemonDifficulty sequenceNumberToDemonDifficulty(int val) { //это пиздос
+    public static DemonDifficulty sequenceNumberToDemonDifficulty(int val) {
         switch (val) {
             case 1 -> {return EASY_DEMON;}
             case 2 -> {return MEDIUM_DEMON;}
@@ -39,5 +41,10 @@ public enum DemonDifficulty {
             case 5 -> {return EXTREME_DEMON;}
         }
         return HARD_DEMON;
+    }
+
+    @Override
+    public int getMPN() {
+        return this.mpn;
     }
 }
