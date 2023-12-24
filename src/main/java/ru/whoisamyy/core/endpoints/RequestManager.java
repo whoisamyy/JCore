@@ -44,7 +44,6 @@ public class RequestManager {
 
     @RestController
     public class Levels {
-        //через EndpointMethods
         @PostMapping("/{serverURL}/uploadGJLevel21.php")
         public int uploadGJLevel(
                 @RequestParam int gameVersion,
@@ -419,6 +418,38 @@ public class RequestManager {
 
             return 1;
         }
+
+        @PostMapping("/{serverURL}/getGJMapPacks21.php")
+        public String getGJMapPacks(
+                @RequestParam String secret,
+                @RequestParam @Nullable Integer page,
+                @RequestParam @Nullable Integer amount
+        ) {
+            if (!Objects.equals(secret, Core.secrets.get("common"))) {
+                return "-1";
+            }
+
+            if (amount==null) amount = 10;
+            if (page==null) page = 0;
+
+            Object[] vals = {secret, page, amount};
+            try {
+                Parameter[] pars = RequestManager.Levels.class.getMethod("getGJMapPacks", String.class, Integer.class, Integer.class).getParameters();
+                PluginManager.runEndpointMethods(vals, pars, EndpointName.MAPPACKS_GET);
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+            String ret = MapPack.getPacks(page, amount);
+            vals = new Object[]{secret, page, amount, ret};
+
+            try {
+                new GetMapPacksEvent(vals).callEvent();
+            } catch (NoSuchFieldException e) {
+                throw new RuntimeException(e);
+            }
+            logger.info(ret);
+            return ret;
+        }
     }
 
     @RestController
@@ -463,13 +494,17 @@ public class RequestManager {
         @PostMapping("/{serverURL}/accounts/loginGJAccount.php")
         public String loginGJAccount(
                 @RequestParam String userName,
-                @RequestParam String password,
+                @RequestParam(name = "gjp2") String password,
                 @RequestParam @Nullable String email,
-                @RequestParam String secret) {
+                @RequestParam String secret
+        ) {
             if (!Objects.equals(secret, Core.secrets.get("account"))) {
                 return "-1";
             }
-
+            
+            //servlet.getParameterMap().forEach((x,y)->logger.info(x+": "+y));
+            logger.info(password);
+            
             accounts = Account.getAccountsHashtable();
             try {
                 Account acc = accounts.get(Account.map(userName, true).getUserID());
