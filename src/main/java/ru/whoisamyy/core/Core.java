@@ -40,22 +40,6 @@ public class Core {
 	public static Logger logger = LogManager.getLogger(Core.class);
 
 	public static void main(String[] args) {
-		MultiOutStream.getInstance().addStream(System.out);
-		if (args.length!=0) {
-			HashMap<String, String> mappedArgs = mapArgs(args);
-
-			File outputFile = new File(mappedArgs.get("-o"));
-
-			try {
-				if (!outputFile.exists()) outputFile.createNewFile();
-				MultiOutStream.getInstance().addStream(new FileOutputStream(outputFile));
-				System.setOut(new PrintStream(MultiOutStream.getInstance()));
-				System.setIn(System.in);
-			} catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
 		Utils.logger = logger;
         getSettings();
 		SpringApplication.run(Core.class, args);
@@ -63,6 +47,8 @@ public class Core {
 		registerCommand("!", new RateCommand());
 		registerCommand("!", new UnrateCommand());
 		registerConsoleCommands();
+
+		fetchAndHandleArgs(args);
 
 		logger.info("Resources folder located at "+ Utils.resources.toString());
 		long curtime;
@@ -73,14 +59,6 @@ public class Core {
 			//createDatabase();
 
 			GDObject.setConn(conn);
-
-			//Account.setConn(conn);
-			//Song.setConn(conn);
-			//Level.setConn(conn);
-			//Score.conn = conn;
-			//Message.conn = conn;
-			//Comment.conn = conn;
-			//RelationshipsManager.conn = conn;
 
 			Statement s = conn.createStatement();
 			ResultSet rs;
@@ -116,6 +94,9 @@ public class Core {
 			Message.lastMessageID = rs.next()?rs.getInt(1):1;
 			logger.info("Message last id: "+Message.lastMessageID);
 
+			rs = s.executeQuery("SELECT MAX(ID) FROM mapPacks");
+			MapPack.setLastMapPackID(rs.next()?rs.getInt(1):1);
+			logger.info("Map pack last id: "+MapPack.getLastMapPackID());
 
 			logger.info("Initialized database: "+((System.currentTimeMillis()-curtime))+"ms");
 
@@ -147,6 +128,11 @@ public class Core {
 			t = System.currentTimeMillis();
 			RequestManager.songs = Song.getSongsHashtable();
 			logger.info("Songs initialized. "+(System.currentTimeMillis()-t)+"ms");
+
+
+			//t = System.currentTimeMillis();
+			//MapPack.getMapPacksHashtable();
+			//logger.info("Map packs initialized. "+(System.currentTimeMillis()-t)+"ms");
 
 			Utils.createDirs();
 			logger.info("Initialized storages: "+((System.currentTimeMillis()-curtime))+"ms");
@@ -262,6 +248,7 @@ public class Core {
 		ConsoleManager.getInstance().registerCommand(EchoConsoleCommand.class);
 		ConsoleManager.getInstance().registerCommand(HelpConsoleCommand.class);
 		ConsoleManager.getInstance().registerCommand(GetLevelInfoConsoleCommand.class);
+		ConsoleManager.getInstance().registerCommand(CreateMapPackConsoleCommand.class);
 	}
 
 	static HashMap<String, String> mapArgs(String[] args) {
@@ -272,5 +259,41 @@ public class Core {
 			mappedArgs.put(args[i], args[i+1]);
 		}
 		return mappedArgs;
+	}
+
+	static void fetchAndHandleArgs(String[] args) {
+		if (args.length!=0) {
+			HashMap<String, String> mappedArgs = mapArgs(args);
+
+			String s;
+			if ((s = mappedArgs.get("-o")) != null) {
+				File outputFile = new File(s);
+
+				try {
+					outputFile.createNewFile();
+					MultiOutStream.getInstance().addStream(System.out).addStream(new FileOutputStream(outputFile));
+					System.setOut(new PrintStream(MultiOutStream.getInstance()));
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+			if ((s = mappedArgs.get("-prelaunch")) != null) {
+				File inputFile = new File(s); //wtf?!?!?
+
+				try {
+					if (!inputFile.createNewFile()) {
+						FileInputStream fis = new FileInputStream(inputFile);
+						String preExec = new String(fis.readAllBytes());
+						String[] commands = preExec.split(";"); //yeah
+						for (String com : commands) {
+							ConsoleManager.getInstance().invokeCommand(com);
+						}
+					}
+
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
 	}
 }
