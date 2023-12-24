@@ -512,10 +512,7 @@ public class Account extends GDObject {
             ps.setInt(20, accExplosion);
             ps.setInt(21, diamonds);
 
-            logger.info(iconType);
-
-            logger.info(ps.executeUpdate());
-
+            ps.executeUpdate();
             accounts.remove(getUserID());
             accounts.put(getUserID(), map(getUserID(), true));
             return getUserID();
