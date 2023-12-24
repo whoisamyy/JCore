@@ -74,6 +74,23 @@ public class Gauntlet extends GDObject {
         return sb.toString();
     }
 
+    public void upload() {
+        try(PreparedStatement ps = conn.prepareStatement("INSERT INTO gauntlets(gauntletID, levels) VALUES(?, ?)")) {
+            StringBuilder sb = new StringBuilder();
+            for(Level l : levels) {
+                sb.append(l.getLevelID()).append(",");
+            }
+            sb.deleteCharAt(sb.length()-1);
+
+            ps.setInt(1, getId());
+            ps.setString(2, sb.toString());
+
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static Gauntlet map(int id) {
         try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM gauntlets WHERE gauntletID = ?")) {
             ps.setInt(1, id);
