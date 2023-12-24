@@ -37,6 +37,8 @@ public abstract class AbstractConsoleCommand {
 
     Object parseArg(String arg, Class<?> toType) {
         Object retArg = null;
+        if (arg.startsWith("\"") && arg.endsWith("\""))
+            return arg.replaceAll("\"", "");
         if (toType == int.class) {
             retArg= Integer.parseInt(arg);
         } else if (toType == boolean.class) {
@@ -51,6 +53,8 @@ public abstract class AbstractConsoleCommand {
             retArg= arg.charAt(0);
         } else if (toType == short.class) {
             retArg= Short.parseShort(arg);
+        } else if (toType == String.class) {
+            retArg=arg;
         }
         return retArg;
     }
