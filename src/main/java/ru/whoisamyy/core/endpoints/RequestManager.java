@@ -103,7 +103,7 @@ public class RequestManager {
             vals = new Object[]{gameVersion, accountID, levelID, levelName, levelDesc, levelVersion, levelLength, audioTrack, auto, password, original, twoPlayer, songID, objects, coins, requestedStars, unlisted, ldm, levelString, secret, gjp, lvlid};
 
             try {
-                new UploadLevelEvent(vals).callEvent();
+                lvlid = new UploadLevelEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -139,7 +139,7 @@ public class RequestManager {
 
 
             try {
-                new UpdateLevelDescEvent(vals).callEvent();
+                ret = new UpdateLevelDescEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -207,7 +207,7 @@ public class RequestManager {
             //values.add(retList);
 
             try {
-                new GetLevelsEvent(vals).callEvent();
+                ret = new GetLevelsEvent(vals).callEvent();
             } catch (NoSuchFieldException e) { 
                 throw new RuntimeException(e);
             }
@@ -229,7 +229,7 @@ public class RequestManager {
             vals = new Object[]{weekly, ret};
 
             try {
-                new GetDailyLevelEvent(vals).callEvent();
+                ret = new GetDailyLevelEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -265,7 +265,7 @@ public class RequestManager {
                 vals = new Object[]{levelID, secret, accountID, gjp, s};
 
                 try {
-                    new DownloadLevelEvent(vals).callEvent();
+                    s = new DownloadLevelEvent(vals).callEvent();
                 } catch (NoSuchFieldException e) {
                     throw new RuntimeException(e);
                 }
@@ -303,7 +303,7 @@ public class RequestManager {
                 vals = new Object[]{accountID, gjp, levelID, secret, ret};
 
                 try {
-                    new DeleteLevelEvent(vals).callEvent();
+                    ret = new DeleteLevelEvent(vals).callEvent();
                 } catch (NoSuchFieldException e) {
                     throw new RuntimeException(e);
                 }
@@ -338,15 +338,16 @@ public class RequestManager {
                 throw new RuntimeException(e);
             }
             Level.rateDemon(rating, levelID);
-            vals = new Object[]{accountID, gjp, levelID, rating, secret, 1};
+            int ret = 1;
+            vals = new Object[]{accountID, gjp, levelID, rating, secret, ret};
 
             try {
-                new RateLevelDemonEvent(vals).callEvent();
+                ret = new RateLevelDemonEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            return 1;
+            return ret;
         }
 
         @PostMapping("/{serverURL}/rateGJStars211.php")
@@ -373,15 +374,16 @@ public class RequestManager {
                 throw new RuntimeException(e);
             }
             Level.rateStars(stars, levelID);
-            vals = new Object[]{accountID, gjp, levelID, stars, secret, 1};
+            int ret = 1;
+            vals = new Object[]{accountID, gjp, levelID, stars, secret, ret};
 
             try {
-                new RateLevelStarsEvent(vals).callEvent();
+                ret = new RateLevelStarsEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            return 1;
+            return ret;
         }
 
         @PostMapping("/{serverURL}/suggestGJStars20.php")
@@ -408,15 +410,16 @@ public class RequestManager {
                 throw new RuntimeException(e);
             }
             Level.suggestStars(levelID, stars, feature);
-            vals = new Object[]{accountID, stars, feature, accountID, gjp, secret, 1};
+            int ret = 1;
+            vals = new Object[]{accountID, stars, feature, accountID, gjp, secret, ret};
 
             try {
-                new SuggestLevelStarsEvent(vals).callEvent();
+                ret = new SuggestLevelStarsEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            return 1;
+            return ret;
         }
 
         @PostMapping("/{serverURL}/getGJMapPacks21.php")
@@ -443,7 +446,7 @@ public class RequestManager {
             vals = new Object[]{secret, page, amount, ret};
 
             try {
-                new GetMapPacksEvent(vals).callEvent();
+                ret = new GetMapPacksEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -478,7 +481,7 @@ public class RequestManager {
                 vals = new Object[]{userName, password, email, secret, ret};
 
                 try {
-                    new RegisterAccountEvent(vals).callEvent();
+                    ret = new RegisterAccountEvent(vals).callEvent();
                 } catch (NoSuchFieldException e) {
                     throw new RuntimeException(e);
                 }
@@ -519,7 +522,7 @@ public class RequestManager {
                 vals = new Object[]{userName, password, email, secret, ret};
 
                 try {
-                    new LoginAccountEvent(vals).callEvent();
+                    ret = new LoginAccountEvent(vals).callEvent();
                 } catch (NoSuchFieldException e) {
                     throw new RuntimeException(e);
                 }
@@ -552,7 +555,7 @@ public class RequestManager {
             vals = new Object[]{saveData, password, userName, secret, ret};
 
             try {
-                new BackupAccountEvent(vals).callEvent();
+                ret = new BackupAccountEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -579,7 +582,7 @@ public class RequestManager {
             vals = new Object[]{userName, secret, password, ret};
 
             try {
-                new SyncAccountEvent(vals).callEvent();
+                ret = new SyncAccountEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -613,7 +616,7 @@ public class RequestManager {
             vals = new Object[]{targetAccountID, secret, accountID, gjp, ret};
 
             try {
-                new GetUserInfoEvent(vals).callEvent();
+                ret = new GetUserInfoEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -639,7 +642,7 @@ public class RequestManager {
             var ret = serverURL;
 
             try {
-                new GetAccountURLEvent(ret).callEvent();
+                ret = new GetAccountURLEvent(ret).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -677,7 +680,7 @@ public class RequestManager {
             vals = new Object[]{accountID, mS, frS, cS, yt, twitter, twitch, secret, gjp, ret};
 
             try {
-                new UpdateAccountSettingsEvent(vals).callEvent();
+                ret = new UpdateAccountSettingsEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -731,7 +734,7 @@ public class RequestManager {
             vals = new Object[]{accountID, gjp, userName, stars, demons, diamonds, icon, iconType, coins, userCoins, accIcon, accShip, accBall, accBird, accDart, accRobot, accGlow, accSpider, accExplosion, special, color1, color2, secret, ret};
 
             try {
-                new UpdateUserScoreEvent(vals).callEvent();
+                ret = new UpdateUserScoreEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -776,7 +779,7 @@ public class RequestManager {
             vals = new Object[]{accountID, userName, comment, levelID, percent, secret, gjp, ret};
 
             try {
-                new UploadCommentEvent(vals).callEvent();
+                ret = new UploadCommentEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -811,7 +814,7 @@ public class RequestManager {
             vals = new Object[]{accountID, userName, comment, secret, gjp, ret};
 
             try {
-                new UploadAccountCommentEvent(vals).callEvent();
+                ret = new UploadAccountCommentEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -845,7 +848,7 @@ public class RequestManager {
             vals = new Object[]{levelID, page, mode, secret, ret};
 
             try {
-                new GetCommentsEvent(vals).callEvent();
+                ret = new GetCommentsEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -875,7 +878,7 @@ public class RequestManager {
 
 
             try {
-                new GetAccountCommentsEvent(vals).callEvent();
+                ret = new GetAccountCommentsEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -910,7 +913,7 @@ public class RequestManager {
             vals = new Object[]{secret, accountID, gjp, commentID, levelID, ret};
 
             try {
-                new DeleteCommentEvent(vals).callEvent();
+                ret = new DeleteCommentEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -944,7 +947,7 @@ public class RequestManager {
             vals = new Object[]{secret, accountID, gjp, commentID, ret};
 
             try {
-                new DeleteAccCommentEvent(vals).callEvent();
+                ret = new DeleteAccCommentEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -978,7 +981,7 @@ public class RequestManager {
             vals = new Object[]{secret, accountID, targetAccountID, gjp, ret};
 
             try {
-                new BlockUserEvent(vals).callEvent();
+                ret = new BlockUserEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -1009,7 +1012,7 @@ public class RequestManager {
             vals = new Object[]{secret, accountID, targetAccountID, gjp, ret};
 
             try {
-                new UnblockUserEvent(vals).callEvent();
+                ret = new UnblockUserEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -1044,7 +1047,7 @@ public class RequestManager {
             vals = new Object[]{secret, accountID, type, gjp, ret};
 
             try {
-                new GetUserListEvent(vals).callEvent();
+                ret = new GetUserListEvent(vals).callEvent();
             } catch (NoSuchFieldException e) { 
                 throw new RuntimeException(e);
             }
@@ -1077,7 +1080,7 @@ public class RequestManager {
             vals = new Object[]{accountID, requestID, secret, gjp, ret};
 
             try {
-                new ReadFriendRequestEvent(vals).callEvent();
+                ret = new ReadFriendRequestEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -1110,7 +1113,7 @@ public class RequestManager {
             vals = new Object[]{secret, accountID, targetAccountID, gjp, ret};
 
             try {
-                new RemoveFriendEvent(vals).callEvent();
+                ret = new RemoveFriendEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -1148,7 +1151,7 @@ public class RequestManager {
             vals = new Object[]{accountID, toAccountID, comment, secret, gjp, ret};
 
             try {
-                new UploadFriendRequestEvent(vals).callEvent();
+                ret = new UploadFriendRequestEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -1181,7 +1184,7 @@ public class RequestManager {
             vals = new Object[]{accountID, targetAccountID, secret, gjp, ret};
 
             try {
-                new AcceptFriendRequestEvent(vals).callEvent();
+                ret = new AcceptFriendRequestEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -1214,7 +1217,7 @@ public class RequestManager {
             vals = new Object[]{accountID, targetAccountID, secret, gjp, ret};
 
             try {
-                new DeleteFriendRequestEvent(vals).callEvent();
+                ret = new DeleteFriendRequestEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -1256,7 +1259,7 @@ public class RequestManager {
             vals = new Object[]{accountID, getSent, page, secret, gjp};
 
             try {
-                new GetFriendRequestsEvent(vals).callEvent();
+                ret = new GetFriendRequestsEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -1299,7 +1302,7 @@ public class RequestManager {
                 vals = new Object[]{secret, accountID, type, count, gjp, ret};
 
                 try {
-                    new GetScoresEvent(vals).callEvent();
+                    ret = new GetScoresEvent(vals).callEvent();
                 } catch (NoSuchFieldException e) {
                     throw new RuntimeException(e);
                 }
@@ -1352,7 +1355,7 @@ public class RequestManager {
             vals = new Object[]{accountID, levelID, gjp, secret, percent, type, s8, s9, count, s6, s1, s2, ret};
 
             try {
-                new GetLevelScoresEvent(vals).callEvent();
+                ret = new GetLevelScoresEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -1388,7 +1391,7 @@ public class RequestManager {
             vals = new Object[]{secret, accountID, messageID, ret};
 
             try {
-                new DownloadMessageEvent(vals).callEvent();
+                ret = new DownloadMessageEvent(vals).callEvent();
             } catch (NoSuchFieldException e) { 
                 throw new RuntimeException(e);
             }
@@ -1423,7 +1426,7 @@ public class RequestManager {
             vals = new Object[]{secret, accountID, page, getSent, ret};
 
             try {
-                new GetMessagesEvent(vals).callEvent();
+                ret = new GetMessagesEvent(vals).callEvent();
             } catch (NoSuchFieldException e) { 
                 throw new RuntimeException(e);
             }
@@ -1460,7 +1463,7 @@ public class RequestManager {
             vals = new Object[]{secret, accountID, toAccountID, subject, body, ret};
 
             try {
-                new UploadMessageEvent(vals).callEvent();
+                ret = new UploadMessageEvent(vals).callEvent();
             } catch (NoSuchFieldException e) { 
                 throw new RuntimeException(e);
             }
@@ -1484,7 +1487,7 @@ public class RequestManager {
         vals = new Object[]{songID, ret};
 
         try {
-            new GetSongInfoEvent(vals).callEvent();
+            ret = new GetSongInfoEvent(vals).callEvent();
         } catch (NoSuchFieldException e) { 
             throw new RuntimeException(e);
         }
@@ -1507,7 +1510,7 @@ public class RequestManager {
         int ret = song.songAdd();
         vals = new Object[]{name, artistName, size, link, ret};
         try {
-            new AddSongEvent(vals).callEvent();
+            ret = new AddSongEvent(vals).callEvent();
         } catch (NoSuchFieldException e) { 
             throw new RuntimeException(e);
         }
@@ -1545,7 +1548,7 @@ public class RequestManager {
         vals = new Object[]{secret, itemID, type, like, accountID, gjp, ret};
 
         try {
-            new LikeEvent(vals).callEvent();
+            ret = new LikeEvent(vals).callEvent();
         } catch (NoSuchFieldException e) { 
             throw new RuntimeException(e);
         }
@@ -1577,7 +1580,7 @@ public class RequestManager {
         values = new Object[]{secret, accountID, gjp, result};
 
         try {
-            new RequestUserAccessEvent(values).callEvent();
+            result = new RequestUserAccessEvent(values).callEvent();
         } catch (NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
@@ -1607,7 +1610,7 @@ public class RequestManager {
         vals = new Object[]{secret, ret};
 
         try {
-            new GetGauntletsEvent(vals).callEvent();
+            ret = new GetGauntletsEvent(vals).callEvent();
         } catch (NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
@@ -1645,7 +1648,7 @@ public class RequestManager {
         vals = new Object[]{accountID, secret, chk, udid, gjp, s};
 
         try {
-            new GetChallengesEvent(vals).callEvent();
+            s = new GetChallengesEvent(vals).callEvent();
         } catch (NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
@@ -1686,7 +1689,7 @@ public class RequestManager {
         vals = new Object[]{accountID, secret, chk, udid, gjp, rewardType, s};
 
         try {
-            new GetRewardsEvent(vals).callEvent();
+            s = new GetRewardsEvent(vals).callEvent();
         } catch (NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
@@ -1700,6 +1703,3 @@ public class RequestManager {
         return serverURL;
     }
 }
-
-////LEVELS: LEFT:
-//getGJMapPacks.php

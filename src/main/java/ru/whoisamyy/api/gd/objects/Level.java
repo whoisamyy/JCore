@@ -1,3 +1,5 @@
+//помогите с Level.download() пожалуйста
+
 package ru.whoisamyy.api.gd.objects;
 
 import lombok.Getter;
@@ -1046,11 +1048,19 @@ public class Level extends GDObject {
         return sb.toString();
     }
 
+    //TODO: fix download rated levels
     public static String download(int id) throws Exception {
-        boolean daily = id == -1;
-        //id = getCurrentDailyLevelID();
+        boolean daily = id < 0;
+        if (daily) id = getCurrentDailyLevelID();
         Level l = map(id, true);
-        String s = l.toString() +"#"+Utils.genSolo(l.getLevelString());
+        String s = "";
+        s = l.toString() +"#"+Utils.genSolo(l.getLevelString());
+        if (daily) {
+            s=s.replaceAll(
+                    "41:"+l.getDailyNumber(),
+                    "41:6"
+            );
+        }
         String hash = l.getAuthorID()+","+(l.getStars()!=0?l.getStars():0)+","+(l.isDemon()?1:0)+","+l.getLevelID()+","+(l.isVerifiedCoins()?1:0)+","+(l.getFeatureScore()==0?0:1)+","+l.getPassword()+","+(l.getFeatureScore()==0?0:1);
         l.addDownloads(1);
         return s+"#"+Utils.SHA1(hash, "xI25fpAapCQg")+(daily?"#"+l.getAuthor().toCreatorString():"");
