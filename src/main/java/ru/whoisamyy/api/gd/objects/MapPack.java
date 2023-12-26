@@ -208,8 +208,9 @@ public class MapPack extends GDObject {
         getMapPacks();
         StringBuilder sb = new StringBuilder();
         StringBuilder hashBuilder = new StringBuilder();
-        List<MapPack> pageList = new ArrayList<>();
+        List<MapPack> pageList = new ArrayList<>(mapPacks.values());
         TreeSet<MapPack> pageSortedSet = new TreeSet<>(new MapPackComparators.IDComparator());
+        pageSortedSet.addAll(mapPacks.values());
 
         int totalPages = (int) Math.ceil((double) mapPacks.size() / amount);
 
@@ -218,10 +219,7 @@ public class MapPack extends GDObject {
             int startIndex = page * amount;
             int endIndex = Math.min(startIndex + amount, mapPacks.size());
 
-            if (mapPacks.size()<=amount)
-                pageList = new ArrayList<>(mapPacks.values());
-            else
-                pageList = new ArrayList<>(mapPacks.values()).subList(startIndex, endIndex);
+
         }
         pageSortedSet.addAll(pageList);
 
