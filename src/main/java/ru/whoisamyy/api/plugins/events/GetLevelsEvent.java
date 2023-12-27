@@ -20,7 +20,7 @@ public class GetLevelsEvent extends Event {
                     Integer.class, Integer.class, Integer.class, Integer.class, Integer.class, Integer.class, Integer.class,
                     Integer.class, Integer.class, String.class, Integer.class);
             List<Class<?>> at = new ArrayList<>(List.of(m.getParameterTypes()));
-            at.add(List.class);
+            at.add(m.getReturnType());
             allowedTypes = at;
             Parameter[] params= m.getParameters();
             List<String> strings = new ArrayList<>();

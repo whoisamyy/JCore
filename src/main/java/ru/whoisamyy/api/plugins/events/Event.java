@@ -44,8 +44,11 @@ public abstract class Event {
      */
     public <R> R callEvent() {
         var r = allowedTypes.get(allowedTypes.size()-1);
+
+        var ret = EventListener.getInstance().callEvent(this);
+        if (ret==null) return (R) r.cast(getReturnValue());
         //ide пишет предупреждение о том, что cast is unchecked, но поху ваще, всё проверяется в .callEvent(this)
-        return (R) r.cast(EventListener.getInstance().callEvent(this));
+        return (R) r.cast(ret);
     }
 
     //api
