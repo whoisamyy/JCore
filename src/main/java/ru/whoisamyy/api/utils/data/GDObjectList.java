@@ -22,6 +22,11 @@ public class GDObjectList<E extends GDObject> implements List<E> {
         this.elements = new Object[DEFAULT_CAPACITY];
     }
 
+    public GDObjectList(Collection<? extends E> c) {
+        this.elements = new Object[c.size()];
+        addAll(c);
+    }
+
     @SafeVarargs
     public GDObjectList(E... newElements) {
         this.size = newElements.length;
@@ -238,7 +243,7 @@ public class GDObjectList<E extends GDObject> implements List<E> {
     public GDObjectList<E> subList(int from, int to) {
         subListRangeCheck(from, to, size());
         GDObjectList<E> ret = new GDObjectList<>();
-        for (; from <= to; from++) {
+        for (; from < to; from++) {
             ret.add((E) elements[from]);
         }
         return ret;
