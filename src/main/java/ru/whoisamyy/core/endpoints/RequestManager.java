@@ -45,7 +45,7 @@ public class RequestManager {
     @RestController
     public class Levels {
         @PostMapping("/{serverURL}/uploadGJLevel21.php")
-        public int uploadGJLevel(
+        public Integer uploadGJLevel(
                 @RequestParam int gameVersion,
                 @RequestParam int accountID,
                 @RequestParam @Nullable Integer levelID,
@@ -113,7 +113,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/updateGJDesc20.php")
-        public int updateGJDesc(
+        public Integer updateGJDesc(
                 @RequestParam int accountID,
                 @RequestParam int levelID,
                 @RequestParam String levelDesc,
@@ -200,7 +200,7 @@ public class RequestManager {
             }
 
             var retList = Level.getLevels(secret, gameVersion, binaryVersion, type, str, page, total, gjp, accountID, gdw, gauntlet, diff, demonFilter, len, uncompleted, onlyCompleted, completedLevels, featured, original, twoPlayer, coins, epic, noStar, star, song, customSong, followed, local);
-            var ret = Level.levelsListToString(retList, page, retList.size(), 10);
+            String ret = Level.levelsListToString(retList, page, retList.size(), 10);
             vals = new Object[]{secret, gameVersion, binaryVersion, type, str, page, total, gjp, accountID, gdw, gauntlet, diff, demonFilter, len, uncompleted, onlyCompleted, completedLevels, featured, original, twoPlayer, coins, epic, noStar, star, song, customSong, followed, local, ret};
 
             //List<Object> values = new ArrayList<>(Arrays.asList(vals));
@@ -278,7 +278,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/deleteGJLevelUser20.php")
-        public int deleteGJLevel(
+        public Integer deleteGJLevel(
                 @RequestParam int accountID,
                 @RequestParam String gjp,
                 @RequestParam int levelID,
@@ -316,7 +316,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/rateGJDemon21.php")
-        public int rateGJDemon(
+        public Integer rateGJDemon(
                 @RequestParam Integer levelID,
                 @RequestParam Integer rating,
                 @RequestParam Integer accountID,
@@ -351,7 +351,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/rateGJStars211.php")
-        public int rateGJStars(
+        public Integer rateGJStars(
                 @RequestParam Integer levelID,
                 @RequestParam Integer stars,
                 @RequestParam Integer accountID,
@@ -387,7 +387,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/suggestGJStars20.php")
-        public int suggestGJStars(
+        public Integer suggestGJStars(
                 int levelID,
                 int stars,
                 boolean feature,
@@ -450,7 +450,7 @@ public class RequestManager {
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
-            logger.info(ret);
+            if (ret==null) return vals[vals.length-1].toString();
             return ret;
         }
     }
@@ -458,7 +458,7 @@ public class RequestManager {
     @RestController
     public class Accounts {
         @PostMapping("/{serverURL}/accounts/registerGJAccount.php")
-        public int registerGJAccount(
+        public Integer registerGJAccount(
                 @RequestParam String userName,
                 @RequestParam String password,
                 @RequestParam String email,
@@ -535,7 +535,7 @@ public class RequestManager {
         }
 
         @PostMapping("{serverURL}/database/accounts/backupGJAccountNew.php")
-        public int backupGJAccountNew(
+        public Integer backupGJAccountNew(
                 @RequestParam String saveData,
                 @RequestParam String password,
                 @RequestParam String userName,
@@ -651,7 +651,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/updateGJAccSettings20.php")
-        public int updateGJAccSettings(
+        public Integer updateGJAccSettings(
                 @RequestParam Integer accountID,
                 @RequestParam @Nullable Integer mS,
                 @RequestParam @Nullable Integer frS,
@@ -689,7 +689,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/updateGJUserScore22.php")
-        public int updateGJUserScore(
+        public Integer updateGJUserScore(
                 @RequestParam Integer accountID,
                 @RequestParam String gjp,
                 @RequestParam String userName,
@@ -747,7 +747,7 @@ public class RequestManager {
     @RestController
     public class Comments {
         @PostMapping("/{serverURL}/uploadGJComment21.php")
-        public int uploadGJComment(
+        public Integer uploadGJComment(
                 @RequestParam int accountID,
                 @RequestParam String userName,
                 @RequestParam String comment,
@@ -788,7 +788,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/uploadGJAccComment20.php")
-        public int uploadGJAccComment(
+        public Integer uploadGJAccComment(
                 @RequestParam int accountID,
                 @RequestParam String userName,
                 @RequestParam String comment,
@@ -887,7 +887,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/deleteGJComment20.php")
-        public int deleteGJComment(
+        public Integer deleteGJComment(
                 @RequestParam String secret,
                 @RequestParam int accountID,
                 @RequestParam String gjp,
@@ -922,7 +922,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/deleteGJAccComment20.php")
-        public int deleteGJAccComment(
+        public Integer deleteGJAccComment(
                 @RequestParam String secret,
                 @RequestParam int accountID,
                 @RequestParam String gjp,
@@ -959,7 +959,7 @@ public class RequestManager {
     @RestController
     public class Relationships {
         @PostMapping("/{serverURL}/blockGJUser20.php")
-        public int blockGJUser(
+        public Integer blockGJUser(
                 @RequestParam String secret,
                 @RequestParam int accountID,
                 @RequestParam int targetAccountID,
@@ -990,7 +990,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/unblockGJUser20.php")
-        public int unblockGJUser(
+        public Integer unblockGJUser(
                 @RequestParam String secret,
                 @RequestParam int accountID,
                 @RequestParam int targetAccountID,
@@ -1056,7 +1056,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/readGJFriendRequest20.php")
-        public int readFriendRequest(
+        public Integer readFriendRequest(
                 @RequestParam int accountID,
                 @RequestParam int requestID,
                 @RequestParam String secret,
@@ -1089,7 +1089,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/removeGJFriend20.php")
-        public int removeGJFriend(
+        public Integer removeGJFriend(
                 @RequestParam int accountID,
                 @RequestParam int targetAccountID,
                 @RequestParam String secret,
@@ -1122,7 +1122,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/uploadFriendRequest20.php")
-        public int uploadGJFriendRequest(
+        public Integer uploadGJFriendRequest(
                 @RequestParam int accountID,
                 @RequestParam int toAccountID,
                 @RequestParam @Nullable String comment,
@@ -1160,7 +1160,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/acceptGJFriendRequest20.php")
-        public int acceptGJFriendRequest(
+        public Integer acceptGJFriendRequest(
                 @RequestParam int accountID,
                 @RequestParam int targetAccountID,
                 @RequestParam String secret,
@@ -1193,7 +1193,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/deleteGJFriendRequest20.php")
-        public int deleteGJFriendRequest(
+        public Integer deleteGJFriendRequest(
                 @RequestParam int accountID,
                 @RequestParam int targetAccountID,
                 @RequestParam String secret,
@@ -1435,7 +1435,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/uploadGJMessage20.php")
-        public int uploadGJMessage(@RequestParam String secret, @RequestParam int accountID,
+        public Integer uploadGJMessage(@RequestParam String secret, @RequestParam int accountID,
                                    @RequestParam int toAccountID, @RequestParam String subject,
                                    @RequestParam String body) {
             if (!experimental) {
@@ -1496,7 +1496,7 @@ public class RequestManager {
     }
 
     @PostMapping("/{serverURL}/songAdd")
-    public int songAdd(@RequestParam String name, @RequestParam String artistName, @RequestParam double size, @RequestParam String link) {
+    public Integer songAdd(@RequestParam String name, @RequestParam String artistName, @RequestParam double size, @RequestParam String link) {
         Song song = new Song(name, artistName, size, link);
 
         var vals = new Object[]{name, artistName, size, link};
@@ -1519,7 +1519,7 @@ public class RequestManager {
     }
 
     @PostMapping("/{serverURL}/likeGJItem211.php")
-    public int like(@RequestParam String secret, @RequestParam int itemID, @RequestParam int type, @RequestParam boolean like,
+    public Integer like(@RequestParam String secret, @RequestParam int itemID, @RequestParam int type, @RequestParam boolean like,
                           @RequestParam @Nullable Integer accountID, @RequestParam @Nullable String gjp) {
         if (!Objects.equals(secret, Core.secrets.get("common"))) {
             return -1;
@@ -1544,7 +1544,7 @@ public class RequestManager {
             throw new RuntimeException(e);
         }
 
-        int ret = Likes.like(itemID, itemType, like);
+        Integer ret = Likes.like(itemID, itemType, like);
         vals = new Object[]{secret, itemID, type, like, accountID, gjp, ret};
 
         try {
@@ -1557,7 +1557,7 @@ public class RequestManager {
     }
 
     @PostMapping("/{serverURL}/requestUserAccess.php")
-    public int requestUserAccess(@RequestParam String secret, @RequestParam int accountID, @RequestParam String gjp) {
+    public Integer requestUserAccess(@RequestParam String secret, @RequestParam int accountID, @RequestParam String gjp) {
         if (!Objects.equals(secret, Core.secrets.get("common"))) {
             return -1;
         }
