@@ -240,17 +240,6 @@ public class MapPack extends GDObject {
         sb.append("#").append(hash);
         return sb.toString();
     }
-    public static void main(String[] args) {
-        boolean y = true;
-        Integer i = 0; //102828
-        String s;
-        while (y) {
-            if ((s = Utils.SHA1(i.toString(), "xI25fpAapCQg")).equals("895b500cfc5ebcff307f906e9fcf4e852d9a20e6")) {
-                System.out.println(s);
-                break;
-            }
-        }
-    }
 
     public static MapPack map(int id) {
         //bsaic
