@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import ru.whoisamyy.api.utils.RGBColor;
 import ru.whoisamyy.api.utils.Utils;
-import ru.whoisamyy.api.utils.comparators.MapPackComparators;
+import ru.whoisamyy.api.utils.data.GDObjectList;
 import ru.whoisamyy.api.utils.enums.Difficulty;
 import ru.whoisamyy.api.utils.exceptions.InvalidValueException;
 import ru.whoisamyy.core.Core;
@@ -12,7 +12,9 @@ import ru.whoisamyy.core.Core;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
 
 @Getter
 public class MapPack extends GDObject {
@@ -208,9 +210,8 @@ public class MapPack extends GDObject {
         getMapPacks();
         StringBuilder sb = new StringBuilder();
         StringBuilder hashBuilder = new StringBuilder();
-        List<MapPack> pageList = new ArrayList<>(mapPacks.values());
-        TreeSet<MapPack> pageSortedSet = new TreeSet<>(new MapPackComparators.IDComparator());
-        pageSortedSet.addAll(mapPacks.values());
+        List<MapPack> packsList = new GDObjectList<>(mapPacks.values());
+        List<MapPack> pageList = new GDObjectList<>();
 
         int totalPages = (int) Math.ceil((double) mapPacks.size() / amount);
 
@@ -219,11 +220,10 @@ public class MapPack extends GDObject {
             int startIndex = page * amount;
             int endIndex = Math.min(startIndex + amount, mapPacks.size());
 
-
+            pageList = packsList.subList(startIndex, endIndex);
         }
-        pageSortedSet.addAll(pageList);
 
-        for (MapPack mp : pageSortedSet) {
+        for (MapPack mp : pageList) {
             sb.append(mp.toString()).append("|");
             String idString = String.valueOf(mp.getId());
             hashBuilder.append(idString.charAt(0)).append(idString.charAt(idString.length()-1)).append(mp.getRewardStars()).append(mp.getRewardCoins());
@@ -238,6 +238,7 @@ public class MapPack extends GDObject {
         } catch (IndexOutOfBoundsException ignored) {}
         sb.append("#").append(mapPacks.size()).append(":").append(page).append(":").append(amount);
         sb.append("#").append(hash);
+        Core.logger.info(sb.toString());
         return sb.toString();
     }
 
