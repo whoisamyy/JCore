@@ -21,7 +21,7 @@ public class RelationshipsManager extends GDObject {
      * @param comment base64 encoded string
      * @return 1 if success, otherwise -1
      */
-    public static byte sendFriendRequest(int senderAccountID, int toAccountID, String comment) {
+    public static int sendFriendRequest(int senderAccountID, int toAccountID, String comment) {
         return sendFriendRequest(Account.map(senderAccountID, true), Account.map(toAccountID, true), comment);
     }
 
@@ -32,7 +32,7 @@ public class RelationshipsManager extends GDObject {
      * @param friendAccountID account id whom request to be accepted
      * @return 1 if success, otherwise -1
      */
-    public static byte addFriend(int senderAccountID, int friendAccountID) {
+    public static int addFriend(int senderAccountID, int friendAccountID) {
         return addFriend(Account.map(senderAccountID, true), Account.map(friendAccountID, true));
     }
 
@@ -43,7 +43,7 @@ public class RelationshipsManager extends GDObject {
      * @param targetAccountID person's account id to be removed from friend list of senderAccountID
      * @return 1 if success, otherwise -1
      */
-    public static byte removeFriend(int senderAccountID, int targetAccountID) {
+    public static int removeFriend(int senderAccountID, int targetAccountID) {
         return removeFriend(Account.map(senderAccountID, true), Account.map(targetAccountID, true));
     }
 
@@ -55,7 +55,7 @@ public class RelationshipsManager extends GDObject {
      * @param targetAccountID target account id (omg real???)
      * @return 1 if success, otherwise -1
      */
-    public static byte readFriendRequest(int requestID, int targetAccountID) {
+    public static int readFriendRequest(int requestID, int targetAccountID) {
         return readFriendRequest(requestID, Account.map(targetAccountID, true));
     }
 
@@ -67,7 +67,7 @@ public class RelationshipsManager extends GDObject {
      * @param targetAccountID target account id
      * @return always 1
      */
-    public static byte deleteFriendRequest(int senderAccountID, int targetAccountID) {
+    public static int deleteFriendRequest(int senderAccountID, int targetAccountID) {
         return deleteFriendRequest(Account.map(senderAccountID, true), Account.map(targetAccountID, true));
     }
 
@@ -77,7 +77,7 @@ public class RelationshipsManager extends GDObject {
      * @param targetAccountID target account id
      * @return always 1
      */
-    public static byte blockUser(int senderAccountID, int targetAccountID) {
+    public static int blockUser(int senderAccountID, int targetAccountID) {
         return blockUser(Account.map(senderAccountID, true), Account.map(targetAccountID, true));
     }
 
@@ -87,11 +87,11 @@ public class RelationshipsManager extends GDObject {
      * @param targetAccountID target account id
      * @return always 1
      */
-    public static byte unblockUser(int senderAccountID, int targetAccountID) {
+    public static int unblockUser(int senderAccountID, int targetAccountID) {
         return unblockUser(Account.map(senderAccountID, true), Account.map(targetAccountID, true));
     }
 
-    public static byte readFriendRequest(int requestID, Account targetAccount) {
+    public static int readFriendRequest(int requestID, Account targetAccount) {
         try(PreparedStatement ps = conn.prepareStatement("UPDATE friendreqs SET isNew = 0 WHERE ID = ? AND person2ID = ?")) {
             ps.setInt(1, requestID);
             ps.setInt(2, targetAccount.getUserID());
@@ -103,7 +103,7 @@ public class RelationshipsManager extends GDObject {
         }
     }
 
-    public static byte deleteFriendRequest(Account sender, Account targetAccount) { //зассал понятно
+    public static int deleteFriendRequest(Account sender, Account targetAccount) { //зассал понятно
         try(PreparedStatement ps = conn.prepareStatement("DELETE FROM friendreqs WHERE (person1ID = ? AND person2ID = ?) OR (person2ID = ? AND person1ID = ?)")) {
             ps.setInt(1, sender.getUserID());
             ps.setInt(2, targetAccount.getUserID());
@@ -118,7 +118,7 @@ public class RelationshipsManager extends GDObject {
         return 1;
     }
 
-    public static byte removeFriend(Account sender, Account targetAccount) {
+    public static int removeFriend(Account sender, Account targetAccount) {
         //sad
         try(PreparedStatement ps = conn.prepareStatement("DELETE FROM friendships WHERE (person1ID = ? AND person2ID = ?) OR (person2ID = ? AND person1ID = ?)")) {
             ps.setInt(1, sender.getUserID());
@@ -136,7 +136,7 @@ public class RelationshipsManager extends GDObject {
         }
     }
 
-    public static byte sendFriendRequest(Account sender, Account toAccount, String comment) {
+    public static int sendFriendRequest(Account sender, Account toAccount, String comment) {
         try(PreparedStatement ps2 = conn.prepareStatement("SELECT COUNT(*) AS c FROM friendreqs WHERE (person1ID = ? AND person2ID = ?) OR (person1ID = ? AND person2ID = ?)")) {
             ps2.setInt(1, sender.getUserID());
             ps2.setInt(2, toAccount.getUserID());
@@ -166,7 +166,7 @@ public class RelationshipsManager extends GDObject {
         }
     }
 
-    public static byte addFriend(Account sender, Account friendAccount) {
+    public static int addFriend(Account sender, Account friendAccount) {
         try(PreparedStatement ps = conn.prepareStatement("INSERT INTO friendships (person1ID, person2ID) VALUES(?, ?)")) {
             ps.setInt(1, sender.getUserID());
             ps.setInt(2, friendAccount.getUserID());
@@ -179,7 +179,7 @@ public class RelationshipsManager extends GDObject {
             return -1;
         }
     }
-    public static byte blockUser(Account sender, Account targetAccount) {
+    public static int blockUser(Account sender, Account targetAccount) {
         try(PreparedStatement ps = conn.prepareStatement("INSERT INTO blocks (person1ID, person2ID) VALUES (?, ?)")) {
             ps.setInt(1, sender.getUserID());
             ps.setInt(2, targetAccount.getUserID());
@@ -190,7 +190,7 @@ public class RelationshipsManager extends GDObject {
         }
     }
 
-    public static byte unblockUser(Account sender, Account targetAccount) {
+    public static int unblockUser(Account sender, Account targetAccount) {
         try(PreparedStatement ps = conn.prepareStatement("DELETE FROM blocks WHERE person1ID = ? AND person2ID = ?")) {
             ps.setInt(1, sender.getUserID());
             ps.setInt(2, targetAccount.getUserID());
