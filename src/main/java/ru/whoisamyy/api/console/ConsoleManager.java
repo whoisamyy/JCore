@@ -3,7 +3,6 @@ package ru.whoisamyy.api.console;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.security.core.parameters.P;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Hashtable;
@@ -46,7 +45,8 @@ public class ConsoleManager {
             logger.info("An error occurred during the execution of command "+commandName+", perhaps the command returns void?");
             return;
         }
-        logger.info(retOfInvoke.toString());
+        if (!retOfInvoke.toString().isEmpty())
+            logger.info(retOfInvoke.toString());
     }
 
     public void registerCommand(Class<? extends AbstractConsoleCommand> commandClass) {
