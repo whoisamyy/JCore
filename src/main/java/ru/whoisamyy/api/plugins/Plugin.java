@@ -50,6 +50,13 @@ public abstract class Plugin implements Runnable {
     @Setter public CommandManager commandManager;
     @Setter public ConsoleManager consoleManager;
 
+    public Plugin() {
+        if (this.getClass().isAnnotationPresent(PluginClass.class))
+            this.name = this.getClass().getAnnotation(PluginClass.class).pluginName();
+        getVersion();
+        getPriority();
+    }
+
     public Plugin(String name) {
         this.name = name;
         getVersion();
@@ -76,6 +83,9 @@ public abstract class Plugin implements Runnable {
      */
     final public Plugin initializePlugin(Connection connection, ru.whoisamyy.api.plugins.events.listeners.EventListener eventListener, CommandManager commandManager, ConsoleManager consoleManager) {
         setPackageName(getClass().getPackageName());
+        if (this.name==null) {
+            this.name = getPackageName();
+        }
         long startTime;
         startTime = init(connection);
         setEventListener(eventListener);
