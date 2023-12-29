@@ -1,5 +1,7 @@
 package ru.whoisamyy.api.plugins.events.listeners;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ru.whoisamyy.api.plugins.events.Event;
 
 import java.util.Hashtable;
@@ -9,6 +11,8 @@ import java.util.Set;
 public class EventListener {
     public static EventListener instance;
 
+    Logger logger = LogManager.getLogger(this.getClass());
+
     EventListener() {}
 
     public Hashtable<Class<? extends Event>, Set<EventHandler>> eventHandlers = new Hashtable<>();
@@ -16,6 +20,7 @@ public class EventListener {
     public void addHandler(Class<? extends Event> event, EventHandler[] handlers) {
         var eventHandlerSet = Set.of(handlers);
         eventHandlers.put(event, eventHandlerSet);
+        logger.info("Registered " + event.getTypeName() + " event");
     }
 
     public <R> R callEvent(Event sentEvent) {
