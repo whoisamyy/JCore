@@ -2,6 +2,7 @@ package ru.whoisamyy.api.gd.misc;
 
 import ru.whoisamyy.api.gd.objects.Account;
 import ru.whoisamyy.api.gd.objects.GDObject;
+import ru.whoisamyy.api.utils.data.GDObjectList;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -99,7 +100,7 @@ public class RelationshipsManager extends GDObject {
             ps.execute();
             return 1;
         } catch (SQLException e) {
-            return -1;
+            throw new RuntimeException(e);
         }
     }
 
@@ -112,10 +113,10 @@ public class RelationshipsManager extends GDObject {
             ps.setInt(4, targetAccount.getUserID());
 
             ps.execute();
-        } catch (SQLException e) {
             return 1;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-        return 1;
     }
 
     public static int removeFriend(Account sender, Account targetAccount) {
@@ -132,7 +133,7 @@ public class RelationshipsManager extends GDObject {
             targetAccount.removeFromFriendsByKey(sender.getUserID());
             return 1;
         } catch (SQLException e) {
-            return -1;
+            throw new RuntimeException(e);
         }
     }
 
@@ -149,8 +150,7 @@ public class RelationshipsManager extends GDObject {
             if (rs.next())
                 if (rs.getInt("c")!=0) return -1;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return -1;
+            throw new RuntimeException(e);
         }
 
         try(PreparedStatement ps = conn.prepareStatement("INSERT INTO friendreqs (person1ID, person2ID, comment, isNew) VALUES (?, ?, ?, 1)")) {
@@ -161,8 +161,7 @@ public class RelationshipsManager extends GDObject {
             ps.execute();
             return 1;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return -1;
+            throw new RuntimeException(e);
         }
     }
 
@@ -176,7 +175,7 @@ public class RelationshipsManager extends GDObject {
             friendAccount.addFriend(sender);
             return 1;
         } catch (SQLException e) {
-            return -1;
+            throw new RuntimeException(e);
         }
     }
     public static int blockUser(Account sender, Account targetAccount) {
@@ -186,7 +185,7 @@ public class RelationshipsManager extends GDObject {
             ps.execute();
             return 1;
         } catch (SQLException e) {
-            return 1;
+            throw new RuntimeException(e);
         }
     }
 
@@ -198,7 +197,7 @@ public class RelationshipsManager extends GDObject {
             ps.execute();
             return 1;
         } catch (SQLException e) {
-            return 1;
+            throw new RuntimeException(e);
         }
     }
 
@@ -223,7 +222,7 @@ public class RelationshipsManager extends GDObject {
 
     public static Map<String, List<Account>> getUserList(int accountID, boolean isBlocklist) {
         StringBuilder sb = new StringBuilder();
-        List<Account> accounts = new ArrayList<>();
+        List<Account> accounts = new GDObjectList<>();
         if (!isBlocklist) {
             for (Account account : Account.map(accountID, true).getFriendsHashtable().values()) {
                 accounts.add(account);

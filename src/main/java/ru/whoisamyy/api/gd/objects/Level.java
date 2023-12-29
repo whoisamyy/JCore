@@ -10,6 +10,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import ru.whoisamyy.api.utils.Utils;
 import ru.whoisamyy.api.utils.comparators.LevelComparators;
+import ru.whoisamyy.api.utils.data.GDObjectList;
 import ru.whoisamyy.api.utils.enums.DemonDifficulty;
 import ru.whoisamyy.api.utils.enums.Length;
 import ru.whoisamyy.api.utils.enums.LevelDifficulty;
@@ -948,8 +949,7 @@ public class Level extends GDObject {
             sortedLvlsTree.removeIf(x->x.getStars()!=0);
         }
 
-        List<Level> levelsList = new ArrayList<>(sortedLvlsTree);
-
+        return new GDObjectList<>(sortedLvlsTree);
         //for (Level lvl :
         //        levelsList) {
         //    logger.debug(lvl.toString());
@@ -981,11 +981,10 @@ public class Level extends GDObject {
 
          */
 
-        return levelsList;
     }
 
     public static String levelsListToString(List<Level> levelsList, Integer page, int listSize, int pageSize) {
-        List<Level> pageList = new ArrayList<>();
+        List<Level> pageList = new GDObjectList<>();
 
         int totalPages = (int) Math.ceil((double) levelsList.size() / pageSize);
 
