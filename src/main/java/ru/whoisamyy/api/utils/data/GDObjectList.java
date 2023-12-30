@@ -23,14 +23,26 @@ public class GDObjectList<E extends GDObject> implements List<E> {
     }
 
     public GDObjectList(Collection<? extends E> c) {
-        this.elements = new Object[c.size()];
-        addAll(c);
+        if (c==null) {
+            this.elements = new Object[DEFAULT_CAPACITY];
+            this.size = 0;
+        }
+        else {
+            this.elements = new Object[c.size()];
+            addAll(c);
+        }
     }
 
     @SafeVarargs
     public GDObjectList(E... newElements) {
-        this.size = newElements.length;
-        this.elements = newElements;
+        if (newElements == null) {
+            this.size = 0;
+            this.elements = new Object[DEFAULT_CAPACITY];
+        }
+        else {
+            this.size = newElements.length;
+            this.elements = newElements;
+        }
     }
 
     public int countOf(Object o) {
@@ -49,7 +61,12 @@ public class GDObjectList<E extends GDObject> implements List<E> {
     }
 
     boolean removeSpace() {
-        for (int i = 0; i < size(); i++) {
+        if (elements[0]==null) {
+            GDObjectList<E> noSpace = subList(1, size());
+            this.elements = noSpace.elements;
+            return true;
+        }
+        for (int i = 1; i < size(); i++) {
             if (elements[i]==null) {
                 GDObjectList<E> beforeNull = subList(0, i-1);
                 GDObjectList<E> afterNull = subList(i+1, size());
@@ -73,7 +90,7 @@ public class GDObjectList<E extends GDObject> implements List<E> {
     }
 
     public E get(int index) {
-        if (index > size()) throw new IndexOutOfBoundsException();
+        if (index >= size()) throw new IndexOutOfBoundsException();
         return (E) elements[index];
     }
 
