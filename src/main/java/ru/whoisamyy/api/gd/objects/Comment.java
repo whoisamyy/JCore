@@ -3,6 +3,7 @@ package ru.whoisamyy.api.gd.objects;
 import lombok.Getter;
 import lombok.Setter;
 import ru.whoisamyy.api.utils.comparators.CommentComparators;
+import ru.whoisamyy.api.utils.data.GDObjectList;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -210,8 +211,8 @@ public class Comment extends GDObject {
         getComments();
         TreeSet<Comment> commentTreeSet = new TreeSet<>(mode==0? new CommentComparators.IDComparatorDescension():new CommentComparators.LikeComparator());
         commentTreeSet.addAll(comments);
-        List<Comment> commentArrayList = new ArrayList<>(commentTreeSet);
-        List<Comment> subList = new ArrayList<>();
+        List<Comment> commentArrayList = new GDObjectList<>(commentTreeSet);
+        List<Comment> subList = new GDObjectList<>();
 
         if (acc) {
             commentArrayList.removeIf(x -> !x.isAcc() || x.getAccountID()!=ID || x.getLevelID()!=0);

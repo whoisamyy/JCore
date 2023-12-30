@@ -12,7 +12,6 @@ import ru.whoisamyy.core.Core;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -74,7 +73,7 @@ public class MapPack extends GDObject {
         this.rewardStars = rewardStars;
         this.rewardCoins = rewardCoins;
 
-        List<Level> levels = new ArrayList<>();
+        List<Level> levels = new GDObjectList<>();
         for (int id : levelIDs) {
             levels.add(Level.map(id, true));
         }
@@ -96,7 +95,7 @@ public class MapPack extends GDObject {
         this.rewardStars = rewardStars;
         this.rewardCoins = rewardCoins;
 
-        List<Level> levels = new ArrayList<>();
+        List<Level> levels = new GDObjectList<>();
         for (int lid : levelIDs) {
             levels.add(Level.map(lid, true));
         }
@@ -116,7 +115,7 @@ public class MapPack extends GDObject {
         RGBColor textColor = new RGBColor(rgb1), barColor = new RGBColor(rgb2);
 
         String[] levelsArr = levels.split(",");
-        List<Level> levelsList = new ArrayList<>();
+        List<Level> levelsList = new GDObjectList<>();
 
         for (String l : levelsArr) {
             levelsList.add(Level.map(Integer.parseInt(l), true));
@@ -136,7 +135,7 @@ public class MapPack extends GDObject {
         RGBColor textColor = new RGBColor(rgb1), barColor = new RGBColor(rgb2);
 
         String[] levelsArr = levels.split(",");
-        List<Level> levelsList = new ArrayList<>();
+        List<Level> levelsList = new GDObjectList<>();
 
         for (String l : levelsArr) {
             levelsList.add(Level.map(Integer.parseInt(l), true));

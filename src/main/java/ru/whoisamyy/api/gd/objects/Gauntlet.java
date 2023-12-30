@@ -1,11 +1,11 @@
 package ru.whoisamyy.api.gd.objects;
 
 import lombok.Getter;
+import ru.whoisamyy.api.utils.data.GDObjectList;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -26,12 +26,12 @@ public class Gauntlet extends GDObject {
 
     public Gauntlet(int id, Level[] levels) {
         this.id = id;
-        this.levels = new ArrayList<>(List.of(levels)); //so it can be changed
+        this.levels = new GDObjectList<>(List.of(levels)); //so it can be changed
     }
 
     public Gauntlet(int id, String levels) {
         this.id = id;
-        List<Level> levelList = new ArrayList<>();
+        List<Level> levelList = new GDObjectList<>();
         for (String s : levels.split(",")) {
             try {
                 int lvlID = Integer.parseInt(s);
