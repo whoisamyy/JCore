@@ -1,17 +1,19 @@
 package ru.whoisamyy.api.utils.enums;
 
-public enum LevelDifficulty {
-    AUTO(-3),
-    UNRATED(0),
-    EASY(10),
-    NORMAL(20),
-    HARD(30),
-    HARDER(40),
-    INSANE(50);
+public enum LevelDifficulty implements Difficulty {
+    AUTO(-3, 0),
+    UNRATED(0, -1),
+    EASY(10, 1),
+    NORMAL(20, 2),
+    HARD(30, 3),
+    HARDER(40, 4),
+    INSANE(50, 5);
 
     final int numerator;
-    LevelDifficulty(int numerator) {
+    final int mpn;
+    LevelDifficulty(int numerator, int mpn) {
         this.numerator = numerator;
+        this.mpn = mpn;
     }
 
     public int toInt() {
@@ -29,5 +31,10 @@ public enum LevelDifficulty {
             case -3 -> {return AUTO;}
         }
         return UNRATED;
+    }
+
+    @Override
+    public int getMPN() {
+        return this.mpn;
     }
 }

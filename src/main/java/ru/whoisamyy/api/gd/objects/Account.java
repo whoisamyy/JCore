@@ -330,7 +330,7 @@ public class Account extends GDObject {
         Utils.writeToFile(file, data);
     }
 
-    public byte register() {
+    public int register() {
         if (username.length()<4) return -1;
         if (!Utils.emailRegex(email)) return -1;
 
@@ -385,7 +385,7 @@ public class Account extends GDObject {
      * @return if success: 1,
      *         if not: -1
      */
-    public byte backup(String saveData, String password) { //pls debug
+    public int backup(String saveData, String password) { //pls debug
         try(PreparedStatement ps = conn.prepareStatement("SELECT userID FROM users WHERE username = ? AND gjp = ?")) {
             ps.setString(1, getUsername());
             ps.setString(2, getGjp());
@@ -512,10 +512,7 @@ public class Account extends GDObject {
             ps.setInt(20, accExplosion);
             ps.setInt(21, diamonds);
 
-            logger.info(iconType);
-
-            logger.info(ps.executeUpdate());
-
+            ps.executeUpdate();
             accounts.remove(getUserID());
             accounts.put(getUserID(), map(getUserID(), true));
             return getUserID();

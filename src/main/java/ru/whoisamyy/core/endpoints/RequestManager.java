@@ -43,10 +43,9 @@ public class RequestManager {
     private final static boolean experimental = false;
 
     @RestController
-    public class Levels {
-        //через EndpointMethods
+    public static class Levels {
         @PostMapping("/{serverURL}/uploadGJLevel21.php")
-        public int uploadGJLevel(
+        public Integer uploadGJLevel(
                 @RequestParam int gameVersion,
                 @RequestParam int accountID,
                 @RequestParam @Nullable Integer levelID,
@@ -75,18 +74,18 @@ public class RequestManager {
                 return -1;
             }
 
-            Level lvl = null;
+            Level lvl;
             if (levelID != null) {
                 try {
                     lvl = new Level(gameVersion, accountID, levelID, levelName, levelDesc, levelVersion, levelLength, audioTrack, auto, password, original, twoPlayer, songID, objects, coins, requestedStars, unlisted, ldm, levelString);
-                } catch (InvalidValueException e) { 
+                } catch (InvalidValueException e) {
                     throw new RuntimeException(e);
                     //return -1;
                 }
             } else {
                 try {
                     lvl = new Level(gameVersion, accountID, levelName, levelDesc, levelVersion, levelLength, audioTrack, auto, password, original, twoPlayer, songID, objects, coins, requestedStars, unlisted, ldm, levelString);
-                } catch (InvalidValueException e) { 
+                } catch (InvalidValueException e) {
                     throw new RuntimeException(e);
                     //return -1;
                 }
@@ -97,14 +96,14 @@ public class RequestManager {
                 Parameter[] pars = RequestManager.Levels.class.getMethod("uploadGJLevel", int.class, int.class, Integer.class, String.class, String.class, int.class, int.class, int.class, int.class, int.class, int.class, boolean.class, int.class, int.class, int.class, int.class, boolean.class, boolean.class, String.class, String.class, String.class).getParameters();
 
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.LEVELS_UPLOAD);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
             int lvlid = lvl.upload(true);
             vals = new Object[]{gameVersion, accountID, levelID, levelName, levelDesc, levelVersion, levelLength, audioTrack, auto, password, original, twoPlayer, songID, objects, coins, requestedStars, unlisted, ldm, levelString, secret, gjp, lvlid};
 
             try {
-                new UploadLevelEvent(vals).callEvent();
+                lvlid = new UploadLevelEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -114,7 +113,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/updateGJDesc20.php")
-        public int updateGJDesc(
+        public Integer updateGJDesc(
                 @RequestParam int accountID,
                 @RequestParam int levelID,
                 @RequestParam String levelDesc,
@@ -140,7 +139,7 @@ public class RequestManager {
 
 
             try {
-                new UpdateLevelDescEvent(vals).callEvent();
+                ret = new UpdateLevelDescEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -189,6 +188,7 @@ public class RequestManager {
             if (diff.equals("-")) {
                 diff = null;
             }
+            assert len != null;
             if (len.equals("-")) {
                 len = null;
             }
@@ -196,20 +196,20 @@ public class RequestManager {
             try {
                 Parameter[] pars = RequestManager.Levels.class.getMethod("getGJLevels", String.class, Integer.class, Integer.class, Integer.class, String.class, Integer.class, Integer.class, String.class, Integer.class, Integer.class, Integer.class, String.class, String.class, String.class, Integer.class, Integer.class, String.class, Integer.class, Integer.class, Integer.class, Integer.class, Integer.class, Integer.class, Integer.class, Integer.class, Integer.class, String.class, Integer.class).getParameters();
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.LEVELS_GET);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
 
             var retList = Level.getLevels(secret, gameVersion, binaryVersion, type, str, page, total, gjp, accountID, gdw, gauntlet, diff, demonFilter, len, uncompleted, onlyCompleted, completedLevels, featured, original, twoPlayer, coins, epic, noStar, star, song, customSong, followed, local);
-            var ret = Level.levelsListToString(retList, page, retList.size(), 10);
+            String ret = Level.levelsListToString(retList, page, retList.size(), 10);
             vals = new Object[]{secret, gameVersion, binaryVersion, type, str, page, total, gjp, accountID, gdw, gauntlet, diff, demonFilter, len, uncompleted, onlyCompleted, completedLevels, featured, original, twoPlayer, coins, epic, noStar, star, song, customSong, followed, local, ret};
 
             //List<Object> values = new ArrayList<>(Arrays.asList(vals));
             //values.add(retList);
 
             try {
-                new GetLevelsEvent(vals).callEvent();
-            } catch (NoSuchFieldException e) { 
+                ret = new GetLevelsEvent(vals).callEvent();
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
@@ -230,7 +230,7 @@ public class RequestManager {
             vals = new Object[]{weekly, ret};
 
             try {
-                new GetDailyLevelEvent(vals).callEvent();
+                ret = new GetDailyLevelEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -249,7 +249,7 @@ public class RequestManager {
             }
             accountID = accountID == null ? 0 : accountID;
             gjp = gjp == null ? "" : gjp;
-            if (gjp != "" && accountID != 0 && !Account.map(accountID, true).checkGJP(gjp)) {
+            if (gjp.isEmpty() && accountID != 0 && !Account.map(accountID, true).checkGJP(gjp)) {
                 return "-1";
             }
 
@@ -257,7 +257,7 @@ public class RequestManager {
             try {
                 Parameter[] pars = RequestManager.Levels.class.getMethod("downloadGJLevel", int.class, String.class, Integer.class, String.class).getParameters();
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.LEVELS_DOWNLOAD);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
 
@@ -266,20 +266,20 @@ public class RequestManager {
                 vals = new Object[]{levelID, secret, accountID, gjp, s};
 
                 try {
-                    new DownloadLevelEvent(vals).callEvent();
+                    s = new DownloadLevelEvent(vals).callEvent();
                 } catch (NoSuchFieldException e) {
                     throw new RuntimeException(e);
                 }
 
                 return s;
-            } catch (Exception e) { 
+            } catch (Exception e) {
                 throw new RuntimeException(e);
                 //return "-1";
             }
         }
 
         @PostMapping("/{serverURL}/deleteGJLevelUser20.php")
-        public int deleteGJLevel(
+        public Integer deleteGJLevel(
                 @RequestParam int accountID,
                 @RequestParam String gjp,
                 @RequestParam int levelID,
@@ -295,7 +295,7 @@ public class RequestManager {
             try {
                 Parameter[] pars = RequestManager.Levels.class.getMethod("deleteGJLevel", int.class, String.class, int.class, String.class).getParameters();
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.LEVELS_DELETE);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
 
@@ -304,20 +304,20 @@ public class RequestManager {
                 vals = new Object[]{accountID, gjp, levelID, secret, ret};
 
                 try {
-                    new DeleteLevelEvent(vals).callEvent();
+                    ret = new DeleteLevelEvent(vals).callEvent();
                 } catch (NoSuchFieldException e) {
                     throw new RuntimeException(e);
                 }
 
                 return ret;
-            } catch (Exception e) { 
+            } catch (Exception e) {
                 throw new RuntimeException(e);
                 //return -1;
             }
         }
 
         @PostMapping("/{serverURL}/rateGJDemon21.php")
-        public int rateGJDemon(
+        public Integer rateGJDemon(
                 @RequestParam Integer levelID,
                 @RequestParam Integer rating,
                 @RequestParam Integer accountID,
@@ -339,19 +339,20 @@ public class RequestManager {
                 throw new RuntimeException(e);
             }
             Level.rateDemon(rating, levelID);
-            vals = new Object[]{accountID, gjp, levelID, rating, secret, 1};
+            int ret = 1;
+            vals = new Object[]{accountID, gjp, levelID, rating, secret, ret};
 
             try {
-                new RateLevelDemonEvent(vals).callEvent();
+                ret = new RateLevelDemonEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            return 1;
+            return ret;
         }
 
         @PostMapping("/{serverURL}/rateGJStars211.php")
-        public int rateGJStars(
+        public Integer rateGJStars(
                 @RequestParam Integer levelID,
                 @RequestParam Integer stars,
                 @RequestParam Integer accountID,
@@ -368,25 +369,26 @@ public class RequestManager {
 
             Object[] vals = {accountID, gjp, levelID, stars, secret};
             try {
-                Parameter[] pars = RequestManager.Levels.class.getMethod("rateGJStars", Integer.class, String.class, Integer.class, Integer.class, String.class).getParameters();
+                Parameter[] pars = RequestManager.Levels.class.getMethod("rateGJStars", Integer.class, Integer.class, Integer.class, String.class, String.class).getParameters();
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.LEVELS_RATE_STARS);
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
             Level.rateStars(stars, levelID);
-            vals = new Object[]{accountID, gjp, levelID, stars, secret, 1};
+            int ret = 1;
+            vals = new Object[]{accountID, gjp, levelID, stars, secret, ret};
 
             try {
-                new RateLevelStarsEvent(vals).callEvent();
+                ret = new RateLevelStarsEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            return 1;
+            return ret;
         }
 
         @PostMapping("/{serverURL}/suggestGJStars20.php")
-        public int suggestGJStars(
+        public Integer suggestGJStars(
                 int levelID,
                 int stars,
                 boolean feature,
@@ -409,22 +411,55 @@ public class RequestManager {
                 throw new RuntimeException(e);
             }
             Level.suggestStars(levelID, stars, feature);
-            vals = new Object[]{accountID, stars, feature, accountID, gjp, secret, 1};
+            int ret = 1;
+            vals = new Object[]{accountID, stars, feature, accountID, gjp, secret, ret};
 
             try {
-                new SuggestLevelStarsEvent(vals).callEvent();
+                ret = new SuggestLevelStarsEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            return 1;
+            return ret;
+        }
+
+        @PostMapping("/{serverURL}/getGJMapPacks21.php")
+        public String getGJMapPacks(
+                @RequestParam String secret,
+                @RequestParam @Nullable Integer page,
+                @RequestParam @Nullable Integer amount
+        ) {
+            if (!Objects.equals(secret, Core.secrets.get("common"))) {
+                return "-1";
+            }
+
+            if (amount==null) amount = 10;
+            if (page==null) page = 0;
+
+            Object[] vals = {secret, page, amount};
+            try {
+                Parameter[] pars = RequestManager.Levels.class.getMethod("getGJMapPacks", String.class, Integer.class, Integer.class).getParameters();
+                PluginManager.runEndpointMethods(vals, pars, EndpointName.MAPPACKS_GET);
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+            String ret = MapPack.getPacks(page, amount);
+            vals = new Object[]{secret, page, amount, ret};
+
+            try {
+                ret = new GetMapPacksEvent(vals).callEvent();
+            } catch (NoSuchFieldException e) {
+                throw new RuntimeException(e);
+            }
+            if (ret==null) return vals[vals.length-1].toString();
+            return ret;
         }
     }
 
     @RestController
     public class Accounts {
         @PostMapping("/{serverURL}/accounts/registerGJAccount.php")
-        public int registerGJAccount(
+        public Integer registerGJAccount(
                 @RequestParam String userName,
                 @RequestParam String password,
                 @RequestParam String email,
@@ -440,21 +475,21 @@ public class RequestManager {
                 try {
                     Parameter[] pars = Accounts.class.getMethod("registerGJAccount", String.class, String.class, String.class, String.class).getParameters();
                     PluginManager.runEndpointMethods(vals, pars, EndpointName.ACCOUNTS_REGISTER);
-                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                     throw new RuntimeException(e);
                 }
                 int ret = acc.register();
                 vals = new Object[]{userName, password, email, secret, ret};
 
                 try {
-                    new RegisterAccountEvent(vals).callEvent();
+                    ret = new RegisterAccountEvent(vals).callEvent();
                 } catch (NoSuchFieldException e) {
                     throw new RuntimeException(e);
                 }
 
                 accounts = Account.getAccountsHashtable();
                 return ret;
-            } catch (Exception e) { 
+            } catch (Exception e) {
                 throw new RuntimeException(e);
                 //return -1;
             }
@@ -463,12 +498,16 @@ public class RequestManager {
         @PostMapping("/{serverURL}/accounts/loginGJAccount.php")
         public String loginGJAccount(
                 @RequestParam String userName,
-                @RequestParam String password,
+                @RequestParam(name = "gjp2") String password,
                 @RequestParam @Nullable String email,
-                @RequestParam String secret) {
+                @RequestParam String secret
+        ) {
             if (!Objects.equals(secret, Core.secrets.get("account"))) {
                 return "-1";
             }
+
+            //servlet.getParameterMap().forEach((x,y)->logger.info(x+": "+y));
+            logger.info(password);
 
             accounts = Account.getAccountsHashtable();
             try {
@@ -477,27 +516,27 @@ public class RequestManager {
                 try {
                     Parameter[] pars = Accounts.class.getMethod("loginGJAccount", String.class, String.class, String.class, String.class).getParameters();
                     PluginManager.runEndpointMethods(vals, pars, EndpointName.ACCOUNTS_LOGIN);
-                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                     throw new RuntimeException(e);
                 }
                 var ret = acc.login(userName, password);
                 vals = new Object[]{userName, password, email, secret, ret};
 
                 try {
-                    new LoginAccountEvent(vals).callEvent();
+                    ret = new LoginAccountEvent(vals).callEvent();
                 } catch (NoSuchFieldException e) {
                     throw new RuntimeException(e);
                 }
 
                 return ret;
-            } catch (Exception e) { 
+            } catch (Exception e) {
                 throw new RuntimeException(e);
                 //return "-1";
             }
         }
 
         @PostMapping("{serverURL}/database/accounts/backupGJAccountNew.php")
-        public int backupGJAccountNew(
+        public Integer backupGJAccountNew(
                 @RequestParam String saveData,
                 @RequestParam String password,
                 @RequestParam String userName,
@@ -510,14 +549,14 @@ public class RequestManager {
             try {
                 Parameter[] pars = Accounts.class.getMethod("backupGJAccountNew", String.class, String.class, String.class, String.class).getParameters();
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.ACCOUNTS_BACKUP);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
             var ret = acc.backup(saveData, password);
             vals = new Object[]{saveData, password, userName, secret, ret};
 
             try {
-                new BackupAccountEvent(vals).callEvent();
+                ret = new BackupAccountEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -537,14 +576,14 @@ public class RequestManager {
             try {
                 Parameter[] pars = Accounts.class.getMethod("syncGJAccountNew", String.class, String.class, String.class).getParameters();
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.ACCOUNTS_SYNC);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
             String ret = acc.sync();
             vals = new Object[]{userName, secret, password, ret};
 
             try {
-                new SyncAccountEvent(vals).callEvent();
+                ret = new SyncAccountEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -578,7 +617,7 @@ public class RequestManager {
             vals = new Object[]{targetAccountID, secret, accountID, gjp, ret};
 
             try {
-                new GetUserInfoEvent(vals).callEvent();
+                ret = new GetUserInfoEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -598,13 +637,13 @@ public class RequestManager {
                         md.invoke(entry.getValue());
                     }
                 }
-            } catch (IllegalAccessException | InvocationTargetException e) { 
+            } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
             var ret = serverURL;
 
             try {
-                new GetAccountURLEvent(ret).callEvent();
+                ret = new GetAccountURLEvent(ret).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -613,7 +652,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/updateGJAccSettings20.php")
-        public int updateGJAccSettings(
+        public Integer updateGJAccSettings(
                 @RequestParam Integer accountID,
                 @RequestParam @Nullable Integer mS,
                 @RequestParam @Nullable Integer frS,
@@ -635,14 +674,14 @@ public class RequestManager {
             try {
                 Parameter[] pars = Accounts.class.getMethod("updateGJAccSettings", Integer.class, Integer.class, Integer.class, Integer.class, String.class, String.class, String.class, String.class, String.class).getParameters();
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.ACCOUNTS_SETTINGS_UPDATE);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
             var ret = acc.updateAccSettings(mS, frS, cS, yt, twitter, twitch);
             vals = new Object[]{accountID, mS, frS, cS, yt, twitter, twitch, secret, gjp, ret};
 
             try {
-                new UpdateAccountSettingsEvent(vals).callEvent();
+                ret = new UpdateAccountSettingsEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -651,7 +690,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/updateGJUserScore22.php")
-        public int updateGJUserScore(
+        public Integer updateGJUserScore(
                 @RequestParam Integer accountID,
                 @RequestParam String gjp,
                 @RequestParam String userName,
@@ -696,7 +735,7 @@ public class RequestManager {
             vals = new Object[]{accountID, gjp, userName, stars, demons, diamonds, icon, iconType, coins, userCoins, accIcon, accShip, accBall, accBird, accDart, accRobot, accGlow, accSpider, accExplosion, special, color1, color2, secret, ret};
 
             try {
-                new UpdateUserScoreEvent(vals).callEvent();
+                ret = new UpdateUserScoreEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -707,9 +746,9 @@ public class RequestManager {
     }
 
     @RestController
-    public class Comments {
+    public static class Comments {
         @PostMapping("/{serverURL}/uploadGJComment21.php")
-        public int uploadGJComment(
+        public Integer uploadGJComment(
                 @RequestParam int accountID,
                 @RequestParam String userName,
                 @RequestParam String comment,
@@ -734,14 +773,14 @@ public class RequestManager {
             try {
                 Parameter[] pars = Comments.class.getMethod("uploadGJComment", int.class, String.class, String.class, int.class, Integer.class, String.class, String.class).getParameters();
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.COMMENTS_UPLOAD);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
             int ret = com.upload();
             vals = new Object[]{accountID, userName, comment, levelID, percent, secret, gjp, ret};
 
             try {
-                new UploadCommentEvent(vals).callEvent();
+                ret = new UploadCommentEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -750,7 +789,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/uploadGJAccComment20.php")
-        public int uploadGJAccComment(
+        public Integer uploadGJAccComment(
                 @RequestParam int accountID,
                 @RequestParam String userName,
                 @RequestParam String comment,
@@ -769,14 +808,14 @@ public class RequestManager {
             try {
                 Parameter[] pars = Comments.class.getMethod("uploadGJAccComment", int.class, String.class, String.class, String.class, String.class).getParameters();
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.ACCOUNTS_COMMENTS_UPLOAD);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
             int ret = com.upload();
             vals = new Object[]{accountID, userName, comment, secret, gjp, ret};
 
             try {
-                new UploadAccountCommentEvent(vals).callEvent();
+                ret = new UploadAccountCommentEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -802,7 +841,7 @@ public class RequestManager {
             try {
                 Parameter[] pars = Comments.class.getMethod("getGJComments", int.class, int.class, Integer.class, String.class).getParameters();
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.COMMENTS_GET);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
             var r = Comment.getComments(levelID, page, false, mode);
@@ -810,7 +849,7 @@ public class RequestManager {
             vals = new Object[]{levelID, page, mode, secret, ret};
 
             try {
-                new GetCommentsEvent(vals).callEvent();
+                ret = new GetCommentsEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -831,7 +870,7 @@ public class RequestManager {
             try {
                 Parameter[] pars = Comments.class.getMethod("getGJAccountComments", int.class, int.class, String.class).getParameters();
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.ACCOUNTS_COMMENTS_GET);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
             var r = Comment.getComments(accountID, page, true, 0);
@@ -840,7 +879,7 @@ public class RequestManager {
 
 
             try {
-                new GetAccountCommentsEvent(vals).callEvent();
+                ret = new GetAccountCommentsEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -849,7 +888,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/deleteGJComment20.php")
-        public int deleteGJComment(
+        public Integer deleteGJComment(
                 @RequestParam String secret,
                 @RequestParam int accountID,
                 @RequestParam String gjp,
@@ -875,7 +914,7 @@ public class RequestManager {
             vals = new Object[]{secret, accountID, gjp, commentID, levelID, ret};
 
             try {
-                new DeleteCommentEvent(vals).callEvent();
+                ret = new DeleteCommentEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -884,7 +923,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/deleteGJAccComment20.php")
-        public int deleteGJAccComment(
+        public Integer deleteGJAccComment(
                 @RequestParam String secret,
                 @RequestParam int accountID,
                 @RequestParam String gjp,
@@ -909,7 +948,7 @@ public class RequestManager {
             vals = new Object[]{secret, accountID, gjp, commentID, ret};
 
             try {
-                new DeleteAccCommentEvent(vals).callEvent();
+                ret = new DeleteAccCommentEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -919,9 +958,9 @@ public class RequestManager {
     }
 
     @RestController
-    public class Relationships {
+    public static class Relationships {
         @PostMapping("/{serverURL}/blockGJUser20.php")
-        public int blockGJUser(
+        public Integer blockGJUser(
                 @RequestParam String secret,
                 @RequestParam int accountID,
                 @RequestParam int targetAccountID,
@@ -936,14 +975,14 @@ public class RequestManager {
             try {
                 Parameter[] pars = Relationships.class.getMethod("blockGJUser", String.class, int.class, int.class, String.class).getParameters();
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.BLOCK_USER);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
             var ret = RelationshipsManager.blockUser(accountID, targetAccountID);
             vals = new Object[]{secret, accountID, targetAccountID, gjp, ret};
 
             try {
-                new BlockUserEvent(vals).callEvent();
+                ret = new BlockUserEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -952,7 +991,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/unblockGJUser20.php")
-        public int unblockGJUser(
+        public Integer unblockGJUser(
                 @RequestParam String secret,
                 @RequestParam int accountID,
                 @RequestParam int targetAccountID,
@@ -967,14 +1006,14 @@ public class RequestManager {
             try {
                 Parameter[] pars = Relationships.class.getMethod("unblockGJUser", String.class, int.class, int.class, String.class).getParameters();
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.UNBLOCK_USER);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
             var ret = RelationshipsManager.unblockUser(accountID, targetAccountID);
             vals = new Object[]{secret, accountID, targetAccountID, gjp, ret};
 
             try {
-                new UnblockUserEvent(vals).callEvent();
+                ret = new UnblockUserEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -1001,7 +1040,7 @@ public class RequestManager {
             try {
                 Parameter[] pars = Relationships.class.getMethod("getGJUserList", String.class, int.class, Boolean.class, String.class).getParameters();
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.ACCOUNTS_GETLIST);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
             var r = RelationshipsManager.getUserList(accountID, type);
@@ -1009,8 +1048,8 @@ public class RequestManager {
             vals = new Object[]{secret, accountID, type, gjp, ret};
 
             try {
-                new GetUserListEvent(vals).callEvent();
-            } catch (NoSuchFieldException e) { 
+                ret = new GetUserListEvent(vals).callEvent();
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
@@ -1018,7 +1057,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/readGJFriendRequest20.php")
-        public int readFriendRequest(
+        public Integer readFriendRequest(
                 @RequestParam int accountID,
                 @RequestParam int requestID,
                 @RequestParam String secret,
@@ -1035,14 +1074,14 @@ public class RequestManager {
             try {
                 Parameter[] pars = Relationships.class.getMethod("readFriendRequest", int.class, int.class, String.class, String.class).getParameters();
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.FRIEND_REQUESTS_READ);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
             int ret = RelationshipsManager.readFriendRequest(requestID, accountID);
             vals = new Object[]{accountID, requestID, secret, gjp, ret};
 
             try {
-                new ReadFriendRequestEvent(vals).callEvent();
+                ret = new ReadFriendRequestEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -1051,7 +1090,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/removeGJFriend20.php")
-        public int removeGJFriend(
+        public Integer removeGJFriend(
                 @RequestParam int accountID,
                 @RequestParam int targetAccountID,
                 @RequestParam String secret,
@@ -1068,14 +1107,14 @@ public class RequestManager {
             try {
                 Parameter[] pars = Relationships.class.getMethod("removeGJFriend", int.class, int.class, String.class, String.class).getParameters();
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.FRIEND_REMOVE);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
             int ret = RelationshipsManager.removeFriend(accountID, targetAccountID);
             vals = new Object[]{secret, accountID, targetAccountID, gjp, ret};
 
             try {
-                new RemoveFriendEvent(vals).callEvent();
+                ret = new RemoveFriendEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -1084,7 +1123,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/uploadFriendRequest20.php")
-        public int uploadGJFriendRequest(
+        public Integer uploadGJFriendRequest(
                 @RequestParam int accountID,
                 @RequestParam int toAccountID,
                 @RequestParam @Nullable String comment,
@@ -1106,14 +1145,14 @@ public class RequestManager {
             try {
                 Parameter[] pars = Relationships.class.getMethod("uploadGJFriendRequest", int.class, int.class, String.class, String.class, String.class).getParameters();
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.FRIEND_REQUESTS_UPLOAD);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
             int ret = RelationshipsManager.sendFriendRequest(accountID, toAccountID, comment);
             vals = new Object[]{accountID, toAccountID, comment, secret, gjp, ret};
 
             try {
-                new UploadFriendRequestEvent(vals).callEvent();
+                ret = new UploadFriendRequestEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -1122,7 +1161,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/acceptGJFriendRequest20.php")
-        public int acceptGJFriendRequest(
+        public Integer acceptGJFriendRequest(
                 @RequestParam int accountID,
                 @RequestParam int targetAccountID,
                 @RequestParam String secret,
@@ -1146,7 +1185,7 @@ public class RequestManager {
             vals = new Object[]{accountID, targetAccountID, secret, gjp, ret};
 
             try {
-                new AcceptFriendRequestEvent(vals).callEvent();
+                ret = new AcceptFriendRequestEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -1155,7 +1194,7 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/deleteGJFriendRequest20.php")
-        public int deleteGJFriendRequest(
+        public Integer deleteGJFriendRequest(
                 @RequestParam int accountID,
                 @RequestParam int targetAccountID,
                 @RequestParam String secret,
@@ -1172,14 +1211,14 @@ public class RequestManager {
             try {
                 Parameter[] pars = Relationships.class.getMethod("deleteGJFriendRequest", int.class, int.class, String.class, String.class).getParameters();
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.FRIEND_REQUESTS_DELETE);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
             int ret = RelationshipsManager.deleteFriendRequest(accountID, targetAccountID);
             vals = new Object[]{accountID, targetAccountID, secret, gjp, ret};
 
             try {
-                new DeleteFriendRequestEvent(vals).callEvent();
+                ret = new DeleteFriendRequestEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -1214,14 +1253,14 @@ public class RequestManager {
             try {
                 Parameter[] pars = Relationships.class.getMethod("getGJFriendRequests", int.class, Boolean.class, Integer.class, String.class, String.class).getParameters();
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.FRIEND_REQUESTS_GET);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
             String ret = RelationshipsManager.getFriendRequests(accountID, getSent, page);
             vals = new Object[]{accountID, getSent, page, secret, gjp};
 
             try {
-                new GetFriendRequestsEvent(vals).callEvent();
+                ret = new GetFriendRequestsEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -1231,7 +1270,7 @@ public class RequestManager {
     }
 
     @RestController
-    public class Scores {
+    public static class Scores {
         private static final int ERROR_CODE_GENERIC = -1;
 
         @PostMapping("/{serverURL}/getGJScores20.php")
@@ -1255,7 +1294,7 @@ public class RequestManager {
                 Parameter[] pars = Scores.class.getMethod("getGJScores", String.class, Integer.class, String.class, Integer.class, String.class).getParameters();
 
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.SCORES_GET);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
 
@@ -1264,13 +1303,13 @@ public class RequestManager {
                 vals = new Object[]{secret, accountID, type, count, gjp, ret};
 
                 try {
-                    new GetScoresEvent(vals).callEvent();
+                    ret = new GetScoresEvent(vals).callEvent();
                 } catch (NoSuchFieldException e) {
                     throw new RuntimeException(e);
                 }
 
                 return ret;
-            } catch (InvalidValueException e) { 
+            } catch (InvalidValueException e) {
                 throw new RuntimeException(e);
                 //return String.valueOf(ERROR_CODE_GENERIC);
             }
@@ -1297,10 +1336,10 @@ public class RequestManager {
             count = count==null? 25: count;
             percent = percent==null? 0: percent;
 
-            LeaderboardType leaderboardType = null;
+            LeaderboardType leaderboardType;
             try {
                 leaderboardType = LeaderboardType.getLeaderboardType(type);
-            } catch (InvalidValueException e) { 
+            } catch (InvalidValueException e) {
                 throw new RuntimeException(e);
             }
 
@@ -1310,14 +1349,14 @@ public class RequestManager {
                         Integer.class, Integer.class, Integer.class, Integer.class, Integer.class, String.class, Integer.class, Integer.class).getParameters();
 
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.SCORES_LEVELS_GET);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
             String ret = Score.getLevelScores(accountID, leaderboardType, count, levelID, percent, s8, s9);
             vals = new Object[]{accountID, levelID, gjp, secret, percent, type, s8, s9, count, s6, s1, s2, ret};
 
             try {
-                new GetLevelScoresEvent(vals).callEvent();
+                ret = new GetLevelScoresEvent(vals).callEvent();
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
@@ -1327,7 +1366,7 @@ public class RequestManager {
     }
 
     @RestController
-    public class Messages {
+    public static class Messages {
         private static final int ERROR_CODE_GENERIC = -1;
         private static final int ERROR_CODE_INVALID_INPUT = 1;
 
@@ -1346,15 +1385,15 @@ public class RequestManager {
                 Parameter[] pars = RequestManager.Messages.class.getMethod("downloadGJMessage", String.class, int.class, int.class).getParameters();
 
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.MESSAGES_DOWNLOAD);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
             String ret = Message.download(messageID, Message.map(messageID).getSenderID() == accountID);
             vals = new Object[]{secret, accountID, messageID, ret};
 
             try {
-                new DownloadMessageEvent(vals).callEvent();
-            } catch (NoSuchFieldException e) { 
+                ret = new DownloadMessageEvent(vals).callEvent();
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
@@ -1381,15 +1420,15 @@ public class RequestManager {
                 Parameter[] pars = RequestManager.Messages.class.getMethod("getGJMessages", String.class, int.class, Integer.class, Boolean.class).getParameters();
 
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.MESSAGES_GET);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
             String ret = Message.getMessages(accountID, page, getSent);
             vals = new Object[]{secret, accountID, page, getSent, ret};
 
             try {
-                new GetMessagesEvent(vals).callEvent();
-            } catch (NoSuchFieldException e) { 
+                ret = new GetMessagesEvent(vals).callEvent();
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
@@ -1397,9 +1436,9 @@ public class RequestManager {
         }
 
         @PostMapping("/{serverURL}/uploadGJMessage20.php")
-        public int uploadGJMessage(@RequestParam String secret, @RequestParam int accountID,
-                                   @RequestParam int toAccountID, @RequestParam String subject,
-                                   @RequestParam String body) {
+        public Integer uploadGJMessage(@RequestParam String secret, @RequestParam int accountID,
+                                       @RequestParam int toAccountID, @RequestParam String subject,
+                                       @RequestParam String body) {
             if (!experimental) {
                 return ERROR_CODE_INVALID_INPUT;
             }
@@ -1418,15 +1457,15 @@ public class RequestManager {
                 Parameter[] pars = RequestManager.Messages.class.getMethod("uploadGJMessage", String.class, int.class, int.class, String.class, String.class).getParameters();
 
                 PluginManager.runEndpointMethods(vals, pars, EndpointName.MESSAGES_UPLOAD);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
             int ret = message.send();
             vals = new Object[]{secret, accountID, toAccountID, subject, body, ret};
 
             try {
-                new UploadMessageEvent(vals).callEvent();
-            } catch (NoSuchFieldException e) { 
+                ret = new UploadMessageEvent(vals).callEvent();
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
@@ -1442,15 +1481,15 @@ public class RequestManager {
             PluginManager.runEndpointMethods(vals,
                     RequestManager.class.getMethod("getSongInfo", int.class).getParameters(),
                     EndpointName.SONGS_GET_INFO);
-        } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) { 
+        } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
         String ret = Song.getSongInfo(songID);
         vals = new Object[]{songID, ret};
 
         try {
-            new GetSongInfoEvent(vals).callEvent();
-        } catch (NoSuchFieldException e) { 
+            ret = new GetSongInfoEvent(vals).callEvent();
+        } catch (NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
 
@@ -1458,7 +1497,7 @@ public class RequestManager {
     }
 
     @PostMapping("/{serverURL}/songAdd")
-    public int songAdd(@RequestParam String name, @RequestParam String artistName, @RequestParam double size, @RequestParam String link) {
+    public Integer songAdd(@RequestParam String name, @RequestParam String artistName, @RequestParam double size, @RequestParam String link) {
         Song song = new Song(name, artistName, size, link);
 
         var vals = new Object[]{name, artistName, size, link};
@@ -1466,14 +1505,14 @@ public class RequestManager {
             PluginManager.runEndpointMethods(vals,
                     RequestManager.class.getMethod("songAdd", String.class, String.class, double.class, String.class).getParameters(),
                     EndpointName.SONGS_UPLOAD);
-        } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) { 
+        } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
         int ret = song.songAdd();
         vals = new Object[]{name, artistName, size, link, ret};
         try {
-            new AddSongEvent(vals).callEvent();
-        } catch (NoSuchFieldException e) { 
+            ret = new AddSongEvent(vals).callEvent();
+        } catch (NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
 
@@ -1481,8 +1520,8 @@ public class RequestManager {
     }
 
     @PostMapping("/{serverURL}/likeGJItem211.php")
-    public int like(@RequestParam String secret, @RequestParam int itemID, @RequestParam int type, @RequestParam boolean like,
-                          @RequestParam @Nullable Integer accountID, @RequestParam @Nullable String gjp) {
+    public Integer like(@RequestParam String secret, @RequestParam int itemID, @RequestParam int type, @RequestParam boolean like,
+                        @RequestParam @Nullable Integer accountID, @RequestParam @Nullable String gjp) {
         if (!Objects.equals(secret, Core.secrets.get("common"))) {
             return -1;
         }
@@ -1492,26 +1531,26 @@ public class RequestManager {
         }
 
         var vals = new Object[]{secret, itemID, type, like, accountID, gjp};
-        ItemType itemType = null;
+        ItemType itemType;
         try {
             itemType = ItemType.getLikeType(type);
-        } catch (InvalidValueException e) { 
+        } catch (InvalidValueException e) {
             throw new RuntimeException(e);
         }
         try {
             PluginManager.runEndpointMethods(vals,
                     RequestManager.class.getMethod("like", String.class, int.class, int.class, boolean.class, Integer.class, String.class).getParameters(),
                     EndpointName.LIKE);
-        } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) { 
+        } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
 
-        int ret = Likes.like(itemID, itemType, like);
+        Integer ret = Likes.like(itemID, itemType, like);
         vals = new Object[]{secret, itemID, type, like, accountID, gjp, ret};
 
         try {
-            new LikeEvent(vals).callEvent();
-        } catch (NoSuchFieldException e) { 
+            ret = new LikeEvent(vals).callEvent();
+        } catch (NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
 
@@ -1519,7 +1558,7 @@ public class RequestManager {
     }
 
     @PostMapping("/{serverURL}/requestUserAccess.php")
-    public int requestUserAccess(@RequestParam String secret, @RequestParam int accountID, @RequestParam String gjp) {
+    public Integer requestUserAccess(@RequestParam String secret, @RequestParam int accountID, @RequestParam String gjp) {
         if (!Objects.equals(secret, Core.secrets.get("common"))) {
             return -1;
         }
@@ -1535,14 +1574,14 @@ public class RequestManager {
                     .getParameters();
 
             PluginManager.runEndpointMethods(values, parameters, EndpointName.MOD_REQUEST_USER_ACCESS);
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) { 
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
         int result = Account.requestModAccess(accountID, gjp);
         values = new Object[]{secret, accountID, gjp, result};
 
         try {
-            new RequestUserAccessEvent(values).callEvent();
+            result = new RequestUserAccessEvent(values).callEvent();
         } catch (NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
@@ -1572,7 +1611,7 @@ public class RequestManager {
         vals = new Object[]{secret, ret};
 
         try {
-            new GetGauntletsEvent(vals).callEvent();
+            ret = new GetGauntletsEvent(vals).callEvent();
         } catch (NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
@@ -1610,7 +1649,7 @@ public class RequestManager {
         vals = new Object[]{accountID, secret, chk, udid, gjp, s};
 
         try {
-            new GetChallengesEvent(vals).callEvent();
+            s = new GetChallengesEvent(vals).callEvent();
         } catch (NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
@@ -1651,7 +1690,7 @@ public class RequestManager {
         vals = new Object[]{accountID, secret, chk, udid, gjp, rewardType, s};
 
         try {
-            new GetRewardsEvent(vals).callEvent();
+            s = new GetRewardsEvent(vals).callEvent();
         } catch (NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
@@ -1665,6 +1704,3 @@ public class RequestManager {
         return serverURL;
     }
 }
-
-////LEVELS: LEFT:
-//getGJMapPacks.php

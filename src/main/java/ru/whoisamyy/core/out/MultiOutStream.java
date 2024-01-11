@@ -9,6 +9,17 @@ public class MultiOutStream extends OutputStream {
 
     HashSet<OutputStream> streams = new HashSet<>();
 
+
+    /**
+     * Not recommended. Creates new instance of {@code MultiOutStream}, containing given in argument {@code OutputStream}s
+     * @param streams {@code OutputStream}s that will be in new instance of {@code MultiOutStream}
+     */
+    public MultiOutStream(OutputStream... streams) {
+        for (OutputStream os : streams) {
+            this.addStream(os);
+        }
+    }
+
     @Override
     public void write(int b) throws IOException {
         for (OutputStream s : streams)
@@ -42,6 +53,6 @@ public class MultiOutStream extends OutputStream {
      */
     public MultiOutStream addStream(OutputStream out) {
         streams.add(out);
-        return instance; //instance
+        return this; //instance
     }
 }

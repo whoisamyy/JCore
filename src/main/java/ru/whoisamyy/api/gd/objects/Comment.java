@@ -3,6 +3,7 @@ package ru.whoisamyy.api.gd.objects;
 import lombok.Getter;
 import lombok.Setter;
 import ru.whoisamyy.api.utils.comparators.CommentComparators;
+import ru.whoisamyy.api.utils.data.GDObjectList;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -123,7 +124,7 @@ public class Comment extends GDObject {
         return sb.substring(0, sb.length()-1);
     }
 
-    public byte upload() {
+    public int upload() {
         if (!Account.getAccountsHashtable().containsKey(accountID) && isAcc) return -1;
         if (!Level.getLevelsHashtable().containsKey(levelID) && !isAcc) return -1;
 
@@ -146,7 +147,7 @@ public class Comment extends GDObject {
         }
     }
 
-    public byte delete() {
+    public int delete() {
         try(PreparedStatement ps = conn.prepareStatement("DELETE FROM comments WHERE ID = ? LIMIT 1")) {
             ps.setInt(1, getID());
 
@@ -160,7 +161,7 @@ public class Comment extends GDObject {
     }
 
     @Deprecated
-    public byte uploadAccComment() {
+    public int uploadAccComment() {
         if (!isAcc) return -1;
         if (!Account.getAccountsHashtable().containsKey(accountID)) return -1;
         if (!Level.getLevelsHashtable().containsKey(levelID)) return -1;
@@ -210,8 +211,8 @@ public class Comment extends GDObject {
         getComments();
         TreeSet<Comment> commentTreeSet = new TreeSet<>(mode==0? new CommentComparators.IDComparatorDescension():new CommentComparators.LikeComparator());
         commentTreeSet.addAll(comments);
-        List<Comment> commentArrayList = new ArrayList<>(commentTreeSet);
-        List<Comment> subList = new ArrayList<>();
+        List<Comment> commentArrayList = new GDObjectList<>(commentTreeSet);
+        List<Comment> subList = new GDObjectList<>();
 
         if (acc) {
             commentArrayList.removeIf(x -> !x.isAcc() || x.getAccountID()!=ID || x.getLevelID()!=0);

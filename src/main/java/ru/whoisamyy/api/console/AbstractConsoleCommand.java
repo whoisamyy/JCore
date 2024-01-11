@@ -1,6 +1,7 @@
 package ru.whoisamyy.api.console;
 
 import lombok.Getter;
+import org.apache.logging.log4j.LogManager;
 import ru.whoisamyy.api.plugins.annotations.ConsoleCommand;
 
 import java.lang.reflect.InvocationTargetException;
@@ -37,6 +38,8 @@ public abstract class AbstractConsoleCommand {
 
     Object parseArg(String arg, Class<?> toType) {
         Object retArg = null;
+        if (arg.startsWith("\"") && arg.endsWith("\""))
+            return arg.replaceAll("\"", "");
         if (toType == int.class) {
             retArg= Integer.parseInt(arg);
         } else if (toType == boolean.class) {
@@ -51,6 +54,8 @@ public abstract class AbstractConsoleCommand {
             retArg= arg.charAt(0);
         } else if (toType == short.class) {
             retArg= Short.parseShort(arg);
+        } else if (toType == String.class) {
+            retArg=arg;
         }
         return retArg;
     }
@@ -64,6 +69,7 @@ public abstract class AbstractConsoleCommand {
                 invokeArgs[i] = parseArg(args[i].toString(), parameterTypes[i]);
             }
             returnValue = executable.invoke(this, invokeArgs);
+            if (executable.getReturnType().getName().equals("void")) return "";
             return returnValue;
         } catch (IllegalAccessException | InvocationTargetException | NumberFormatException e) {
             returnValue = null;

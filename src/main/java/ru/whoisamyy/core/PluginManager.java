@@ -77,7 +77,7 @@ public class PluginManager {
                                 String name = loadedClass.getAnnotation(PluginClass.class).pluginName();
                                 Object instance = loadedClass.getDeclaredConstructor(String.class).newInstance(name);
                                 if (instance instanceof Plugin p) {
-                                    ru.whoisamyy.api.plugins.Plugin pl = p.initializePlugin(Core.conn, EventListener.getInstance(), CommandManager.getInstance(), ConsoleManager.getInstance());
+                                    Plugin pl = p.initializePlugin(Core.conn, EventListener.getInstance(), CommandManager.getInstance(), ConsoleManager.getInstance());
 
                                     this.plugins.put(pl.getPriority(), pl);
                                     Hashtable<EndpointName, Method> pluginMethods = pl.getMethods();

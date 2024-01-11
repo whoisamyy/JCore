@@ -1,3 +1,5 @@
+//помогите с Level.download() пожалуйста
+
 package ru.whoisamyy.api.gd.objects;
 
 import lombok.Getter;
@@ -8,6 +10,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import ru.whoisamyy.api.utils.Utils;
 import ru.whoisamyy.api.utils.comparators.LevelComparators;
+import ru.whoisamyy.api.utils.data.GDObjectList;
 import ru.whoisamyy.api.utils.enums.DemonDifficulty;
 import ru.whoisamyy.api.utils.enums.Length;
 import ru.whoisamyy.api.utils.enums.LevelDifficulty;
@@ -946,8 +949,7 @@ public class Level extends GDObject {
             sortedLvlsTree.removeIf(x->x.getStars()!=0);
         }
 
-        List<Level> levelsList = new ArrayList<>(sortedLvlsTree);
-
+        return new GDObjectList<>(sortedLvlsTree);
         //for (Level lvl :
         //        levelsList) {
         //    logger.debug(lvl.toString());
@@ -979,11 +981,10 @@ public class Level extends GDObject {
 
          */
 
-        return levelsList;
     }
 
     public static String levelsListToString(List<Level> levelsList, Integer page, int listSize, int pageSize) {
-        List<Level> pageList = new ArrayList<>();
+        List<Level> pageList = new GDObjectList<>();
 
         int totalPages = (int) Math.ceil((double) levelsList.size() / pageSize);
 
@@ -1046,11 +1047,19 @@ public class Level extends GDObject {
         return sb.toString();
     }
 
+    //TODO: fix download rated levels
     public static String download(int id) throws Exception {
-        boolean daily = id == -1;
-        //id = getCurrentDailyLevelID();
+        boolean daily = id < 0;
+        if (daily) id = getCurrentDailyLevelID();
         Level l = map(id, true);
-        String s = l.toString() +"#"+Utils.genSolo(l.getLevelString());
+        String s = "";
+        s = l.toString() +"#"+Utils.genSolo(l.getLevelString());
+        if (daily) {
+            s=s.replaceAll(
+                    "41:"+l.getDailyNumber(),
+                    "41:6"
+            );
+        }
         String hash = l.getAuthorID()+","+(l.getStars()!=0?l.getStars():0)+","+(l.isDemon()?1:0)+","+l.getLevelID()+","+(l.isVerifiedCoins()?1:0)+","+(l.getFeatureScore()==0?0:1)+","+l.getPassword()+","+(l.getFeatureScore()==0?0:1);
         l.addDownloads(1);
         return s+"#"+Utils.SHA1(hash, "xI25fpAapCQg")+(daily?"#"+l.getAuthor().toCreatorString():"");

@@ -181,9 +181,7 @@ public class Utils {
             p++;
         }
 
-        String concatenatedString = hash + "xI25fpAapCQg";
-        String sha1Hash = SHA1(concatenatedString);
-        return sha1Hash;
+        return SHA1(hash, "xI25fpAapCQg");
     }
 
     public static String base64UrlSafeEncode(String data) {

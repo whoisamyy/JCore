@@ -7,7 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class Likes {
-    public static byte like(int id, ItemType type, boolean isLike) {
+    public static int like(int id, ItemType type, boolean isLike) {
         try {
             switch (type) {
                 case LEVEL -> {
